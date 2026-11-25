@@ -205,10 +205,14 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
   // begin on a keyframe, so the stream really starts a little earlier: the
   // server reports that point (zero), the clock is offset by it, and the
   // element skips forward to `at`.
+  const restartSeq = useRef(0);
   const restartAt = useCallback(
     async (url: string, at: number, videoCopy: boolean) => {
+      const seq = ++restartSeq.current;
       let zero = at;
       if (videoCopy && at > 0) zero = await keyframeAt(lib, activeFile, at).then((r) => r.zero, () => at);
+      // A later seek replaced this one while the keyframe was looked up.
+      if (seq !== restartSeq.current) return;
       setOffset(zero);
       setTime(at);
       setBaseUrl(url);
@@ -247,7 +251,10 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
     [info, audio, quality, burn, audioDelay, prefs, lib, fileId, restartAt],
   );
 
-  const position = useCallback(() => offset + (videoRef.current?.currentTime ?? 0), [offset]);
+  // Where a seek is heading until the video gets there. Until then the old
+  // stream's clock is stale, so position and the time display use this.
+  const pendingSeek = useRef<number | null>(null);
+  const position = useCallback(() => pendingSeek.current ?? offset + (videoRef.current?.currentTime ?? 0), [offset]);
 
   // (Re)start when the stream inputs change, keeping the position.
   const streamKey = `${fileId}|${audio}|${quality}|${burn}|${audioDelay}`;
@@ -267,6 +274,8 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
     if (startAt.current > 0) {
       v.currentTime = startAt.current;
       startAt.current = 0;
+    } else {
+      pendingSeek.current = null;
     }
     v.playbackRate = speed;
     void v.play().catch(() => setPlaying(false));
@@ -290,11 +299,16 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
   const shownCues = useMemo(() => activeCues(cues, time - subDelay / 1000), [cues, time, subDelay]);
 
   // ---------- seeking ----------
+  const restartTimer = useRef(0);
+  useEffect(() => () => window.clearTimeout(restartTimer.current), []);
   const seek = useCallback(
     (to: number) => {
       const v = videoRef.current;
       if (!v) return;
       const t = Math.max(0, Math.min(duration > 0 ? duration - 1 : to, to));
+      pendingSeek.current = t;
+      setTime(t);
+      window.clearTimeout(restartTimer.current);
       if (method === 'direct') {
         v.currentTime = t;
         return;
@@ -310,7 +324,9 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
         v.currentTime = rel;
         return;
       }
-      void restartAt(baseUrl, t, decision?.video_copy ?? false);
+      // Restarting the stream is costly: held or repeated arrow keys and a
+      // dragged bar settle first, then one restart goes to where they ended.
+      restartTimer.current = window.setTimeout(() => void restartAt(baseUrl, t, decision?.video_copy ?? false), 350);
     },
     [duration, method, offset, baseUrl, decision, restartAt],
   );
@@ -435,6 +451,7 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
   const onTime = () => {
     const v = videoRef.current;
     if (!v) return;
+    if (pendingSeek.current !== null) return;
     setTime(offset + v.currentTime);
     if (v.buffered.length) setBuffered(offset + v.buffered.end(v.buffered.length - 1));
     if (Date.now() - lastReport.current > 10000 && !v.paused) report();
@@ -543,7 +560,10 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
   const onKey = useCallback(
     (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
-      if (/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName)) return;
+      // Text fields keep their keys; the seek and volume sliders don't, so
+      // the arrows still skip after clicking the bar (and don't nudge it 1 s).
+      const slider = t instanceof HTMLInputElement && t.type === 'range';
+      if (/^(SELECT|TEXTAREA)$/.test(t.tagName) || (t.tagName === 'INPUT' && !slider)) return;
       const step = e.shiftKey ? 30 : 10;
       const k = e.key;
       let handled = true;
@@ -646,6 +666,9 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
           onWaiting={() => setWaiting(true)}
           onPlaying={() => setWaiting(false)}
           onCanPlay={() => setWaiting(false)}
+          onSeeked={() => {
+            pendingSeek.current = null;
+          }}
           onEnded={onEnded}
           onError={() => {
             const v = videoRef.current;
