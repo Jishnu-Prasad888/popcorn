@@ -3,7 +3,7 @@
  * and the picker/editor dialogs. Built only on the design tokens.
  *
  * Reading type: body text uses a book serif stack for long-form comfort; the
- * title uses Handlee (Cairn's hand-lettered brand face) because a memory is a
+ * title uses Handlee (Popcorn's hand-lettered brand face) because a memory is a
  * personal, journal-like object; every control stays in Fira Sans.
  */
 
@@ -2365,7 +2365,7 @@
   }
 }
 
-/* A section that contains an image Cairn can no longer reach. */
+/* A section that contains an image Popcorn can no longer reach. */
 .image-unavailable {
   margin: var(--space-3) 0;
   padding: var(--space-4);

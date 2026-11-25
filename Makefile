@@ -1,10 +1,10 @@
 SHELL := /bin/sh
 
-BINARY      := bin/cairn
-MODULE      := github.com/Jishnu-Prasad888/Cairn
+BINARY      := bin/popcorn
+MODULE      := github.com/Jishnu-Prasad888/popcorn
 VERSION     ?= dev
 COMMIT      := $(shell git rev-parse --short HEAD 2>/dev/null || echo none)
-DOCKER_TAG  ?= cairn:dev
+DOCKER_TAG  ?= popcorn:dev
 
 RELEASE_DIR  := dist
 PLATFORMS   ?= linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64
@@ -31,13 +31,13 @@ help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*## ' Makefile | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
 reset-data: ## Delete the local dev data directory (DB, sessions, everything) for a clean slate
-	rm -rf $(CURDIR)/cairn-data
-	@echo "Removed $(CURDIR)/cairn-data"
+	rm -rf $(CURDIR)/popcorn-data
+	@echo "Removed $(CURDIR)/popcorn-data"
 
 build: reset-data web-build ## Build the production binary with the embedded frontend, wiping local dev data first
 	@mkdir -p bin
 	$(embed-web)
-	go build -trimpath -ldflags "$(LDFLAGS)" -o $(BINARY) ./cmd/cairn
+	go build -trimpath -ldflags "$(LDFLAGS)" -o $(BINARY) ./cmd/popcorn
 	@echo "Built $(BINARY)"
 
 release: web-build ## Build release binaries for every platform in PLATFORMS
@@ -45,12 +45,12 @@ release: web-build ## Build release binaries for every platform in PLATFORMS
 	$(embed-web)
 	@for p in $(PLATFORMS); do \
 		os=$${p%/*}; arch=$${p#*/}; \
-		out="$(RELEASE_DIR)/cairn-$$os-$$arch"; \
+		out="$(RELEASE_DIR)/popcorn-$$os-$$arch"; \
 		[ "$$os" = "windows" ] && out="$$out.exe"; \
 		echo "Building $$os/$$arch -> $$out"; \
-		CGO_ENABLED=0 GOOS=$$os GOARCH=$$arch go build -trimpath -ldflags "$(LDFLAGS)" -o "$$out" ./cmd/cairn; \
+		CGO_ENABLED=0 GOOS=$$os GOARCH=$$arch go build -trimpath -ldflags "$(LDFLAGS)" -o "$$out" ./cmd/popcorn; \
 	done
-	shasum -a 256 $(RELEASE_DIR)/cairn-* > $(RELEASE_DIR)/SHA256SUMS
+	shasum -a 256 $(RELEASE_DIR)/popcorn-* > $(RELEASE_DIR)/SHA256SUMS
 	@echo "Release artifacts written to $(RELEASE_DIR)/ (see SHA256SUMS)"
 
 release-cross: ## Build release binaries without rebuilding the frontend (uses web/dist as-is)
@@ -58,20 +58,20 @@ release-cross: ## Build release binaries without rebuilding the frontend (uses w
 	$(embed-web)
 	@for p in $(PLATFORMS); do \
 		os=$${p%/*}; arch=$${p#*/}; \
-		out="$(RELEASE_DIR)/cairn-$$os-$$arch"; \
+		out="$(RELEASE_DIR)/popcorn-$$os-$$arch"; \
 		[ "$$os" = "windows" ] && out="$$out.exe"; \
 		echo "Building $$os/$$arch -> $$out"; \
-		CGO_ENABLED=0 GOOS=$$os GOARCH=$$arch go build -trimpath -ldflags "$(LDFLAGS)" -o "$$out" ./cmd/cairn; \
+		CGO_ENABLED=0 GOOS=$$os GOARCH=$$arch go build -trimpath -ldflags "$(LDFLAGS)" -o "$$out" ./cmd/popcorn; \
 	done
-	shasum -a 256 $(RELEASE_DIR)/cairn-* > $(RELEASE_DIR)/SHA256SUMS
+	shasum -a 256 $(RELEASE_DIR)/popcorn-* > $(RELEASE_DIR)/SHA256SUMS
 	@echo "Cross-compiled binaries written to $(RELEASE_DIR)/ (see SHA256SUMS)"
 
 dev: reset-data web-build ## Rebuild the frontend, wipe local dev data, and run the backend
 	@mkdir -p $(CURDIR)/web/dist
-	CAIRN_DATA_DIR=$(CURDIR)/cairn-data \
-	CAIRN_HTTP_ADDR=127.0.0.1:8715 \
-	CAIRN_WEB_DIST=$(CURDIR)/web/dist \
-	go run ./cmd/cairn
+	POPCORN_DATA_DIR=$(CURDIR)/popcorn-data \
+	POPCORN_HTTP_ADDR=127.0.0.1:8715 \
+	POPCORN_WEB_DIST=$(CURDIR)/web/dist \
+	go run ./cmd/popcorn
 
 web-install: ## Install frontend dependencies
 	cd web && npm install
@@ -87,7 +87,7 @@ test: test-go test-web ## Run all tests
 test-go: ## Run backend tests
 	go test -race ./cmd/... ./internal/...
 
-qa: bin/cairn ## Run the Phase 19 end-to-end QA harness
+qa: bin/popcorn ## Run the Phase 19 end-to-end QA harness
 	python3 qa/e2e.py
 
 test-web: ## Run frontend tests
@@ -118,8 +118,8 @@ docker-build: ## Build the Docker image for the current platform
 	docker build -t $(DOCKER_TAG) .
 
 docker-buildx: ## Build multi-arch Docker images (linux/arm64, linux/amd64)
-	@if [ -z "$$CAIRN_PLATFORMS" ]; then echo "Set CAIRN_PLATFORMS, e.g. linux/arm64,linux/amd64"; exit 1; fi
-	docker buildx build --platform "$$CAIRN_PLATFORMS" -t $(DOCKER_TAG) --push .
+	@if [ -z "$$POPCORN_PLATFORMS" ]; then echo "Set POPCORN_PLATFORMS, e.g. linux/arm64,linux/amd64"; exit 1; fi
+	docker buildx build --platform "$$POPCORN_PLATFORMS" -t $(DOCKER_TAG) --push .
 
 clean: ## Remove build artifacts
 	rm -rf bin web/dist

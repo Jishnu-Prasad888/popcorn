@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
 )
 
 // secretBox seals remote-destination credentials before they are written to

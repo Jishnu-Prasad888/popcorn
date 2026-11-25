@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
 )
 
 // Derived edited copies (docs/storage.md, "Memory media").
@@ -19,14 +19,14 @@ import (
 // When a user enables "Create edited copies in the library", every memory
 // image with non-default edits gets a rendered JPEG at
 //
-//	<library>/.cairn/memory-media/<memory-id>/<memory-image-id>-<signature>.jpg
+//	<library>/.popcorn/memory-media/<memory-id>/<memory-image-id>-<signature>.jpg
 //
-// .cairn/ is Cairn's reserved, documented namespace inside every library; the
+// .popcorn/ is Popcorn's reserved, documented namespace inside every library; the
 // indexer never descends into it, so copies are never picked up as new media
 // and never appear as a user folder. The memory-media directory is claimed
 // with a marker file: if something else already occupies that path (a
 // non-directory, a symlink, or a non-empty directory without the marker),
-// Cairn refuses to write there and never moves or overwrites what it found.
+// Popcorn refuses to write there and never moves or overwrites what it found.
 //
 // Lifecycle: a copy is attached to exactly one memory image and is valid only
 // while its edit signature matches. Changing the edits detaches it; resetting
@@ -36,18 +36,18 @@ import (
 // Version snapshots store edit parameters rather than files, so a restored
 // version simply renders new copies.
 
-// DerivedDirName is the reserved directory, inside .cairn/, for edited copies.
+// DerivedDirName is the reserved directory, inside .popcorn/, for edited copies.
 const DerivedDirName = "memory-media"
 
-// derivedMarker claims DerivedDirName for Cairn.
-const derivedMarker = ".cairn-memory-media"
+// derivedMarker claims DerivedDirName for Popcorn.
+const derivedMarker = ".popcorn-memory-media"
 
 // derivedJPEGQuality balances fidelity and size for edited copies.
 const derivedJPEGQuality = 90
 
 // ErrReservedPathConflict is returned when the reserved memory-media path is
-// occupied by something Cairn did not create.
-var ErrReservedPathConflict = errors.New("the reserved .cairn/memory-media path is occupied by something Cairn did not create")
+// occupied by something Popcorn did not create.
+var ErrReservedPathConflict = errors.New("the reserved .popcorn/memory-media path is occupied by something Popcorn did not create")
 
 // ErrDerivedNotFound is returned when an image has no current derived copy.
 var ErrDerivedNotFound = errors.New("no edited copy for this memory image")
@@ -55,14 +55,14 @@ var ErrDerivedNotFound = errors.New("no edited copy for this memory image")
 // Deriver renders and stores edited copies for one library.
 type Deriver struct {
 	LibraryRoot string
-	CairnDir    string
+	PopcornDir  string
 	Keys        *crypto.Keys // optional at-rest encryption, as for thumbnails
 }
 
 // ensureDir returns the reserved directory, creating and claiming it when
 // absent. It never modifies a pre-existing path it does not own.
 func (d *Deriver) ensureDir() (string, error) {
-	dir := filepath.Join(d.CairnDir, DerivedDirName)
+	dir := filepath.Join(d.PopcornDir, DerivedDirName)
 	marker := filepath.Join(dir, derivedMarker)
 	fi, err := os.Lstat(dir)
 	switch {
@@ -97,8 +97,8 @@ func writeMarker(path string) error {
 	if err != nil {
 		return fmt.Errorf("claim memory-media dir: %w", err)
 	}
-	_, werr := f.WriteString("Managed by Cairn: edited copies of photos used in Memories.\n" +
-		"Originals are never modified. Safe to delete; Cairn regenerates what it needs.\n")
+	_, werr := f.WriteString("Managed by Popcorn: edited copies of photos used in Memories.\n" +
+		"Originals are never modified. Safe to delete; Popcorn regenerates what it needs.\n")
 	cerr := f.Close()
 	return errors.Join(werr, cerr)
 }
@@ -275,8 +275,8 @@ func (s *MemoryStore) CollectDerived(ctx context.Context, d *Deriver) (int, erro
 // derivedPath maps a stored rel_path to an absolute path, refusing anything
 // that would escape the reserved directory.
 func (d *Deriver) derivedPath(rel string) (string, bool) {
-	root := filepath.Join(d.CairnDir, DerivedDirName)
-	abs := filepath.Join(d.CairnDir, filepath.FromSlash(rel))
+	root := filepath.Join(d.PopcornDir, DerivedDirName)
+	abs := filepath.Join(d.PopcornDir, filepath.FromSlash(rel))
 	inside, err := filepath.Rel(root, abs)
 	if err != nil || inside == "." || inside == ".." || filepath.IsAbs(inside) ||
 		len(inside) >= 2 && inside[:2] == ".." {

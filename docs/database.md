@@ -1,11 +1,11 @@
 # Database
 
-Cairn uses **SQLite** behind `database/sql` with the pure-Go driver
+Popcorn uses **SQLite** behind `database/sql` with the pure-Go driver
 `modernc.org/sqlite` (no CGO, fully cross-compilable).
 
 ## Configuration
 
-Every Cairn database is opened with:
+Every Popcorn database is opened with:
 
 - `journal_mode = WAL`
 - `synchronous = NORMAL`
@@ -18,13 +18,13 @@ connection is used per database file; the server is single-process.
 
 ## Two database scopes
 
-### Server-level (`CAIRN_DATA_DIR/cairn.db`)
+### Server-level (`POPCORN_DATA_DIR/popcorn.db`)
 
 Instance-scoped data: users, sessions, roles, settings, registered libraries,
 global permissions, public shares, audit records. Migrations live in
 `internal/db/migrations/`.
 
-### Library-level (`<library>/.cairn/library.db`)
+### Library-level (`<library>/.popcorn/library.db`)
 
 Library-scoped data: files, folders, media, albums, tags, memories, faces,
 embeddings, indexing state, thumbnails, metadata, ML similarity signatures.

@@ -3,8 +3,8 @@ package httpapi
 import (
 	"net/http"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/ml"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/ml"
 )
 
 // faceModelResponse is the combined model status returned to the frontend.

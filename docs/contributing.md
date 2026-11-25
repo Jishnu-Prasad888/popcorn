@@ -1,10 +1,10 @@
 # Contributing
 
-Thanks for your interest in Cairn.
+Thanks for your interest in Popcorn.
 
 ## Code of conduct
 
-Be kind and constructive. Cairn is personal software with strong opinions about
+Be kind and constructive. Popcorn is personal software with strong opinions about
 privacy and ownership of your data; disagreements are fine, dismissiveness is
 not.
 

@@ -9,10 +9,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/indexer"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/indexer"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 )
 
 // maxBrowseFiles bounds how many files one folder listing returns, so a folder
@@ -42,7 +42,7 @@ func (s *Server) handleGetIgnoreRules(w http.ResponseWriter, r *http.Request, u 
 	if !ok {
 		return
 	}
-	db, release, err := librarydb.Acquire(filepath.Join(lib.Root, ".cairn"))
+	db, release, err := librarydb.Acquire(filepath.Join(lib.Root, ".popcorn"))
 	if err != nil {
 		s.logger.Error("open library db for ignore rules", "library_id", lib.ID, "error", err)
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,
@@ -85,7 +85,7 @@ func (s *Server) handlePutIgnoreRules(w http.ResponseWriter, r *http.Request, u 
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusBadRequest, CodeBadRequest, msg)
 		return
 	}
-	db, release, err := librarydb.Acquire(filepath.Join(lib.Root, ".cairn"))
+	db, release, err := librarydb.Acquire(filepath.Join(lib.Root, ".popcorn"))
 	if err != nil {
 		s.logger.Error("open library db for ignore rules", "library_id", lib.ID, "error", err)
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,
@@ -147,7 +147,7 @@ func (s *Server) handleBrowseLibrary(w http.ResponseWriter, r *http.Request, u *
 	files := []libraryEntry{}
 	truncated := false
 	for _, e := range entries {
-		if rel == "" && e.Name() == ".cairn" {
+		if rel == "" && e.Name() == ".popcorn" {
 			continue
 		}
 		entry := libraryEntry{Name: e.Name(), Path: path.Join(rel, e.Name())}

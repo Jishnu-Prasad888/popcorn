@@ -1,7 +1,7 @@
 /**
  * What can be done to a folder, the way a desktop file manager offers it on a
  * right-click — open, open in a new tab, rename, move, download, copy path,
- * delete — plus what Cairn adds: favourite, share, new folder inside, leave
+ * delete — plus what Popcorn adds: favourite, share, new folder inside, leave
  * out of face recognition, hide from the index.
  *
  * The hook owns the folder favourites (a set, with optimistic toggling), the
@@ -267,7 +267,7 @@ export function useFolderActions({
         }
         entries.push({
           id: 'hide',
-          label: 'Hide from Cairn…',
+          label: 'Hide from Popcorn…',
           icon: 'eye-off',
           onSelect: () => setPending({ kind: 'hide', folder, libraryId: lib }),
         });
@@ -409,14 +409,14 @@ export function useFolderActions({
 
       <ConfirmDialog
         open={pending?.kind === 'hide'}
-        title="Hide this folder from Cairn?"
+        title="Hide this folder from Popcorn?"
         confirmLabel="Hide folder"
         busy={busy}
         error={error}
         message={
           pending?.kind === 'hide' && (
             <p>
-              <strong>{pending.folder.name}</strong> stays on disk untouched, but Cairn stops
+              <strong>{pending.folder.name}</strong> stays on disk untouched, but Popcorn stops
               indexing it and its files leave every page. Undo it in the library’s ignore rules.
             </p>
           )
@@ -434,7 +434,7 @@ export function useFolderActions({
                 { kind: 'path', pattern: folder.rel_path },
               ]);
             }
-            toast({ tone: 'success', message: `“${folder.name}” is hidden from Cairn` });
+            toast({ tone: 'success', message: `“${folder.name}” is hidden from Popcorn` });
           });
         }}
         testId="folder-hide-dialog"

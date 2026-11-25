@@ -69,7 +69,7 @@ export const THEMES = [
 export type ThemePreference =
   'system' | 'light' | 'dark' | 'sage' | 'slate' | 'lavender' | 'midnight' | 'forest' | 'graphite';
 
-export const THEME_STORAGE_KEY = 'cairn.theme';
+export const THEME_STORAGE_KEY = 'popcorn.theme';
 
 const KNOWN = new Set<string>(['system', ...THEMES.map((t) => t.id)]);
 

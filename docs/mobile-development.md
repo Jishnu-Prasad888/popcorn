@@ -1,6 +1,6 @@
 # Mobile development
 
-Cairn's API is a first-class product: any client — web, desktop, CLI, or a
+Popcorn's API is a first-class product: any client — web, desktop, CLI, or a
 React Native app — can be built entirely against the documented HTTP contract
 without reading Go source. This guide is written for a mobile (React Native /
 Flutter / native) developer. The authoritative references are
@@ -15,12 +15,12 @@ contract), and the per-area docs ([media.md](media.md), [libraries.md](libraries
 http://<host>:8715/api/v1
 ```
 
-- The port is configurable (`CAIRN_PORT`); `8715` is the default.
+- The port is configurable (`POPCORN_PORT`); `8715` is the default.
 - Production deployments should front the API with a TLS reverse proxy, in
   which case the base URL is `https://<host>/api/v1`. See
   [deployment.md](deployment.md).
 - Never hard-code the scheme/host in the app; make the base URL a setting the
-  user edits in-app (many home users run Cairn on a LAN IP, a Raspberry Pi, or
+  user edits in-app (many home users run Popcorn on a LAN IP, a Raspberry Pi, or
   a Tailscale hostname). Support both `http://` (LAN) and `https://` (with the
   proxy) and remember to permit the certificate for non-public hosts.
 - The web UI is the reference client and calls the same endpoints; you can
@@ -52,7 +52,7 @@ cookie. There is no bearer-token plumbing.
 
    ```text
    HTTP/1.1 200 OK
-   Set-Cookie: cairn_session=…; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000
+   Set-Cookie: popcorn_session=…; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000
 
    { "user": { "id": "279674acccc95b5c", "username": "admin", "role": "admin", "created_at": "..." } }
    ```
@@ -88,7 +88,7 @@ handled explicitly:
 
 - Use your HTTP library's cookie store (e.g.
   `URLSession.shared.configuration.httpCookieStorage` on iOS, `OkHttpClient`
-  cookie jar on Android) and let it persist `cairn_session` securely — it will
+  cookie jar on Android) and let it persist `popcorn_session` securely — it will
   then be sent automatically on every request, mirroring browser behavior.
 - Send and store the cookie only over TLS in production. On plain HTTP LAN
   connections the cookie has no `Secure` flag; treat the connection as trusted
@@ -234,7 +234,7 @@ Content-Type: image/jpeg
 
 - `file` part required; `path` optional (defaults to the filename part).
 - Success → `201 Created` with `{ "file": { … } }`.
-- Max upload size is configurable server-side (`CAIRN_MAX_UPLOAD_BYTES`),
+- Max upload size is configurable server-side (`POPCORN_MAX_UPLOAD_BYTES`),
   default generous; oversized bodies → `413 PAYLOAD_TOO_LARGE`.
 - The endpoint is not resumable: a dropped connection means retrying the whole
   request. For a phone camera roll (large HEIC/MP4 files) prefer:
@@ -282,7 +282,7 @@ GET /api/v1/libraries/{libraryID}/files/{fileID}/thumbnail
 
 ## Permissions
 
-Cairn is capability-based (see [permissions.md](permissions.md)); the mobile
+Popcorn is capability-based (see [permissions.md](permissions.md)); the mobile
 app should treat permissions as server-enforced and adapt its UI:
 
 - Every request is authorized server-side. Denials are `403 FORBIDDEN` with a
@@ -399,7 +399,7 @@ Client rules:
 
 ## Retries
 
-Cairn's endpoints are nearly all idempotent-or-safe to retry, but read the
+Popcorn's endpoints are nearly all idempotent-or-safe to retry, but read the
 contract for each one:
 
 - **Safe to retry blindly:** list/get/search/download/metadata/thumbnail

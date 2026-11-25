@@ -13,12 +13,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/audit"
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/db"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/audit"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/db"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 )
 
 // --- shared test infrastructure ---
@@ -82,7 +82,7 @@ func newSearchTestServerWithKeys(t *testing.T, keys *crypto.Keys) (http.Handler,
 // seedLibraryFile inserts an indexed file directly into the per-library DB.
 func seedLibraryFile(t *testing.T, libRoot, id, relPath string, size int64) error {
 	t.Helper()
-	ldb, err := librarydb.Open(filepath.Join(libRoot, ".cairn"))
+	ldb, err := librarydb.Open(filepath.Join(libRoot, ".popcorn"))
 	if err != nil {
 		return err
 	}

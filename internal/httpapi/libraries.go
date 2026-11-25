@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
 )
 
 // libraryRequest is the accepted create/adopt payload.
@@ -187,7 +187,7 @@ func (s *Server) handleRefreshLibrary(w http.ResponseWriter, r *http.Request, u 
 	writeJSON(w, s.logger, http.StatusOK, map[string]any{"library": toLibraryResponse(lib)})
 }
 
-// handleDeleteLibrary unregisters a library, leaving its .cairn metadata in
+// handleDeleteLibrary unregisters a library, leaving its .popcorn metadata in
 // place. Admin only.
 func (s *Server) handleDeleteLibrary(w http.ResponseWriter, r *http.Request, u *auth.User) {
 	if err := s.libraries.Remove(actorCtx(r, u).Context(), r.PathValue("id")); err != nil {
@@ -211,7 +211,7 @@ func (s *Server) writeLibraryError(w http.ResponseWriter, r *http.Request, err e
 		writeError(w, s.logger, requestID, http.StatusNotFound, CodeNotFound, "Library not found.")
 	case errors.Is(err, library.ErrNoMetadata):
 		writeError(w, s.logger, requestID, http.StatusBadRequest, CodeBadRequest,
-			"No Cairn metadata was found at that path.")
+			"No Popcorn metadata was found at that path.")
 	default:
 		s.logger.Error("library error", "error", err)
 		writeError(w, s.logger, requestID, http.StatusInternalServerError, CodeInternal,

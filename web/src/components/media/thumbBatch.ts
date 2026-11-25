@@ -148,7 +148,7 @@ function openDb(): Promise<IDBDatabase | null> {
     if (typeof indexedDB === 'undefined') return resolve(null);
     let req: IDBOpenDBRequest;
     try {
-      req = indexedDB.open('cairn-thumbs', 1);
+      req = indexedDB.open('popcorn-thumbs', 1);
     } catch {
       return resolve(null);
     }

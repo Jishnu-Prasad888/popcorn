@@ -7,11 +7,11 @@ import (
 )
 
 // TestSCRFDDetectRealModel runs the real detector on a real photo. It needs
-// CAIRN_TEST_SCRFD (model path) and CAIRN_TEST_FACE_IMAGE (a jpeg with faces).
+// POPCORN_TEST_SCRFD (model path) and POPCORN_TEST_FACE_IMAGE (a jpeg with faces).
 func TestSCRFDDetectRealModel(t *testing.T) {
-	mp, ip := os.Getenv("CAIRN_TEST_SCRFD"), os.Getenv("CAIRN_TEST_FACE_IMAGE")
+	mp, ip := os.Getenv("POPCORN_TEST_SCRFD"), os.Getenv("POPCORN_TEST_FACE_IMAGE")
 	if mp == "" || ip == "" {
-		t.Skip("CAIRN_TEST_SCRFD / CAIRN_TEST_FACE_IMAGE not set")
+		t.Skip("POPCORN_TEST_SCRFD / POPCORN_TEST_FACE_IMAGE not set")
 	}
 	det, err := NewSCRFDDetector(mp)
 	if err != nil {

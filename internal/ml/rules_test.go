@@ -7,8 +7,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/ml"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/ml"
 )
 
 func TestNormalizeRules(t *testing.T) {
@@ -41,7 +41,7 @@ func TestNormalizeRules(t *testing.T) {
 		"abs out":  {Kind: ml.RuleSkip, Path: "/etc/passwd"},
 		"root":     {Kind: ml.RuleSkip, Path: "/"},
 		"empty":    {Kind: ml.RuleAlways, Path: "  "},
-		"cairn":    {Kind: ml.RuleSkip, Path: ".cairn/thumbs"},
+		"popcorn":  {Kind: ml.RuleSkip, Path: ".popcorn/thumbs"},
 		"bad kind": {Kind: "maybe", Path: "a"},
 	} {
 		var re *ml.RuleError
@@ -78,7 +78,7 @@ func TestFaceRulesAndCrowdLimit(t *testing.T) {
 		{id: "s1", rel: "screens/s1.png"},
 		{id: "keep", rel: "screens/keep.png"},
 	})
-	db, err := librarydb.OpenDB(filepath.Join(root, ".cairn"))
+	db, err := librarydb.OpenDB(filepath.Join(root, ".popcorn"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -167,7 +167,7 @@ func TestSimilaritySkipsRuledPhotos(t *testing.T) {
 		{id: "s", rel: "skip_me/s.png"},
 		{id: "k", rel: "skip_me/keep/k.png"},
 	})
-	db, err := librarydb.OpenDB(filepath.Join(root, ".cairn"))
+	db, err := librarydb.OpenDB(filepath.Join(root, ".popcorn"))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -9,5 +9,5 @@ derived from the OpenCV LBP frontal-face cascade (Apache-2.0).
 - pigo license: MIT (see github.com/esimov/pigo LICENSE)
 - Cascade data license: Apache-2.0 (OpenCV LBP cascade)
 
-It is embedded into the Cairn binary via `go:embed` so face detection works
+It is embedded into the Popcorn binary via `go:embed` so face detection works
 with no external model files at runtime.

@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/notes"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/notes"
 )
 
 // maxNoteBodyBytes bounds a single note's Markdown body. Captions and short
@@ -24,8 +24,8 @@ func (s *Server) openNoteStore(
 			CodeConflict, "Library is offline.")
 		return nil, nil, false
 	}
-	cairnDir := lib.Root + "/.cairn"
-	db, release, err := librarydb.Acquire(cairnDir)
+	popcornDir := lib.Root + "/.popcorn"
+	db, release, err := librarydb.Acquire(popcornDir)
 	if err != nil {
 		s.logger.Error("open library db for notes", "library_id", lib.ID, "error", err)
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,

@@ -1,6 +1,6 @@
 # Roadmap
 
-The roadmap tracks Cairn's phases. Each phase maps to work branches
+The roadmap tracks Popcorn's phases. Each phase maps to work branches
 (`phase/<n>-<slug>`); a phase ships when its branch's PR is approved and merged
 into `main`. This file is the index; each phase gets design documents in
 `docs/` before implementation.
@@ -99,9 +99,9 @@ containment walks are deferred. Design: docs/sanitizers.md, ADR-0010.
 
 ## Phase 13 — Encrypted metadata (implemented)
 
-Optional passphrase-driven encryption at rest for Cairn's on-disk metadata:
-each library's `.cairn/library.json` identity and generated thumbnails are
-sealed with AES-256-GCM (`CAIRN_ENCRYPTION_PASSPHRASE`, argon2id-derived, never
+Optional passphrase-driven encryption at rest for Popcorn's on-disk metadata:
+each library's `.popcorn/library.json` identity and generated thumbnails are
+sealed with AES-256-GCM (`POPCORN_ENCRYPTION_PASSPHRASE`, argon2id-derived, never
 stored). User media originals are never touched (ADR-0004). Implemented after
 explicit consensus. Design: docs/encryption.md, ADR-0011.
 
@@ -124,7 +124,7 @@ Optional, local face recognition on top of the Phase 11 ML seam: face
 detection (`internal/ml` Pigo provider, cascade embedded), per-face appearance
 descriptors, incremental clustering into nameable `people`, person-scoped
 search, a People UI, and a privacy purge for all derived face data. Everything
-is opt-in (`CAIRN_ML_ENABLED` + `CAIRN_ML_FACES`), local, and original-free;
+is opt-in (`POPCORN_ML_ENABLED` + `POPCORN_ML_FACES`), local, and original-free;
 people are library-scoped and travel with the library database. Design:
 docs/designs/015-face-recognition.md, ADR-0013.
 

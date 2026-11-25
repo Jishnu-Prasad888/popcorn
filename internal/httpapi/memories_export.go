@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
-	"github.com/Jishnu-Prasad888/Cairn/internal/memories"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/memories"
 )
 
 // exportFile is one embedded image queued for a memory export archive.

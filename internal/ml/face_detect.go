@@ -6,7 +6,7 @@ import (
 	"math"
 	"sort"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/ml/onnx"
+	"github.com/Jishnu-Prasad888/popcorn/internal/ml/onnx"
 )
 
 // SCRFDDetector runs SCRFD face detection from an ONNX model (e.g.

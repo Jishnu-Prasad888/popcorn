@@ -132,7 +132,7 @@ async function loadPeople(libraryId: string): Promise<PeopleData> {
 }
 
 /** Drag payload type: one person's card, dropped on another to merge them. */
-const PERSON_DRAG = 'application/x-cairn-person';
+const PERSON_DRAG = 'application/x-popcorn-person';
 /** Which person is being dragged (dataTransfer contents are unreadable mid-drag). */
 const dragging: { current: string | null } = { current: null };
 
@@ -382,7 +382,7 @@ function PersonCard({
                     type="button"
                     className="button ghost-button button-sm"
                     onClick={() => onDeleteFace(face.id)}
-                    title="Delete this face. Cairn will not suggest it again; the photo is kept."
+                    title="Delete this face. Popcorn will not suggest it again; the photo is kept."
                   >
                     Delete face
                   </button>
@@ -533,7 +533,7 @@ export default function PeoplePage() {
             (joined > 0
               ? ` ${joined} similar ${joined === 1 ? 'group was' : 'groups were'} joined too.`
               : '') +
-            ' Cairn will use both when recognising them.',
+            ' Popcorn will use both when recognising them.',
           tone: 'success',
         });
         setDropMerge(null);
@@ -637,7 +637,7 @@ export default function PeoplePage() {
       .then(() => {
         setNaming(null);
         toast({
-          message: `Added ${trimmed}. Cairn is looking for them in your other photos.`,
+          message: `Added ${trimmed}. Popcorn is looking for them in your other photos.`,
           tone: 'success',
         });
         refreshAfterRegroup();
@@ -769,8 +769,8 @@ export default function PeoplePage() {
       {!data.loading && payload?.unsupported && (
         <EmptyState title="People isn't available here" testId="faces-unsupported" icon="people">
           <p>
-            This Cairn server can't recognize faces, so it can't group photos by person. Everything
-            else in your library works as usual.
+            This Popcorn server can't recognize faces, so it can't group photos by person.
+            Everything else in your library works as usual.
           </p>
         </EmptyState>
       )}
@@ -778,12 +778,13 @@ export default function PeoplePage() {
       {!data.loading && payload && !enabled && !payload.unsupported && (
         <EmptyState title="People is turned off" testId="faces-disabled" icon="people">
           <p>
-            Cairn can group your photos by the people in them, but it's switched off on this server.
+            Popcorn can group your photos by the people in them, but it's switched off on this
+            server.
           </p>
           {user?.role === 'admin' && (
             <p>
-              To turn it on, set <code>CAIRN_ML_ENABLED</code> and <code>CAIRN_ML_FACES</code> and
-              restart Cairn.
+              To turn it on, set <code>POPCORN_ML_ENABLED</code> and <code>POPCORN_ML_FACES</code>{' '}
+              and restart Popcorn.
             </p>
           )}
         </EmptyState>
@@ -795,7 +796,7 @@ export default function PeoplePage() {
             <EmptyState title="No people yet" testId="people-empty" icon="people">
               <p>
                 Use “Find people” to look for faces in your photos. Name the groups that appear, and
-                Cairn will keep recognizing them.
+                Popcorn will keep recognizing them.
               </p>
             </EmptyState>
           ) : (
@@ -850,8 +851,8 @@ export default function PeoplePage() {
                 </h2>
               </div>
               <p className="secondary-text">
-                Faces Cairn found but could not place. Choose who each one is, or add them as a new
-                person.
+                Faces Popcorn found but could not place. Choose who each one is, or add them as a
+                new person.
               </p>
               <div className="face-grid" data-testid="unassigned-faces">
                 {unassigned.map((face) => (
@@ -868,7 +869,7 @@ export default function PeoplePage() {
                         type="button"
                         className="button ghost-button button-sm"
                         onClick={() => removeFace(face.id)}
-                        title="Delete this face. Cairn will not suggest it again; the photo is kept."
+                        title="Delete this face. Popcorn will not suggest it again; the photo is kept."
                       >
                         Delete
                       </button>
@@ -887,7 +888,7 @@ export default function PeoplePage() {
         label="Name"
         initialValue=""
         placeholder="Who is this?"
-        hint="Cairn will use this face to recognise them in your other photos."
+        hint="Popcorn will use this face to recognise them in your other photos."
         confirmLabel="Add"
         busy={namingBusy}
         error={namingError}
@@ -918,8 +919,8 @@ export default function PeoplePage() {
         message={
           <p>
             Merge <strong>{dropMerge?.source.name || 'this group'}</strong> into{' '}
-            <strong>{dropMerge?.target.name || 'this group'}</strong>? Cairn will treat them as one
-            person from now on, use both sets of photos to recognise them, and join any other
+            <strong>{dropMerge?.target.name || 'this group'}</strong>? Popcorn will treat them as
+            one person from now on, use both sets of photos to recognise them, and join any other
             unnamed group that looks like them. This cannot be undone.
           </p>
         }
@@ -1012,7 +1013,7 @@ export default function PeoplePage() {
             </label>
             <p className="muted">
               {deleteFaces
-                ? 'Cairn forgets these faces and will not group them again.'
+                ? 'Popcorn forgets these faces and will not group them again.'
                 : 'The faces go back to the pool and may be grouped again.'}
             </p>
           </>
@@ -1031,7 +1032,7 @@ export default function PeoplePage() {
         error={purgingError}
         message={
           <p>
-            Cairn will delete all detected faces and every grouping they produced. The photos
+            Popcorn will delete all detected faces and every grouping they produced. The photos
             themselves are not touched, and the people you named become unnamed again. This cannot
             be undone.
           </p>

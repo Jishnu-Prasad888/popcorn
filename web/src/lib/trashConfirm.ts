@@ -5,7 +5,7 @@
  * be undone.
  */
 
-const SKIP_KEY = 'cairn.trash.skipConfirm';
+const SKIP_KEY = 'popcorn.trash.skipConfirm';
 
 export function readTrashConfirm(): boolean {
   try {

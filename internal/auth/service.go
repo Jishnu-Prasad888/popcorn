@@ -12,14 +12,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/audit"
+	"github.com/Jishnu-Prasad888/popcorn/internal/audit"
 )
 
 // timingEqualizerHash is a valid argon2id hash used only to burn the same CPU
 // budget on the login path for an unknown username as for a wrong password.
 // Computed once on first use.
 var timingEqualizerHash = sync.OnceValue(func() string {
-	h, err := HashPassword("cairn-timing-equalizer-000")
+	h, err := HashPassword("popcorn-timing-equalizer-000")
 	if err != nil {
 		return ""
 	}

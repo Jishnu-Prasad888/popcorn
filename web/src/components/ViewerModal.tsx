@@ -163,7 +163,7 @@ const TAP_MS = 300;
 const DOUBLE_TAP_MS = 260;
 const NEAR_END = 3;
 
-const PANEL_STORAGE_KEY = 'cairn.viewer.panel';
+const PANEL_STORAGE_KEY = 'popcorn.viewer.panel';
 
 /** Whether the person last left the details panel open. Closed by default. */
 function readPanelPreference(): boolean {

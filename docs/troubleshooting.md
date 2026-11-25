@@ -2,10 +2,10 @@
 
 ## Server won't start / errors on boot
 
-- Check the bind address: `CAIRN_HTTP_ADDR` must be reachable and the port free.
-- Check `CAIRN_DATA_DIR` is writable by the running user. Default location:
-  `$XDG_DATA_HOME/cairn` or `~/.local/share/cairn`.
-- Set `CAIRN_LOG_LEVEL=debug` and reproduce; logs include the error's request ID.
+- Check the bind address: `POPCORN_HTTP_ADDR` must be reachable and the port free.
+- Check `POPCORN_DATA_DIR` is writable by the running user. Default location:
+  `$XDG_DATA_HOME/popcorn` or `~/.local/share/popcorn`.
+- Set `POPCORN_LOG_LEVEL=debug` and reproduce; logs include the error's request ID.
 
 ## BI-native issue: opening the frontend shows the placeholder page
 
@@ -13,7 +13,7 @@
 work on a fresh clone. It is overwritten by `make build` (or by the Docker image
 build) with the real frontend output.
 
-- If you ran `go build ./cmd/cairn` from a fresh clone instead of `make build`,
+- If you ran `go build ./cmd/popcorn` from a fresh clone instead of `make build`,
   you get the placeholder. Use `make build` and re-run; then `git status` will
   show `internal/webui/dist` modified — restore with
   `git checkout -- internal/webui/dist` (those files are gitignored artifacts).
@@ -28,7 +28,7 @@ which hot-reloads and proxies `/api` to the Go backend on :8715.
 
 `GET /api/v1/health` pings the server database with a short timeout. If it
 returns `"status": "degraded"`, the database check failed but the process is
-alive — look at `CAIRN_DATA_DIR` permissions and disk health.
+alive — look at `POPCORN_DATA_DIR` permissions and disk health.
 
 ## API returns 404 for a route that should exist
 
@@ -52,9 +52,9 @@ sudo ss -ltnp | grep 8715
 
 ## Docker: container exits immediately
 
-- Ensure `-v cairn-data:/data` persists data; the image expects `/data` to be
-  writable by the `cairn` user.
-- Ensure `CAIRN_HTTP_ADDR=:8715` is set if you expose the port as written in
+- Ensure `-v popcorn-data:/data` persists data; the image expects `/data` to be
+  writable by the `popcorn` user.
+- Ensure `POPCORN_HTTP_ADDR=:8715` is set if you expose the port as written in
   [docker.md](docker.md); the default listens on `127.0.0.1` inside the
   container which a mapped `-p` port cannot reach.
-- `docker logs cairn` shows startup errors with request IDs.
+- `docker logs popcorn` shows startup errors with request IDs.

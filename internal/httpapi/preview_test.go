@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 )
 
 // TestPreview covers the viewer's preview: a large photo is served as a
@@ -32,7 +32,7 @@ func TestPreview(t *testing.T) {
 	write("big.jpg", 3000, 1500)
 	write("small.jpg", 640, 480)
 
-	ldb, err := librarydb.Open(filepath.Join(libRoot, ".cairn"))
+	ldb, err := librarydb.Open(filepath.Join(libRoot, ".popcorn"))
 	if err != nil {
 		t.Fatal(err)
 	}

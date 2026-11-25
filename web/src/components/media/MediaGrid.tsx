@@ -1,5 +1,5 @@
 /**
- * The media grid: Cairn's main surface.
+ * The media grid: Popcorn's main surface.
  *
  * Square thumbnails edge to edge, optionally grouped under quiet date headings,
  * with selection, keyboard navigation, and infinite scroll. Only the rows near

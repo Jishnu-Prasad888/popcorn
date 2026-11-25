@@ -1,7 +1,7 @@
 /**
  * Library management.
  *
- * This is the adoption workflow from the product brief: point Cairn at a
+ * This is the adoption workflow from the product brief: point Popcorn at a
  * directory that already holds years of media, see what is already there, and
  * open it — without copying or modifying a single original. It is also where a
  * user reconnects a drive that came back at a different mount point, which is
@@ -55,7 +55,7 @@ function describeProbe(probe: LibraryProbe): { tone: 'ok' | 'warn' | 'error'; li
     return {
       tone: 'warn',
       lines: [
-        'Cairn cannot write to that directory, so it can index and browse it but not accept uploads.',
+        'Popcorn cannot write to that directory, so it can index and browse it but not accept uploads.',
       ],
     };
   }
@@ -66,13 +66,13 @@ function describeProbe(probe: LibraryProbe): { tone: 'ok' | 'warn' | 'error'; li
     return {
       tone: 'ok',
       lines: [
-        `Found an existing Cairn library${probe.existing_name ? ` (“${probe.existing_name}”)` : ''}. Opening it reuses its metadata, tags, albums, and index instead of reprocessing every file.`,
+        `Found an existing Popcorn library${probe.existing_name ? ` (“${probe.existing_name}”)` : ''}. Opening it reuses its metadata, tags, albums, and index instead of reprocessing every file.`,
       ],
     };
   }
   return {
     tone: 'ok',
-    lines: ['No Cairn metadata here yet. Adding it will index the media in place.'],
+    lines: ['No Popcorn metadata here yet. Adding it will index the media in place.'],
   };
 }
 
@@ -198,8 +198,8 @@ function AddLibraryDialog({ onClose }: { onClose: () => void }) {
             </button>
           </div>
           <p className="library-hint">
-            An absolute path on the machine running Cairn. Cairn indexes the media where it already
-            lives.
+            An absolute path on the machine running Popcorn. Popcorn indexes the media where it
+            already lives.
           </p>
         </div>
 
@@ -305,8 +305,8 @@ function ReconnectDialog({ library, onClose }: { library: Library; onClose: () =
     >
       <div className="library-form">
         <p>
-          If the drive came back at a different path, give Cairn the new location. It will recognize
-          the same library by its stored identity, so nothing is reindexed.
+          If the drive came back at a different path, give Popcorn the new location. It will
+          recognize the same library by its stored identity, so nothing is reindexed.
         </p>
         <p className="muted">
           Last known path: <code>{library.root}</code>
@@ -499,8 +499,8 @@ function LibraryRow({ library, isAdmin }: { library: Library; isAdmin: boolean }
         message={
           <>
             <p>
-              Cairn will stop listing this library. <strong>Your files are not touched</strong> —
-              everything stays exactly where it is, including the <code>.cairn</code> metadata
+              Popcorn will stop listing this library. <strong>Your files are not touched</strong> —
+              everything stays exactly where it is, including the <code>.popcorn</code> metadata
               directory.
             </p>
             <p>You can add the same folder again later and it will pick up where it left off.</p>
@@ -527,7 +527,7 @@ export default function LibrariesPage() {
     <main className="page libraries-page">
       <PageHeader
         title="Libraries"
-        subtitle="Folders of media that Cairn indexes in place."
+        subtitle="Folders of media that Popcorn indexes in place."
         controls={
           isAdmin ? (
             <>
@@ -555,7 +555,7 @@ export default function LibrariesPage() {
         <EmptyState title="No libraries yet" testId="libraries-empty">
           <p className="muted">
             {isAdmin
-              ? 'Add a folder of photos, videos, or files and Cairn will index it in place.'
+              ? 'Add a folder of photos, videos, or files and Popcorn will index it in place.'
               : 'You have not been given access to a library yet. Ask an administrator to grant you one.'}
           </p>
         </EmptyState>

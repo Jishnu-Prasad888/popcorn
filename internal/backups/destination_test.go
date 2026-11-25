@@ -11,10 +11,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/audit"
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/audit"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 )
 
 func newLibraryManager(pool *sql.DB) *library.Manager {
@@ -22,14 +22,14 @@ func newLibraryManager(pool *sql.DB) *library.Manager {
 }
 
 func TestDestinationNormalizeAndKey(t *testing.T) {
-	d, err := Destination{Kind: "SFTP", Host: "nas.local", Username: "me", Path: "backups/cairn/"}.Normalize()
+	d, err := Destination{Kind: "SFTP", Host: "nas.local", Username: "me", Path: "backups/popcorn/"}.Normalize()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := d.Key(); got != "sftp://me@nas.local:22/backups/cairn" {
+	if got := d.Key(); got != "sftp://me@nas.local:22/backups/popcorn" {
 		t.Errorf("sftp key = %q", got)
 	}
-	if got := d.Location("cairn-backup-1"); got != "sftp://me@nas.local:22/backups/cairn/cairn-backup-1" {
+	if got := d.Location("popcorn-backup-1"); got != "sftp://me@nas.local:22/backups/popcorn/popcorn-backup-1" {
 		t.Errorf("location = %q", got)
 	}
 
@@ -41,11 +41,11 @@ func TestDestinationNormalizeAndKey(t *testing.T) {
 		t.Errorf("ftp defaults = user %q port %d", f.Username, f.port())
 	}
 
-	s, err := Destination{Kind: "smb", Host: "nas", Share: `\photos\`, Username: "u", Path: "/cairn"}.Normalize()
+	s, err := Destination{Kind: "smb", Host: "nas", Share: `\photos\`, Username: "u", Path: "/popcorn"}.Normalize()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := s.Key(); got != "smb://u@nas:445/photos/cairn" {
+	if got := s.Key(); got != "smb://u@nas:445/photos/popcorn" {
 		t.Errorf("smb key = %q", got)
 	}
 
@@ -76,7 +76,7 @@ func TestParseMountInfo(t *testing.T) {
 	if entries[2].point != "/media/me/My Drive" || entries[2].fsType != "exfat" {
 		t.Errorf("escaped mount = %+v", entries[2])
 	}
-	if mp, _ := mountPointOf(entries, "/media/me/My Drive/cairn/backups"); mp != "/media/me/My Drive" {
+	if mp, _ := mountPointOf(entries, "/media/me/My Drive/popcorn/backups"); mp != "/media/me/My Drive" {
 		t.Errorf("mountPointOf = %q", mp)
 	}
 	if mp, _ := mountPointOf(entries, "/home/me"); mp != "/" {
@@ -96,7 +96,7 @@ func TestUnmountedDriveWaitsInsteadOfWritingToSystemDisk(t *testing.T) {
 	}
 	pool, serverPath := tempServerDB(t)
 	registerLibrary(t, newLibraryManager(pool), filepath.Join(t.TempDir(), "lima"))
-	dir := filepath.Join(t.TempDir(), "usb", "cairn")
+	dir := filepath.Join(t.TempDir(), "usb", "popcorn")
 	m := newManager(t, pool, serverPath, dir, "", 4)
 	m.mu.Lock()
 	m.dest.MountPoint = filepath.Dir(dir) // not actually a mount point
@@ -131,7 +131,7 @@ func TestSecretsAreSealedInDatabase(t *testing.T) {
 
 	pw := "hunter2-very-secret"
 	saved, err := m.SetDestination(ctx, DestinationUpdate{
-		Destination: Destination{Kind: KindSFTP, Host: "nas", Username: "me", Path: "cairn"},
+		Destination: Destination{Kind: KindSFTP, Host: "nas", Username: "me", Path: "popcorn"},
 		Password:    &pw,
 	})
 	if err != nil {
@@ -173,7 +173,7 @@ func TestSecretsAreSealedInDatabase(t *testing.T) {
 // insertIndexed adds an indexed_files row as the indexer would.
 func insertIndexed(t *testing.T, root, rel string, size int64, seen time.Time) {
 	t.Helper()
-	db, err := librarydb.Open(filepath.Join(root, ".cairn"))
+	db, err := librarydb.Open(filepath.Join(root, ".popcorn"))
 	if err != nil {
 		t.Fatal(err)
 	}

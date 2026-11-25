@@ -334,7 +334,7 @@ export default function MLPage() {
         report(
           'rules',
           m.crowd_limit
-            ? `Saved. In photos with more than ${m.crowd_limit} faces, only people Cairn already knows are recognised. Regrouping people…`
+            ? `Saved. In photos with more than ${m.crowd_limit} faces, only people Popcorn already knows are recognised. Regrouping people…`
             : 'Saved. Every photo can introduce new people again. Regrouping people…',
         );
         faces.reload();
@@ -477,8 +477,8 @@ export default function MLPage() {
         }
       >
         <p className="muted">
-          When on, Cairn works through your library straight away and handles each new photo as it
-          arrives. People start as "Person 1", "Person 2" and so on — rename one and Cairn will
+          When on, Popcorn works through your library straight away and handles each new photo as it
+          arrives. People start as "Person 1", "Person 2" and so on — rename one and Popcorn will
           recognise them by that name in future photos. When off, nothing is analysed and the People
           page is hidden; what was found is kept.
         </p>
@@ -523,10 +523,10 @@ export default function MLPage() {
               </button>
             </div>
             <p className="ml-note">
-              With 1, every new photo is analysed as soon as Cairn notices it. With 10, Cairn waits
-              until ten have piled up, then analyses them together. Photos count however they arrive
-              — uploaded, or moved into the folder with a file manager, even while Cairn was
-              stopped.
+              With 1, every new photo is analysed as soon as Popcorn notices it. With 10, Popcorn
+              waits until ten have piled up, then analyses them together. Photos count however they
+              arrive — uploaded, or moved into the folder with a file manager, even while Popcorn
+              was stopped.
               {face?.pending !== undefined &&
                 ` Waiting now: ${face.pending} photo${face.pending === 1 ? '' : 's'}.`}
             </p>
@@ -549,7 +549,7 @@ export default function MLPage() {
         >
           {!similarityAvailable ? (
             <p className="muted" data-testid="ml-unavailable">
-              This Cairn server was built without local image embeddings, so visual similarity is
+              This Popcorn server was built without local image embeddings, so visual similarity is
               not available. Everything else — including duplicate detection, which compares file
               bytes — still works.
             </p>
@@ -663,7 +663,7 @@ export default function MLPage() {
             </p>
           ) : !facesAvailable ? (
             <p className="muted" data-testid="faces-unavailable">
-              This Cairn server was built without face recognition. People, albums, and tags all
+              This Popcorn server was built without face recognition. People, albums, and tags all
               still work — this only affects automatic face detection and clustering.
             </p>
           ) : (
@@ -767,7 +767,7 @@ export default function MLPage() {
                   </div>
                   <p className="ml-note">
                     If different people end up in one group, make it stricter; if one person is
-                    split into several, make it looser. Saving regroups the people Cairn made;
+                    split into several, make it looser. Saving regroups the people Popcorn made;
                     people you named and faces you placed by hand stay as they are.
                     {!isAdmin && ' Only an administrator can change this.'}
                   </p>
@@ -858,7 +858,7 @@ export default function MLPage() {
               )}
             </div>
             <p className="ml-note">
-              In a photo with more faces than this, Cairn still recognises the people it already
+              In a photo with more faces than this, Popcorn still recognises the people it already
               knows from your other photos and adds the photo to them, but nobody else in it becomes
               a new person or shows up under "Who is this?". Leave empty for no limit.
             </p>

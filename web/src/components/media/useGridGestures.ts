@@ -30,7 +30,7 @@ import type { Selection } from './useSelection';
  * tablet and desktop widths each keep their own (narrowing a desktop window
  * must not overwrite the desktop's choice).
  */
-const DENSITY_KEY = 'cairn.gridDensity.v2';
+const DENSITY_KEY = 'popcorn.gridDensity.v2';
 
 function densityKey(userId: string | undefined, device: string): string {
   return `${DENSITY_KEY}:${userId ?? 'anonymous'}:${device}`;

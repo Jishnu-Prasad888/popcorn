@@ -1,14 +1,14 @@
 /**
- * Dragging things around inside Cairn: files, a whole selection of them, and
- * folders. A drag carries what was picked up under a Cairn-only type, so a
+ * Dragging things around inside Popcorn: files, a whole selection of them, and
+ * folders. A drag carries what was picked up under a Popcorn-only type, so a
  * drop target can tell an in-app move from files dragged in from the desktop
- * (an upload), and so other sites never see a Cairn drag as anything at all.
+ * (an upload), and so other sites never see a Popcorn drag as anything at all.
  */
 
 import type { FileSummary, Folder } from '../../api/types';
 
-export const FILE_DRAG = 'application/cairn-file';
-export const FOLDER_DRAG = 'application/cairn-folder';
+export const FILE_DRAG = 'application/popcorn-file';
+export const FOLDER_DRAG = 'application/popcorn-folder';
 
 export interface DraggedFile {
   id: string;
@@ -22,15 +22,15 @@ export interface DraggedFolder {
   library_id?: string | undefined;
 }
 
-/** True for a drag of Cairn files or folders (not a desktop upload). */
-export function isCairnDrag(event: React.DragEvent): boolean {
+/** True for a drag of Popcorn files or folders (not a desktop upload). */
+export function isPopcornDrag(event: React.DragEvent): boolean {
   const types = event.dataTransfer.types;
   return types.includes(FILE_DRAG) || types.includes(FOLDER_DRAG);
 }
 
 /** True for files dragged in from outside the browser. */
 export function isDesktopDrag(event: React.DragEvent): boolean {
-  return event.dataTransfer.types.includes('Files') && !isCairnDrag(event);
+  return event.dataTransfer.types.includes('Files') && !isPopcornDrag(event);
 }
 
 /**
@@ -74,7 +74,7 @@ export function startFolderDrag(event: React.DragEvent, folder: Folder) {
   event.dataTransfer.effectAllowed = 'move';
 }
 
-/** What a drop carries, if it is a Cairn drag. */
+/** What a drop carries, if it is a Popcorn drag. */
 export function readDrag(
   event: React.DragEvent,
 ): { file?: DraggedFile; folder?: DraggedFolder } | null {

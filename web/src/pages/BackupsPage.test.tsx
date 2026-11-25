@@ -17,7 +17,7 @@ import BackupsPage from './BackupsPage';
 const okBackup = {
   id: 'b1',
   status: 'ok',
-  destination: '/mnt/backup/cairn',
+  destination: '/mnt/backup/popcorn',
   started_at: '2026-09-01T02:00:00Z',
   finished_at: '2026-09-01T02:14:00Z',
   libraries: 2,
@@ -34,7 +34,7 @@ const failedBackup = {
   ...okBackup,
   id: 'b2',
   status: 'failed',
-  destination: '/mnt/backup/cairn',
+  destination: '/mnt/backup/popcorn',
   started_at: '2026-08-31T02:00:00Z',
   finished_at: '',
   // A half-finished run is neither encrypted nor off this machine.
@@ -75,7 +75,7 @@ describe('BackupsPage', () => {
     expect(within(table).getByTestId('backup-status-b1')).toHaveTextContent('Completed');
     expect(within(table).getByTestId('backup-status-b2')).toHaveTextContent('Failed');
     // The destination's properties are called out, not left to be discovered.
-    expect(within(table).getAllByText('/mnt/backup/cairn')).toHaveLength(2);
+    expect(within(table).getAllByText('/mnt/backup/popcorn')).toHaveLength(2);
     expect(within(table).getByText('encrypted')).toBeInTheDocument();
     expect(within(table).getByText('same device')).toBeInTheDocument();
   });
@@ -188,7 +188,7 @@ describe('BackupsPage', () => {
     fireEvent.click(within(table).getByTestId('backup-open-b1'));
 
     const dialog = await screen.findByTestId('backup-detail-dialog');
-    expect(within(dialog).getByText('/mnt/backup/cairn')).toBeInTheDocument();
+    expect(within(dialog).getByText('/mnt/backup/popcorn')).toBeInTheDocument();
     // A backup is metadata, not a download, so the page reports where it is.
     expect(within(dialog).getByText('1204 copied, 1180 already present')).toBeInTheDocument();
     expect(within(dialog).getByText('8.0 GB of media → 4.0 GB stored')).toBeInTheDocument();
@@ -229,7 +229,7 @@ describe('BackupsPage', () => {
     // Restoring writes a copy; it never overwrites the libraries in place.
     expect(within(dialog).getByText(/not modified/)).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Destination directory'), {
-      target: { value: '/srv/cairn-restore' },
+      target: { value: '/srv/popcorn-restore' },
     });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Restore' }));
 
@@ -237,7 +237,7 @@ describe('BackupsPage', () => {
       expect(called(fetchMock, 'POST', '/api/v1/backups/b1/restore')).toBe(true);
     });
     expect(bodyOf(fetchMock, 'POST', '/api/v1/backups/b1/restore')).toEqual({
-      destination: '/srv/cairn-restore',
+      destination: '/srv/popcorn-restore',
     });
     expect(await screen.findByTestId('backup-notice')).toHaveTextContent('Restore started.');
   });
@@ -344,7 +344,9 @@ describe('BackupsPage', () => {
     // The system disk is not offered: a backup there does not survive losing it.
     expect(within(drives).queryByText('/')).not.toBeInTheDocument();
     fireEvent.click(within(drives).getByText('/media/me/Backup'));
-    expect(screen.getByTestId('backup-folder-input')).toHaveValue('/media/me/Backup/cairn-backups');
+    expect(screen.getByTestId('backup-folder-input')).toHaveValue(
+      '/media/me/Backup/popcorn-backups',
+    );
   });
 
   it('tests and saves an SFTP destination without echoing the password back', async () => {
@@ -353,7 +355,7 @@ describe('BackupsPage', () => {
         init?.method === 'POST' && url.endsWith('/api/v1/backups/destination/test')
           ? json({
               ok: true,
-              destination: { kind: 'sftp', path: 'cairn', host: 'nas', host_key: 'SHA256:abc' },
+              destination: { kind: 'sftp', path: 'popcorn', host: 'nas', host_key: 'SHA256:abc' },
             })
           : undefined,
       (url, init) =>
@@ -363,12 +365,12 @@ describe('BackupsPage', () => {
               dir: '',
               destination: {
                 kind: 'sftp',
-                path: 'cairn',
+                path: 'popcorn',
                 host: 'nas',
                 username: 'me',
                 host_key: 'SHA256:abc',
                 password_set: true,
-                location: 'sftp://me@nas:22/cairn',
+                location: 'sftp://me@nas:22/popcorn',
               },
             })
           : undefined,
@@ -378,7 +380,7 @@ describe('BackupsPage', () => {
     fireEvent.change(screen.getByTestId('backup-remote-host'), { target: { value: 'nas' } });
     fireEvent.change(screen.getByTestId('backup-remote-username'), { target: { value: 'me' } });
     fireEvent.change(screen.getByTestId('backup-remote-password'), { target: { value: 'pw' } });
-    fireEvent.change(screen.getByTestId('backup-remote-path'), { target: { value: 'cairn' } });
+    fireEvent.change(screen.getByTestId('backup-remote-path'), { target: { value: 'popcorn' } });
 
     fireEvent.click(screen.getByTestId('backup-remote-test'));
     expect(await screen.findByTestId('backup-remote-notice')).toHaveTextContent('SHA256:abc');
@@ -388,7 +390,7 @@ describe('BackupsPage', () => {
       expect(called(fetchMock, 'PUT', '/api/v1/backups/settings')).toBe(true);
     });
     expect(bodyOf(fetchMock, 'PUT', '/api/v1/backups/settings')).toEqual({
-      destination: { kind: 'sftp', host: 'nas', username: 'me', path: 'cairn', password: 'pw' },
+      destination: { kind: 'sftp', host: 'nas', username: 'me', path: 'popcorn', password: 'pw' },
     });
     // Saved: the password box is cleared and says one is stored.
     await waitFor(() => expect(screen.getByTestId('backup-remote-password')).toHaveValue(''));

@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/jobs"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/jobs"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
 )
 
 // KindProcessMedia is the job kind for extracting metadata and generating
@@ -39,14 +39,14 @@ func NewProcessor(logger *slog.Logger, keys *crypto.Keys) *Processor {
 //	file_id    string
 //	rel_path   string
 //	root       string  — absolute library root
-//	cairn_dir  string  — absolute .cairn directory
+//	popcorn_dir  string  — absolute .popcorn directory
 func (p *Processor) Handle(ctx context.Context, job *jobs.Job) error {
 	fileID, _ := job.Payload["file_id"].(string)
 	relPath, _ := job.Payload["rel_path"].(string)
 	root, _ := job.Payload["root"].(string)
-	cairnDir, _ := job.Payload["cairn_dir"].(string)
+	popcornDir, _ := job.Payload["popcorn_dir"].(string)
 
-	if fileID == "" || relPath == "" || root == "" || cairnDir == "" {
+	if fileID == "" || relPath == "" || root == "" || popcornDir == "" {
 		return fmt.Errorf("process_media job %s missing required payload fields", job.ID)
 	}
 
@@ -65,13 +65,13 @@ func (p *Processor) Handle(ctx context.Context, job *jobs.Job) error {
 	// A new or changed video on a server without ffmpeg gets its poster from
 	// the next client that shows it; drop any poster of the old content.
 	if media.DetectMediaType(relPath) == media.MediaTypeVideo && !VideoFramesAvailable() {
-		if err := os.Remove(ThumbPath(cairnDir, fileID)); err != nil && !errors.Is(err, os.ErrNotExist) {
+		if err := os.Remove(ThumbPath(popcornDir, fileID)); err != nil && !errors.Is(err, os.ErrNotExist) {
 			p.logger.Warn("remove stale video poster", "file_id", fileID, "error", err)
 		}
 	}
 
-	// Generate thumbnail (also read-only; writes only to .cairn/thumbs/).
-	hasThumbnail, thumbErr := GenerateThumbnail(absPath, cairnDir, fileID, p.keys)
+	// Generate thumbnail (also read-only; writes only to .popcorn/thumbs/).
+	hasThumbnail, thumbErr := GenerateThumbnail(absPath, popcornDir, fileID, p.keys)
 	if thumbErr != nil {
 		p.logger.Warn("thumbnail generation failed", "file_id", fileID, "error", thumbErr)
 		// Non-fatal: continue and persist what we have.
@@ -80,12 +80,12 @@ func (p *Processor) Handle(ctx context.Context, job *jobs.Job) error {
 	// made, so a zoomed-out grid never has to wait for them either.
 	var color string
 	if hasThumbnail {
-		c, err := MakeSmallThumb(cairnDir, fileID, p.keys)
+		c, err := MakeSmallThumb(popcornDir, fileID, p.keys)
 		if err != nil {
 			p.logger.Warn("small thumbnail generation failed", "file_id", fileID, "error", err)
 		}
 		color = c
-	} else if err := RemoveSmallThumb(cairnDir, fileID); err != nil {
+	} else if err := RemoveSmallThumb(popcornDir, fileID); err != nil {
 		p.logger.Warn("remove stale small thumbnail", "file_id", fileID, "error", err)
 	}
 

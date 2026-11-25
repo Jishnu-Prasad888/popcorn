@@ -1,6 +1,6 @@
 -- 0013_ignore_rules: what the scanner leaves out of a library's index.
 --
--- Applied to each library's <root>/.cairn/library.db. This file documents the
+-- Applied to each library's <root>/.popcorn/library.db. This file documents the
 -- DDL that internal/librarydb/librarydb.go applies; the Go code is canonical.
 -- A rule is a path inside the library (a folder and everything under it, or
 -- one file), a file extension, or a name pattern matched against every file

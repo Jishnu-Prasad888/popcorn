@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/indexer"
+	"github.com/Jishnu-Prasad888/popcorn/internal/indexer"
 )
 
 func TestIgnoreRulesRoundTrip(t *testing.T) {
@@ -86,8 +86,8 @@ func TestBrowseLibrary(t *testing.T) {
 
 	top := get("")
 	for _, d := range top.Dirs {
-		if d.Name == ".cairn" {
-			t.Error("root listing shows .cairn")
+		if d.Name == ".popcorn" {
+			t.Error("root listing shows .popcorn")
 		}
 	}
 	if len(top.Files) != 1 || top.Files[0].Path != "top.jpg" {
@@ -100,7 +100,7 @@ func TestBrowseLibrary(t *testing.T) {
 		t.Errorf("2019 listing = %+v", sub)
 	}
 
-	for _, bad := range []string{"../", ".cairn", "/etc"} {
+	for _, bad := range []string{"../", ".popcorn", "/etc"} {
 		if rec := admin.do(t, http.MethodGet, base+"?path="+url.QueryEscape(bad), nil); rec.Code != http.StatusBadRequest {
 			t.Errorf("browse %q = %d, want 400", bad, rec.Code)
 		}

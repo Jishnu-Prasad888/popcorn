@@ -46,7 +46,7 @@ import { markThumbLoaded } from '../lib/thumbLoading';
 import './DuplicatesPage.css';
 
 type DupView = 'list' | 'grid';
-const VIEW_KEY = 'cairn.duplicates.view';
+const VIEW_KEY = 'popcorn.duplicates.view';
 
 function readView(): DupView {
   try {

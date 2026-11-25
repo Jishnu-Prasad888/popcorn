@@ -14,8 +14,8 @@ describe('LibraryTag', () => {
     mockApi([], {
       libraries: [libraryFixture(), libraryFixture({ id: 'lib2', name: 'Archive' })],
     });
-    localStorage.setItem('cairn.library', 'lib1');
-    localStorage.setItem('cairn.libraries.open', JSON.stringify(['lib1', 'lib2']));
+    localStorage.setItem('popcorn.library', 'lib1');
+    localStorage.setItem('popcorn.libraries.open', JSON.stringify(['lib1', 'lib2']));
 
     renderPage(<LibraryTag libraryId="lib2" />);
 

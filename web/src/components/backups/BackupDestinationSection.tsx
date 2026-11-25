@@ -136,7 +136,7 @@ function LocalFolderForm({
           <input
             type="text"
             value={dir}
-            placeholder="/mnt/backup-disk/cairn"
+            placeholder="/mnt/backup-disk/popcorn"
             onChange={(e) => {
               setDir(e.target.value);
               setNotice(null);
@@ -188,7 +188,7 @@ function LocalFolderForm({
                   type="button"
                   className="backup-drive"
                   onClick={() => {
-                    setDir(`${d.path.replace(/\/$/, '')}/cairn-backups`);
+                    setDir(`${d.path.replace(/\/$/, '')}/popcorn-backups`);
                     setNotice(null);
                   }}
                   disabled={busy}
@@ -246,7 +246,7 @@ function initialFields(kind: BackupDestinationKind, saved: BackupDestination): R
     port: same && saved.port ? String(saved.port) : '',
     username: same ? (saved.username ?? '') : '',
     password: '',
-    path: same ? saved.path : 'cairn-backups',
+    path: same ? saved.path : 'popcorn-backups',
     privateKey: '',
     share: same ? (saved.share ?? '') : '',
     domain: same ? (saved.domain ?? '') : '',
@@ -435,7 +435,7 @@ function RemoteForm({
           <input
             type="text"
             value={f.path}
-            placeholder={kind === 'smb' ? 'cairn' : '/volume1/backups/cairn'}
+            placeholder={kind === 'smb' ? 'popcorn' : '/volume1/backups/popcorn'}
             onChange={(e) => set('path', e.target.value)}
             disabled={disabled}
             data-testid="backup-remote-path"

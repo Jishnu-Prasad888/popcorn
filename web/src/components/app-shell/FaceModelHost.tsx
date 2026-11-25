@@ -55,7 +55,7 @@ export function FaceModelHost() {
     if (now === 'done') {
       toast({
         message:
-          'Face-recognition models downloaded. People will now be matched with them — Cairn is re-scanning your photos.',
+          'Face-recognition models downloaded. People will now be matched with them — Popcorn is re-scanning your photos.',
         tone: 'success',
         duration: 8000,
       });
@@ -123,7 +123,7 @@ export function FaceModelHost() {
           </p>
         )}
         <p>
-          To match the same person across your photos, Cairn needs two face-recognition models
+          To match the same person across your photos, Popcorn needs two face-recognition models
           (SCRFD detector + ArcFace R50, about 180&nbsp;MB total). They will be downloaded once from{' '}
           <code>{status.url ? new URL(status.url).host : 'huggingface.co'}</code> and kept on this
           server; your photos are never uploaded.

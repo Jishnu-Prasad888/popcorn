@@ -1,6 +1,6 @@
 -- 0011_memory_blocks: notebook-style memories (ordered text and image blocks).
 --
--- Applied to each library's <root>/.cairn/library.db. This file documents the
+-- Applied to each library's <root>/.popcorn/library.db. This file documents the
 -- DDL that internal/librarydb/librarydb.go applies; the Go code is canonical.
 -- Tables use CREATE TABLE IF NOT EXISTS. The column additions to memories and
 -- memory_versions are applied by upgradeMemories() only when the column is

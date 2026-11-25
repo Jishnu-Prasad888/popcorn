@@ -1,4 +1,4 @@
-// Package media provides the domain types and repository for Cairn's media and
+// Package media provides the domain types and repository for Popcorn's media and
 // file browsing layer. It sits on top of the per-library SQLite database and
 // the indexed_files table that the indexer maintains.
 //
@@ -19,7 +19,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/sanitize"
+	"github.com/Jishnu-Prasad888/popcorn/internal/sanitize"
 )
 
 // --- sentinel errors ---

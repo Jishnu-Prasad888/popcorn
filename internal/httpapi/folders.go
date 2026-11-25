@@ -7,9 +7,9 @@ import (
 	"path"
 	"strings"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
 )
 
 // Folder operations: what a desktop file manager offers on a folder — rename,
@@ -243,7 +243,7 @@ func (s *Server) handleListFavoriteFolders(w http.ResponseWriter, r *http.Reques
 	for _, f := range favs {
 		folder, err := svc.FolderInfo(r.Context(), f.RelPath)
 		if err != nil {
-			continue // moved or deleted outside Cairn: not shown
+			continue // moved or deleted outside Popcorn: not shown
 		}
 		folder.LibraryID = lib.ID
 		out = append(out, toFolderResponse(folder))

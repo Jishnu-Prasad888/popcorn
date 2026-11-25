@@ -1,24 +1,24 @@
 # Encryption at Rest — Phase 13
 
-Phase 13 adds optional, passphrase-driven encryption at rest for Cairn's own
+Phase 13 adds optional, passphrase-driven encryption at rest for Popcorn's own
 on-disk metadata. It was implemented only after explicit consensus (the roadmap
 marks this phase as "do not implement without consensus").
 
 ## Scope
 
-Encryption covers the data Cairn itself writes into each library:
+Encryption covers the data Popcorn itself writes into each library:
 
-- `.cairn/library.json` — the library identity file.
-- `.cairn/thumbs/*.jpg` — generated thumbnails.
+- `.popcorn/library.json` — the library identity file.
+- `.popcorn/thumbs/*.jpg` — generated thumbnails.
 
 User media **originals are never modified** (ADR-0004: libraries are catalogued
 in place; the original file is never touched). Protecting the user's own photos
 is the job of disk-level or filesystem-level encryption; protecting the *derived
-Cairn state* that leaks previews and identity is what this phase does.
+Popcorn state* that leaks previews and identity is what this phase does.
 
 ## Threat model
 
-A `.cairn` directory left on a lost or reused disk currently exposes:
+A `.popcorn` directory left on a lost or reused disk currently exposes:
 
 - the library's identity (id, name, creation time) in plaintext JSON;
 - full-resolution previews (400 px thumbnails) of every indexed photo.
@@ -32,9 +32,9 @@ the user's own unencrypted files, protected by the user's disk encryption).
 
 ### Key derivation and cipher
 
-- A single server-wide passphrase comes from `CAIRN_ENCRYPTION_PASSPHRASE`.
+- A single server-wide passphrase comes from `POPCORN_ENCRYPTION_PASSPHRASE`.
 - The 32-byte AES-256 key is derived with argon2id using a **fixed protocol
-  salt** (`"cairn-at-rest-v1"`) and the same parameters as the backup codec
+  salt** (`"popcorn-at-rest-v1"`) and the same parameters as the backup codec
   (time=1, memory=64 MiB, threads=4). The passphrase is the only secret and is
   never stored; the fixed salt keeps derivation reproducible across restarts so
   files written before a restart remain readable afterwards.
@@ -47,7 +47,7 @@ the user's own unencrypted files, protected by the user's disk encryption).
 ### Sealed blob format
 
 ```
-[8] magic "CAIRNATR" | [1] version = 1 | [12] nonce | AES-256-GCM ciphertext+tag
+[8] magic "POPCNATR" | [1] version = 1 | [12] nonce | AES-256-GCM ciphertext+tag
 ```
 
 Each blob is self-describing and independently movable.
@@ -77,12 +77,12 @@ unreadable until the passphrase is re-enabled.
   on read. `Processor` carries the keys for bulk background generation.
 - `internal/httpapi` — the thumbnail route serves decrypted JPEG bytes through
   the at-rest key; encryption state is injected via `Dependencies.Keys`.
-- `cmd/cairn` — derives `Keys` from config at boot and wires the library manager
+- `cmd/popcorn` — derives `Keys` from config at boot and wires the library manager
   and HTTP server.
 
 ## Design decisions
 
-- **Cairn-owned data only**: originals stay untouched (ADR-0004). Encrypting
+- **Popcorn-owned data only**: originals stay untouched (ADR-0004). Encrypting
   user files in place would change the library contract and is out of scope.
 - **Passphrase, not key file**: consistent with backup passphrases; nothing is
   stored on disk, so a lost disk leaks no key material.
@@ -102,7 +102,7 @@ unreadable until the passphrase is re-enabled.
 
 - No schema or format migration is needed. Existing libraries keep working with
   or without the passphrase.
-- Set `CAIRN_ENCRYPTION_PASSPHRASE` on the server. Newly created/adopted
+- Set `POPCORN_ENCRYPTION_PASSPHRASE` on the server. Newly created/adopted
   identities and newly generated thumbnails are sealed.
 - Changing the passphrase re-encrypts nothing automatically; sealed files are
   bound to the phrase they were written under.

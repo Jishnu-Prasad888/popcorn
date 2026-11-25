@@ -113,7 +113,7 @@ export function MemorySettingsSection() {
                 Also save edited copies in the library
                 <span className="muted settings-hint">
                   {' '}
-                  — stored in the library’s reserved <code>.cairn/memory-media</code> folder.
+                  — stored in the library’s reserved <code>.popcorn/memory-media</code> folder.
                   Originals are never changed.
                 </span>
               </span>

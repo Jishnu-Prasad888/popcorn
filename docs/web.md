@@ -1,6 +1,6 @@
 # Web interface
 
-Cairn ships a single-page web UI served by the server binary. It runs on
+Popcorn ships a single-page web UI served by the server binary. It runs on
 Vite + React (TypeScript) in `web/`, talks only to the public REST API
 (`/api/v1`, see `docs/api.md`), and degrades to clear error text when a request
 fails.
@@ -83,7 +83,7 @@ Settings and the library switcher at the foot.
 ## Library selection
 
 `LibrariesProvider` fetches `GET /libraries` once and remembers the selection in
-`localStorage` under `cairn.library`. `useLibraryGate` turns that into one of
+`localStorage` under `popcorn.library`. `useLibraryGate` turns that into one of
 four `kind`s — `loading`, `error`, `empty`, `ready` — so a page never has to
 decide what "no libraries" means versus "no albums". A caller with no grants
 gets an **empty list, not a 403** (see `docs/permissions.md`); only an

@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-func newCairnDir(t *testing.T) string {
+func newPopcornDir(t *testing.T) string {
 	t.Helper()
-	dir := filepath.Join(t.TempDir(), ".cairn")
+	dir := filepath.Join(t.TempDir(), ".popcorn")
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -18,7 +18,7 @@ func newCairnDir(t *testing.T) string {
 }
 
 func TestAcquireSharesOnePool(t *testing.T) {
-	dir := newCairnDir(t)
+	dir := newPopcornDir(t)
 	a, releaseA, err := Acquire(dir)
 	if err != nil {
 		t.Fatal(err)
@@ -46,7 +46,7 @@ func TestAcquireClosesIdlePool(t *testing.T) {
 	sharedIdleTTL = 20 * time.Millisecond
 	t.Cleanup(func() { sharedIdleTTL = old })
 
-	dir := newCairnDir(t)
+	dir := newPopcornDir(t)
 	db, release, err := Acquire(dir)
 	if err != nil {
 		t.Fatal(err)
@@ -70,7 +70,7 @@ func TestAcquireClosesIdlePool(t *testing.T) {
 }
 
 func TestAcquireReopensReplacedDatabase(t *testing.T) {
-	dir := newCairnDir(t)
+	dir := newPopcornDir(t)
 	db, release, err := Acquire(dir)
 	if err != nil {
 		t.Fatal(err)
@@ -81,7 +81,7 @@ func TestAcquireReopensReplacedDatabase(t *testing.T) {
 	release()
 
 	// Swap in a different database file, as a restore would.
-	other := newCairnDir(t)
+	other := newPopcornDir(t)
 	fresh, err := Open(other)
 	if err != nil {
 		t.Fatal(err)

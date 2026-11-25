@@ -1,7 +1,7 @@
 /**
  * Home — a living view of the library, not a dashboard.
  *
- * What a person opens Cairn for is their photos, so the page leads with the
+ * What a person opens Popcorn for is their photos, so the page leads with the
  * most recent ones and then the things they have made from them: albums,
  * memories, the people in them. Sections only appear when they have something
  * to show; there are no counters or status tiles — the library's status lives
@@ -283,8 +283,8 @@ function Home({ library }: { library: Library }) {
           }
         >
           <p>
-            Once Cairn has looked through {library.name}, your newest photos will gather here. You
-            can keep using Cairn while it works.
+            Once Popcorn has looked through {library.name}, your newest photos will gather here. You
+            can keep using Popcorn while it works.
           </p>
         </EmptyState>
       )}

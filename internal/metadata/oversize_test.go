@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metadata"
-	"github.com/Jishnu-Prasad888/Cairn/internal/safeimage"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/safeimage"
 )
 
 // A photo past safeimage's pixel cap, as a 108 MP phone camera makes, still
@@ -32,24 +32,24 @@ func TestOversizedPhotoGetsRenditions(t *testing.T) {
 	if err := os.WriteFile(src, buf.Bytes(), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	cairnDir := filepath.Join(t.TempDir(), ".cairn")
+	popcornDir := filepath.Join(t.TempDir(), ".popcorn")
 	keys := crypto.NewKeys("")
 
-	ok, err := metadata.GenerateThumbnail(src, cairnDir, "big", keys)
+	ok, err := metadata.GenerateThumbnail(src, popcornDir, "big", keys)
 	if err != nil || !ok {
 		t.Fatalf("GenerateThumbnail = %v, %v; want made", ok, err)
 	}
-	data, _, err := metadata.ReadThumb(cairnDir, "big", keys)
+	data, _, err := metadata.ReadThumb(popcornDir, "big", keys)
 	if err != nil {
 		t.Fatalf("ReadThumb: %v", err)
 	}
 	assertJPEGSize(t, "thumbnail", data, metadata.ThumbnailSize, metadata.ThumbnailSize*h/w)
 
-	ok, err = metadata.GeneratePreview(src, cairnDir, "big", keys)
+	ok, err = metadata.GeneratePreview(src, popcornDir, "big", keys)
 	if err != nil || !ok {
 		t.Fatalf("GeneratePreview = %v, %v; want made", ok, err)
 	}
-	data, _, err = metadata.ReadPreview(cairnDir, "big", keys)
+	data, _, err = metadata.ReadPreview(popcornDir, "big", keys)
 	if err != nil {
 		t.Fatalf("ReadPreview: %v", err)
 	}

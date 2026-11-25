@@ -1,6 +1,6 @@
 -- 0010_notes: per-file Markdown notes (captions and descriptions).
 --
--- Applied to each library's <root>/.cairn/library.db. All statements use
+-- Applied to each library's <root>/.popcorn/library.db. All statements use
 -- CREATE TABLE IF NOT EXISTS so this migration is idempotent. This file
 -- mirrors the canonical DDL kept in internal/librarydb/librarydb.go.
 

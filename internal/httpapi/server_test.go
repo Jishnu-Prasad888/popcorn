@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/db"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metrics"
+	"github.com/Jishnu-Prasad888/popcorn/internal/db"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metrics"
 )
 
 func testLogger() *slog.Logger {
@@ -191,10 +191,10 @@ func TestMetricsEndpointRecordsAndRenders(t *testing.T) {
 		t.Fatalf("metrics status = %d, want 200", rec.Code)
 	}
 	body := rec.Body.String()
-	if !strings.Contains(body, `cairn_http_requests_total{method="GET",status="200"}`) {
+	if !strings.Contains(body, `popcorn_http_requests_total{method="GET",status="200"}`) {
 		t.Errorf("metrics do not include health requests:\n%s", body)
 	}
-	if !strings.Contains(body, "cairn_http_request_duration_seconds_count") {
+	if !strings.Contains(body, "popcorn_http_request_duration_seconds_count") {
 		t.Errorf("metrics do not include latency histogram:\n%s", body)
 	}
 	if !strings.Contains(body, "go_goroutines") {

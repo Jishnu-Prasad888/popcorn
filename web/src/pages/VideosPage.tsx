@@ -11,7 +11,7 @@ const CONFIG: MediaPageConfig = {
   grouping: 'day',
   showTypeFilter: false,
   emptyTitle: 'No videos yet',
-  emptyBody: "Once Cairn finds videos in your library, they'll appear here.",
+  emptyBody: "Once Popcorn finds videos in your library, they'll appear here.",
   emptyIcon: 'video',
 };
 

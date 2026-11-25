@@ -10,21 +10,21 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
 )
 
 func TestMakeSmallThumb(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 	src := filepath.Join(dir, "photo.jpg")
 	makeJPEG(t, src, 1200, 900)
 	keys := crypto.NewKeys("")
 
-	if ok, err := metadata.GenerateThumbnail(src, cairnDir, "f1", keys); err != nil || !ok {
+	if ok, err := metadata.GenerateThumbnail(src, popcornDir, "f1", keys); err != nil || !ok {
 		t.Fatalf("GenerateThumbnail = %v, %v", ok, err)
 	}
-	c, err := metadata.MakeSmallThumb(cairnDir, "f1", keys)
+	c, err := metadata.MakeSmallThumb(popcornDir, "f1", keys)
 	if err != nil {
 		t.Fatalf("MakeSmallThumb: %v", err)
 	}
@@ -32,7 +32,7 @@ func TestMakeSmallThumb(t *testing.T) {
 		t.Errorf("colour = %q, want #rrggbb", c)
 	}
 
-	f, err := os.Open(metadata.SmallThumbPath(cairnDir, "f1"))
+	f, err := os.Open(metadata.SmallThumbPath(popcornDir, "f1"))
 	if err != nil {
 		t.Fatalf("small thumbnail not on disk: %v", err)
 	}
@@ -44,7 +44,7 @@ func TestMakeSmallThumb(t *testing.T) {
 	if cfg.Width != metadata.SmallThumbnailSize || cfg.Height > metadata.SmallThumbnailSize {
 		t.Errorf("small thumbnail = %dx%d, want %d on its longer side", cfg.Width, cfg.Height, metadata.SmallThumbnailSize)
 	}
-	if _, err := metadata.SmallThumbModTime(cairnDir, "f1"); err != nil {
+	if _, err := metadata.SmallThumbModTime(popcornDir, "f1"); err != nil {
 		t.Errorf("fresh small thumbnail reported missing: %v", err)
 	}
 }
@@ -53,33 +53,33 @@ func TestMakeSmallThumb(t *testing.T) {
 // full thumbnail is gone, shows earlier content and must be made again.
 func TestSmallThumbOutdated(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 	src := filepath.Join(dir, "photo.jpg")
 	makeJPEG(t, src, 800, 600)
 	keys := crypto.NewKeys("")
-	if _, err := metadata.GenerateSmallThumbnail(src, cairnDir, "f2", keys); err != nil {
+	if _, err := metadata.GenerateSmallThumbnail(src, popcornDir, "f2", keys); err != nil {
 		t.Fatal(err)
 	}
 
 	old := time.Now().Add(-time.Hour)
-	if err := os.Chtimes(metadata.SmallThumbPath(cairnDir, "f2"), old, old); err != nil {
+	if err := os.Chtimes(metadata.SmallThumbPath(popcornDir, "f2"), old, old); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := metadata.SmallThumbModTime(cairnDir, "f2"); !errors.Is(err, os.ErrNotExist) {
+	if _, err := metadata.SmallThumbModTime(popcornDir, "f2"); !errors.Is(err, os.ErrNotExist) {
 		t.Errorf("older small thumbnail: err = %v, want not-exist", err)
 	}
 
-	if _, err := metadata.GenerateSmallThumbnail(src, cairnDir, "f2", keys); err != nil {
+	if _, err := metadata.GenerateSmallThumbnail(src, popcornDir, "f2", keys); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := metadata.SmallThumbModTime(cairnDir, "f2"); err != nil {
+	if _, err := metadata.SmallThumbModTime(popcornDir, "f2"); err != nil {
 		t.Errorf("remade small thumbnail: %v", err)
 	}
 
-	if err := os.Remove(metadata.ThumbPath(cairnDir, "f2")); err != nil {
+	if err := os.Remove(metadata.ThumbPath(popcornDir, "f2")); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := metadata.SmallThumbModTime(cairnDir, "f2"); err == nil {
+	if _, err := metadata.SmallThumbModTime(popcornDir, "f2"); err == nil {
 		t.Error("small thumbnail without its full thumbnail reported present")
 	}
 }

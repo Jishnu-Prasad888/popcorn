@@ -3,8 +3,8 @@ package httpapi
 import (
 	"net/http"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
 )
 
 // handleCapabilities — GET /api/v1/system/capabilities

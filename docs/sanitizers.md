@@ -1,6 +1,6 @@
 # Sanitizers — Phase 12
 
-Cairn accepts filesystem paths from users in several places: file uploads,
+Popcorn accepts filesystem paths from users in several places: file uploads,
 renames, moves, copies, folder listing, search, and backup restore. Phase 12
 centralizes path validation in one place (`internal/sanitize`) and wires it into
 every entry point so a single upstream fix applies to all of them.
@@ -12,8 +12,8 @@ action. The concrete risks:
 
 - **Traversal**: `../` or absolute paths escaping the library root, letting a
   request read or write outside its sandbox.
-- **Cairn metadata directory**: a request that targets `.cairn/` (the library's
-  own database/state directory) could overwrite or expose Cairn's internals.
+- **Popcorn metadata directory**: a request that targets `.popcorn/` (the library's
+  own database/state directory) could overwrite or expose Popcorn's internals.
 - **Inconsistent authorization keys**: folder parameters passed both to
   `authz` keys and to SQL filters become two different things if they are not
   canonicalized first ("`2022`" vs "`./2022`" vs "`2022/../2022`").
@@ -38,7 +38,7 @@ Rejects:
   normally collapses — the validator rejects them outright so a path of
   `a/../../b` cannot silently become `../b`),
 - a leading top-level `..` (traversal),
-- a **top-level `.cairn` component** — the metadata directory is reserved and
+- a **top-level `.popcorn` component** — the metadata directory is reserved and
   never addressable as library content,
 - control characters (`\x00`-`\x1f`, `\x7f`) anywhere in the path — they are
   illegal on most filesystems, break logs, and enable terminal/markup tricks.
@@ -77,7 +77,7 @@ separator (`/` or `\`), so a rename cannot smuggle a directory change.
 ### `internal/backups`
 
 - `restoreEntry` validates each manifest entry's `Logical` path against the
-  restore destination before opening any file, so a crafted `cairn.db` manifest
+  restore destination before opening any file, so a crafted `popcorn.db` manifest
   on disk cannot write outside the destination directory. Valid logical paths
   (which are always relative and contain neither `.` nor `..` components) are
   unaffected.
@@ -93,7 +93,7 @@ separator (`/` or `\`), so a rename cannot smuggle a directory change.
 
 - Paths that previously slipped through `SafeRelPath` (e.g. `foo/../bar` after
   cleaning) are now rejected with `400 BAD_REQUEST`.
-- Files outside `.cairn` are unaffected; existing indexed libraries keep working.
+- Files outside `.popcorn` are unaffected; existing indexed libraries keep working.
 - The `folders`, `files?folder=`, and search `folder` parameters now reject
   malformed (traversing/absolute) values with 400 instead of returning
   authorization or empty results.

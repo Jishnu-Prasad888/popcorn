@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/indexer"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/indexer"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
 )
 
 // handleTriggerIndex enqueues a new scan job for the given library.
@@ -110,7 +110,7 @@ func isLibraryDBMissing(err error) bool {
 		return false
 	}
 	// The library database open path calls os.Stat; "no such file" means the
-	// .cairn directory or library.db does not exist yet.
+	// .popcorn directory or library.db does not exist yet.
 	return errors.Is(err, library.ErrNotFound) ||
 		containsAny(err.Error(), "no such file", "does not exist")
 }

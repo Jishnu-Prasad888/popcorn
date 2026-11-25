@@ -18,8 +18,8 @@ func TestFolderParamsRejectNonCanonicalPaths(t *testing.T) {
 		"../escape",
 		"/absolute",
 		"a/../../escape",
-		".cairn",
-		".cairn/photos",
+		".popcorn",
+		".popcorn/photos",
 		"a/./b",
 	}
 

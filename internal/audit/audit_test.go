@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/db"
+	"github.com/Jishnu-Prasad888/popcorn/internal/db"
 )
 
 func newTestService(t *testing.T) (*Service, *sql.DB) {
 	t.Helper()
-	pool, err := db.Open(filepath.Join(t.TempDir(), "cairn.db"))
+	pool, err := db.Open(filepath.Join(t.TempDir(), "popcorn.db"))
 	if err != nil {
 		t.Fatalf("open: %v", err)
 	}
@@ -32,7 +32,7 @@ func TestRecordPersistsEvent(t *testing.T) {
 		Action:       "tests.fired",
 		TargetUserID: "user-2",
 		IPAddress:    "127.0.0.1",
-		UserAgent:    "cairn-test",
+		UserAgent:    "popcorn-test",
 		Details:      map[string]any{"count": 3},
 	})
 

@@ -676,7 +676,7 @@ export async function downloadPublicShareFile(
   password?: string,
 ): Promise<void> {
   const response = await fetch(publicShareDownloadUrl(token, fileId), {
-    headers: password ? { 'X-Cairn-Share-Password': password } : {},
+    headers: password ? { 'X-Popcorn-Share-Password': password } : {},
   });
   if (!response.ok) {
     throw new ApiError(
@@ -707,7 +707,7 @@ export async function downloadPublicShareFile(
  */
 function shareRequest<T>(path: string, password?: string): Promise<T> {
   const headers: Record<string, string> = { Accept: 'application/json' };
-  if (password) headers['X-Cairn-Share-Password'] = password;
+  if (password) headers['X-Popcorn-Share-Password'] = password;
   return apiRequest<T>(path, { headers });
 }
 

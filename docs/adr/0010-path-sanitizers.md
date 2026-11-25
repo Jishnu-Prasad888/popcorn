@@ -5,10 +5,10 @@
 
 ## Context
 
-Cairn takes filesystem paths from users across many entry points: upload
+Popcorn takes filesystem paths from users across many entry points: upload
 destinations, rename/move/copy targets, folder listing/search filters, and
 backup restore destinations. Path validation historically lived only in
-`internal/media.SafeRelPath`, with gaps (a top-level `.cairn` target was
+`internal/media.SafeRelPath`, with gaps (a top-level `.popcorn` target was
 allowed, control characters were allowed, and mid-path `..` components were
 silently collapsed rather than rejected). Other subsystems (folders, search,
 backups) did not share the same validator, so authorization keys and SQL
@@ -22,7 +22,7 @@ validators, and route every path-accepting entry point through it:
 
 - **`sanitize.RelPath`** — canonical, relative, slash-separated path scoped to a
   library root. Rejects empty, absolute (post-clean), `.`/`..` components,
-  top-level `..`, a top-level `.cairn` component, and control characters.
+  top-level `..`, a top-level `.popcorn` component, and control characters.
 - **`sanitize.BareName`** — a single filename; `RelPath` rules plus no path
   separators (used for rename destinations).
 - **`media.SafeRelPath`** is reimplemented as a thin wrapper over
@@ -43,8 +43,8 @@ validators, and route every path-accepting entry point through it:
 
 - Canonical validation is defined once and reused everywhere; future entry
   points get correct path rules by importing `sanitize`.
-- Rejecting `.cairn` at the top level prevents user requests from addressing
-  Cairn's own metadata directory while leaving normal library content alone.
+- Rejecting `.popcorn` at the top level prevents user requests from addressing
+  Popcorn's own metadata directory while leaving normal library content alone.
 - Invalid folder/path values now fail fast with 400 rather than producing
   surprising authorization or query behavior.
 - Restore becomes destination-containment-safe even against a tampered manifest.

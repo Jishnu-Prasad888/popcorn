@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/memories"
+	"github.com/Jishnu-Prasad888/popcorn/internal/memories"
 )
 
 func sha256File(t *testing.T, path string) string {
@@ -61,7 +61,7 @@ func editedImageBlock(fileID string, e memories.Edits) *memories.Block {
 func derivedFiles(t *testing.T, lib *testLibrary) []string {
 	t.Helper()
 	var out []string
-	root := filepath.Join(lib.cairnDir, memories.DerivedDirName)
+	root := filepath.Join(lib.popcornDir, memories.DerivedDirName)
 	_ = filepath.WalkDir(root, func(p string, d os.DirEntry, err error) error {
 		if err == nil && !d.IsDir() && filepath.Ext(p) == ".jpg" {
 			out = append(out, p)
@@ -128,7 +128,7 @@ func TestOriginalIntegrity(t *testing.T) {
 }
 
 // TestDerivedLifecycle: original → memory → crop → save → derived copy
-// created in .cairn/memory-media → original unchanged → memory references the
+// created in .popcorn/memory-media → original unchanged → memory references the
 // derived copy; then reset → memory references the original and the copy is
 // collected.
 func TestDerivedLifecycle(t *testing.T) {
@@ -156,7 +156,7 @@ func TestDerivedLifecycle(t *testing.T) {
 	if len(files) != 1 {
 		t.Fatalf("derived files = %v", files)
 	}
-	wantDir := filepath.Join(lib.cairnDir, memories.DerivedDirName, m.ID)
+	wantDir := filepath.Join(lib.popcornDir, memories.DerivedDirName, m.ID)
 	if filepath.Dir(files[0]) != wantDir {
 		t.Errorf("derived copy at %s, want under %s", files[0], wantDir)
 	}
@@ -209,7 +209,7 @@ func TestNoDuplicateForUneditedImages(t *testing.T) {
 	if err != nil || res.Created != 0 {
 		t.Fatalf("SyncDerived = %+v, %v", res, err)
 	}
-	if _, err := os.Stat(filepath.Join(lib.cairnDir, memories.DerivedDirName)); !errors.Is(err, os.ErrNotExist) {
+	if _, err := os.Stat(filepath.Join(lib.popcornDir, memories.DerivedDirName)); !errors.Is(err, os.ErrNotExist) {
 		t.Errorf("memory-media dir created without any edits")
 	}
 	got, _ := lib.store.GetDocument(ctx(t), m.ID)
@@ -327,7 +327,7 @@ func TestDuplicateBlockSharesOriginals(t *testing.T) {
 	}
 }
 
-// TestReservedDirCollision: Cairn never writes into, moves, or overwrites a
+// TestReservedDirCollision: Popcorn never writes into, moves, or overwrites a
 // pre-existing memory-media path it did not create.
 func TestReservedDirCollision(t *testing.T) {
 	setup := func(t *testing.T) (*testLibrary, string) {
@@ -343,7 +343,7 @@ func TestReservedDirCollision(t *testing.T) {
 
 	t.Run("foreign directory", func(t *testing.T) {
 		lib, id := setup(t)
-		foreign := filepath.Join(lib.cairnDir, memories.DerivedDirName)
+		foreign := filepath.Join(lib.popcornDir, memories.DerivedDirName)
 		if err := os.MkdirAll(foreign, 0o755); err != nil {
 			t.Fatal(err)
 		}
@@ -366,7 +366,7 @@ func TestReservedDirCollision(t *testing.T) {
 
 	t.Run("file in the way", func(t *testing.T) {
 		lib, id := setup(t)
-		blocker := filepath.Join(lib.cairnDir, memories.DerivedDirName)
+		blocker := filepath.Join(lib.popcornDir, memories.DerivedDirName)
 		if err := os.WriteFile(blocker, []byte("x"), 0o644); err != nil {
 			t.Fatal(err)
 		}
@@ -381,7 +381,7 @@ func TestReservedDirCollision(t *testing.T) {
 	t.Run("symlink", func(t *testing.T) {
 		lib, id := setup(t)
 		target := t.TempDir()
-		if err := os.Symlink(target, filepath.Join(lib.cairnDir, memories.DerivedDirName)); err != nil {
+		if err := os.Symlink(target, filepath.Join(lib.popcornDir, memories.DerivedDirName)); err != nil {
 			t.Skip("symlinks unsupported:", err)
 		}
 		if _, err := lib.store.SyncDerived(ctx(t), id, lib.deriver(), true); !errors.Is(err, memories.ErrReservedPathConflict) {
@@ -394,7 +394,7 @@ func TestReservedDirCollision(t *testing.T) {
 
 	t.Run("empty pre-existing dir is claimed", func(t *testing.T) {
 		lib, id := setup(t)
-		if err := os.MkdirAll(filepath.Join(lib.cairnDir, memories.DerivedDirName), 0o755); err != nil {
+		if err := os.MkdirAll(filepath.Join(lib.popcornDir, memories.DerivedDirName), 0o755); err != nil {
 			t.Fatal(err)
 		}
 		res, err := lib.store.SyncDerived(ctx(t), id, lib.deriver(), true)

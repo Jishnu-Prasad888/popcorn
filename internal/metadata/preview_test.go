@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
 )
 
 // jpegWithOrientation encodes img as a JPEG carrying a minimal EXIF block
@@ -49,9 +49,9 @@ func writeFile(t *testing.T, path string, data []byte) {
 	}
 }
 
-func previewConfig(t *testing.T, cairnDir, id string, keys *crypto.Keys) (image.Image, image.Config) {
+func previewConfig(t *testing.T, popcornDir, id string, keys *crypto.Keys) (image.Image, image.Config) {
 	t.Helper()
-	data, _, err := ReadPreview(cairnDir, id, keys)
+	data, _, err := ReadPreview(popcornDir, id, keys)
 	if err != nil {
 		t.Fatalf("ReadPreview: %v", err)
 	}
@@ -64,22 +64,22 @@ func previewConfig(t *testing.T, cairnDir, id string, keys *crypto.Keys) (image.
 
 func TestGeneratePreviewScalesLargePhoto(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 	src := filepath.Join(dir, "big.jpg")
 	var buf bytes.Buffer
 	_ = jpeg.Encode(&buf, image.NewRGBA(image.Rect(0, 0, 4100, 2050)), nil)
 	writeFile(t, src, buf.Bytes())
 
 	keys := crypto.NewKeys("a phrasey passphrase")
-	ok, err := GeneratePreview(src, cairnDir, "p1", keys)
+	ok, err := GeneratePreview(src, popcornDir, "p1", keys)
 	if err != nil || !ok {
 		t.Fatalf("GeneratePreview = %v, %v; want true, nil", ok, err)
 	}
-	raw, _ := os.ReadFile(PreviewPath(cairnDir, "p1"))
+	raw, _ := os.ReadFile(PreviewPath(popcornDir, "p1"))
 	if !crypto.IsSealed(raw) {
 		t.Fatal("on-disk preview is not sealed")
 	}
-	_, cfg := previewConfig(t, cairnDir, "p1", keys)
+	_, cfg := previewConfig(t, popcornDir, "p1", keys)
 	if cfg.Width != PreviewSize || cfg.Height != PreviewSize/2 {
 		t.Errorf("preview = %dx%d, want %dx%d", cfg.Width, cfg.Height, PreviewSize, PreviewSize/2)
 	}
@@ -87,7 +87,7 @@ func TestGeneratePreviewScalesLargePhoto(t *testing.T) {
 
 func TestGeneratePreviewSkipsWhenOriginalServes(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 
 	small := filepath.Join(dir, "small.jpg")
 	var buf bytes.Buffer
@@ -101,12 +101,12 @@ func TestGeneratePreviewSkipsWhenOriginalServes(t *testing.T) {
 	writeFile(t, anim, buf.Bytes())
 
 	for _, src := range []string{small, anim} {
-		ok, err := GeneratePreview(src, cairnDir, "skip", crypto.NewKeys(""))
+		ok, err := GeneratePreview(src, popcornDir, "skip", crypto.NewKeys(""))
 		if err != nil || ok {
 			t.Errorf("GeneratePreview(%s) = %v, %v; want false, nil", filepath.Base(src), ok, err)
 		}
 	}
-	if _, err := os.Stat(PreviewPath(cairnDir, "skip")); !os.IsNotExist(err) {
+	if _, err := os.Stat(PreviewPath(popcornDir, "skip")); !os.IsNotExist(err) {
 		t.Errorf("a preview was written for a file the original serves: %v", err)
 	}
 }
@@ -125,15 +125,15 @@ func TestGeneratePreviewAppliesOrientation(t *testing.T) {
 		}
 	}
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 	src := filepath.Join(dir, "turned.jpg")
 	writeFile(t, src, jpegWithOrientation(t, img, 6))
 
-	ok, err := GeneratePreview(src, cairnDir, "o6", crypto.NewKeys(""))
+	ok, err := GeneratePreview(src, popcornDir, "o6", crypto.NewKeys(""))
 	if err != nil || !ok {
 		t.Fatalf("GeneratePreview = %v, %v; want true, nil (orientation forces one)", ok, err)
 	}
-	got, cfg := previewConfig(t, cairnDir, "o6", crypto.NewKeys(""))
+	got, cfg := previewConfig(t, popcornDir, "o6", crypto.NewKeys(""))
 	if cfg.Width != 200 || cfg.Height != 400 {
 		t.Fatalf("preview = %dx%d, want 200x400", cfg.Width, cfg.Height)
 	}

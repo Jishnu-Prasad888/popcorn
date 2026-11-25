@@ -34,7 +34,7 @@ var (
 )
 
 // Acquire returns a migrated connection pool for the library database in
-// cairnDir that is shared with every other caller of Acquire for the same
+// popcornDir that is shared with every other caller of Acquire for the same
 // library, and a release func the caller must call exactly once when done.
 //
 // The caller must not Close the returned pool. Opening a SQLite database
@@ -42,15 +42,15 @@ var (
 // by every API request (one per thumbnail in a grid); a shared pool pays it
 // once. The pool is closed after sharedIdleTTL without users, and is
 // replaced when library.db is no longer the file it was opened on.
-func Acquire(cairnDir string) (*sql.DB, func(), error) {
-	path := filepath.Join(cairnDir, dbFileName)
+func Acquire(popcornDir string) (*sql.DB, func(), error) {
+	path := filepath.Join(popcornDir, dbFileName)
 	if db, release, ok := acquireCached(path); ok {
 		return db, release, nil
 	}
 
 	// Open outside the lock: a slow or sleeping drive behind one library
 	// must not hold up requests to every other library.
-	db, err := Open(cairnDir)
+	db, err := Open(popcornDir)
 	if err != nil {
 		return nil, nil, err
 	}

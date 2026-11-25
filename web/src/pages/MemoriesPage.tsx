@@ -46,9 +46,9 @@ import './MemoriesPage.css';
 
 type ViewMode = 'grid' | 'list';
 
-const VIEW_KEY = 'cairn.memories.view';
-const QUERY_KEY = 'cairn.memories.query';
-const SCROLL_KEY = 'cairn.memories.scroll';
+const VIEW_KEY = 'popcorn.memories.view';
+const QUERY_KEY = 'popcorn.memories.query';
+const SCROLL_KEY = 'popcorn.memories.scroll';
 /** Below this width the "recent" row becomes a swipeable strip. */
 const STRIP_BELOW = 640;
 const STRIP_COUNT = 6;

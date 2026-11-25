@@ -8,7 +8,7 @@ installations (downloading the binary, systemd service, upgrades) see
 
 ```sh
 make build          # or download a release binary — see installation.md
-./bin/cairn
+./bin/popcorn
 ```
 
 The server binds to `127.0.0.1:8715` by default. For access beyond localhost,
@@ -19,7 +19,7 @@ rather than terminating TLS itself.
 ## Reverse proxy sample (Caddy)
 
 ```text
-cairn.example.com {
+popcorn.example.com {
     reverse_proxy 127.0.0.1:8715
 }
 ```
@@ -31,10 +31,10 @@ Caddy obtains certificates automatically once the domain resolves.
 ```nginx
 server {
     listen 443 ssl;
-    server_name cairn.example.com;
+    server_name popcorn.example.com;
 
-    ssl_certificate     /etc/ssl/cairn.example.com/fullchain.pem;
-    ssl_certificate_key /etc/ssl/cairn.example.com/privkey.pem;
+    ssl_certificate     /etc/ssl/popcorn.example.com/fullchain.pem;
+    ssl_certificate_key /etc/ssl/popcorn.example.com/privkey.pem;
 
     client_max_body_size 100M;
 
@@ -49,7 +49,7 @@ server {
 ```
 
 Set `client_max_body_size` to at least your largest expected upload (the server
-default upload cap is 2 GiB; tune `CAIRN_MAX_UPLOAD_BYTES` to match).
+default upload cap is 2 GiB; tune `POPCORN_MAX_UPLOAD_BYTES` to match).
 
 ## Probes
 
@@ -67,7 +67,7 @@ default upload cap is 2 GiB; tune `CAIRN_MAX_UPLOAD_BYTES` to match).
 - The default `127.0.0.1` bind is intentional. Deploy behind a reverse proxy
   that terminates TLS; authentication (built-in accounts) protects the API, but
   credentials should never travel over plain HTTP.
-- Preserve the data directory (`CAIRN_DATA_DIR`) across upgrades — it holds the
+- Preserve the data directory (`POPCORN_DATA_DIR`) across upgrades — it holds the
   server database, which is migrated automatically on startup. Never run two
   server processes against the same data directory.
 - For Docker, see [docker.md](docker.md). Raspberry Pi specifics in

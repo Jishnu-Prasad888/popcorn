@@ -8,7 +8,7 @@ import (
 	_ "image/png"  // register PNG decoder
 	"os"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/safeimage"
+	"github.com/Jishnu-Prasad888/popcorn/internal/safeimage"
 	"golang.org/x/image/draw"
 )
 

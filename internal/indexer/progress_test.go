@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/jobs"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/jobs"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 )
 
 func writeTree(t *testing.T, root string, files ...string) {
@@ -27,7 +27,7 @@ func writeTree(t *testing.T, root string, files ...string) {
 
 func TestScanProgressCountsEveryFolder(t *testing.T) {
 	root := t.TempDir()
-	writeTree(t, root, "top.jpg", "a/1.jpg", "a/2.jpg", "a/deep/3.jpg", "b/4.jpg", ".cairn/skip.db")
+	writeTree(t, root, "top.jpg", "a/1.jpg", "a/2.jpg", "a/deep/3.jpg", "b/4.jpg", ".popcorn/skip.db")
 
 	p := newScanProgress()
 	if _, _, ok := p.Under(""); ok {
@@ -94,11 +94,11 @@ func TestFolderScanState(t *testing.T) {
 
 func TestProgressTree(t *testing.T) {
 	root := t.TempDir()
-	cairnDir := filepath.Join(root, ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	popcornDir := filepath.Join(root, ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	ldb, err := librarydb.OpenDB(cairnDir)
+	ldb, err := librarydb.OpenDB(popcornDir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,11 +166,11 @@ func TestProgressTree(t *testing.T) {
 
 func TestScanFillsProgress(t *testing.T) {
 	root := t.TempDir()
-	cairnDir := filepath.Join(root, ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	popcornDir := filepath.Join(root, ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	ldb, err := librarydb.OpenDB(cairnDir)
+	ldb, err := librarydb.OpenDB(popcornDir)
 	if err != nil {
 		t.Fatal(err)
 	}

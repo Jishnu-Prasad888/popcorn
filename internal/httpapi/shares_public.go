@@ -5,13 +5,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
 )
 
 // sharePasswordHeader carries an optional share password on public requests.
-const sharePasswordHeader = "X-Cairn-Share-Password"
+const sharePasswordHeader = "X-Popcorn-Share-Password"
 
 // shareAuthenticatedFunc is a handler that has already been granted access to
 // a share.

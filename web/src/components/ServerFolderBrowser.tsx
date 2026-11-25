@@ -1,7 +1,7 @@
 /**
  * Browsing the server's own folders.
  *
- * Library roots and the backup folder are paths on the machine running Cairn,
+ * Library roots and the backup folder are paths on the machine running Popcorn,
  * not on the browser's machine, so a native file dialog cannot pick them. This
  * walks the server's directories one level at a time instead.
  */

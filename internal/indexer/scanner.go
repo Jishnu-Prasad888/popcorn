@@ -13,8 +13,8 @@ import (
 	"time"
 )
 
-// cairnDirName is the metadata directory name that must never be indexed.
-const cairnDirName = ".cairn"
+// popcornDirName is the metadata directory name that must never be indexed.
+const popcornDirName = ".popcorn"
 
 // Scanner walks a library root and reconciles the filesystem against the
 // persisted index. It implements staged identity detection to avoid
@@ -100,7 +100,7 @@ func (sc *Scanner) Scan(ctx context.Context, libraryID, root string) (*Result, e
 		}
 
 		// Skip the metadata directory entirely.
-		if d.IsDir() && d.Name() == cairnDirName {
+		if d.IsDir() && d.Name() == popcornDirName {
 			return filepath.SkipDir
 		}
 		relPath, err := filepath.Rel(root, absPath)
@@ -210,7 +210,7 @@ func (sc *Scanner) reconcileFile(
 
 	// Stage 1: unchanged — same path, size, and mtime.
 	if known && existing.SizeBytes == info.Size() && existing.ModTime.Equal(info.ModTime().UTC()) {
-		// A file Cairn wrote itself (an upload, a copy) was indexed without a
+		// A file Popcorn wrote itself (an upload, a copy) was indexed without a
 		// hash. Hash it once now: without one, moving it in a file manager
 		// would look like a new file, which "Recently added" would show.
 		if existing.ContentHash == "" {

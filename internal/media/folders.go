@@ -13,7 +13,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/likeutil"
+	"github.com/Jishnu-Prasad888/popcorn/internal/likeutil"
 )
 
 // ErrFolderIntoItself is returned when a folder would be moved inside itself.

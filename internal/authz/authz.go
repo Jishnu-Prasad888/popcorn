@@ -1,4 +1,4 @@
-// Package authz implements Cairn's resource-based authorization subsystem
+// Package authz implements Popcorn's resource-based authorization subsystem
 // (ADR-0005).
 //
 // Authorization is a dedicated, first-class subsystem: never scattered
@@ -25,7 +25,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/audit"
+	"github.com/Jishnu-Prasad888/popcorn/internal/audit"
 )
 
 // Capability is a single operation a principal may perform on a resource.

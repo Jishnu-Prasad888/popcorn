@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
 )
 
 // TestVideoPosterUpload covers the browser fallback for servers without
@@ -32,7 +32,7 @@ func TestVideoPosterUpload(t *testing.T) {
 	if err := seedLibraryFile(t, libRoot, "pic-1", "pic.jpg", 1); err != nil {
 		t.Fatal(err)
 	}
-	ldb, err := librarydb.Open(filepath.Join(libRoot, ".cairn"))
+	ldb, err := librarydb.Open(filepath.Join(libRoot, ".popcorn"))
 	if err != nil {
 		t.Fatal(err)
 	}

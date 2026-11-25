@@ -1,17 +1,17 @@
-# Cairn
+# Popcorn
 
 > A small, beautiful, personal digital place that quietly organizes everything you want to keep.
 
-Cairn is a self-hosted personal media, file, and memory server. It brings together
+Popcorn is a self-hosted personal media, file, and memory server. It brings together
 ideas from Google Photos, Google Drive, Obsidian, and personal digital archives into
 one calm, self-hosted application.
 
 The most important architectural idea:
 
-> **Cairn catalogs and manages existing media *in place*. It never copies, moves,
+> **Popcorn catalogs and manages existing media *in place*. It never copies, moves,
 > recompresses, or rewrites your original files.**
 
-Your filesystem is the source of truth for actual media files. Point Cairn at a
+Your filesystem is the source of truth for actual media files. Point Popcorn at a
 directory full of years of photos and videos and it indexes them where they are.
 
 ## Current status
@@ -43,35 +43,35 @@ See [docs/roadmap.md](docs/roadmap.md) for the full plan.
 ### From source
 
 ```sh
-make build          # builds web/, embeds it, compiles bin/cairn
-./bin/cairn         # serves http://127.0.0.1:8715
+make build          # builds web/, embeds it, compiles bin/popcorn
+./bin/popcorn         # serves http://127.0.0.1:8715
 ```
 
-The server database and state live in `$XDG_DATA_HOME/cairn`
-(`~/.local/share/cairn`). Override with `CAIRN_DATA_DIR`.
+The server database and state live in `$XDG_DATA_HOME/popcorn`
+(`~/.local/share/popcorn`). Override with `POPCORN_DATA_DIR`.
 
 ### Requirements
 
 - Go and Node (to build from source).
-- **ffmpeg** (recommended): Cairn uses it to make video thumbnails, and AVIF
+- **ffmpeg** (recommended): Popcorn uses it to make video thumbnails, and AVIF
   and HEIC photo thumbnails (HEIC needs ffmpeg 7.1 or newer). Without it,
   the browser has to decode each video itself, which fails for formats it
   cannot play (for example HEVC/x265 `.mkv`), and those videos show no
   preview. Install it with `sudo apt install ffmpeg` (Debian/Ubuntu),
   `brew install ffmpeg` (macOS) or your platform's package manager, and make
-  sure it is on `PATH` for the server. Cairn warns in the app when it is missing.
+  sure it is on `PATH` for the server. Popcorn warns in the app when it is missing.
 
 ### Docker
 
 The image already includes ffmpeg.
 
 ```sh
-docker build -t cairn .
+docker build -t popcorn .
 docker run -d \
-  --name cairn \
+  --name popcorn \
   -p 8715:8715 \
-  -v cairn-data:/data \
-  cairn
+  -v popcorn-data:/data \
+  popcorn
 ```
 
 ### Development
@@ -96,10 +96,10 @@ notice:
   browsers, some exotic `.mkv` codecs), the preview never appears. The video
   may still play with sound only.
 - **The time is approximate.** The seek bar is the browser's own control, so
-  Cairn estimates where it is from the pointer position. Chrome, Firefox and
+  Popcorn estimates where it is from the pointer position. Chrome, Firefox and
   Safari lay it out slightly differently, so the previewed frame can be off by
   a few seconds and the popup may show when you are not exactly on the bar.
-- **Fullscreen.** It works in Cairn's fullscreen (the viewer's full-screen
+- **Fullscreen.** It works in Popcorn's fullscreen (the viewer's full-screen
   button or `F`). The browser's own native video fullscreen button covers the
   page, so no preview is shown there.
 - **No preview on touch screens.** Phones and tablets have no hover.
@@ -112,34 +112,34 @@ notice:
 
 ## Configuration
 
-All settings use the `CAIRN_` prefix.
+All settings use the `POPCORN_` prefix.
 
 | Variable               | Default                            | Description                             |
 | ---------------------- | ---------------------------------- | --------------------------------------- |
-| `CAIRN_HTTP_ADDR`      | `127.0.0.1:8715`                   | HTTP listen address                     |
-| `CAIRN_DATA_DIR`       | `$XDG_DATA_HOME/cairn`             | Server-level data directory             |
-| `CAIRN_LOG_LEVEL`      | `info`                             | `debug`, `info`, `warn`, or `error`     |
-| `CAIRN_WEB_DIST`       | *(embedded frontend)*              | Serve an on-disk build instead (dev)    |
-| `CAIRN_COOKIE_SECURE`  | `false`                            | Force `Secure` on session cookies (TLS-terminating proxy) |
-| `CAIRN_BACKUP_DIR`     | *(disabled)*                       | Starting local backup folder; the Backups page can set a folder, mounted drive, SFTP, FTP or SMB destination instead |
-| `CAIRN_BACKUP_KEEP`    | `4`                                | Completed backups retained; older are pruned |
-| `CAIRN_BACKUP_INTERVAL_MIN` | `0`                            | Starting backup interval in minutes (`0` = manual only); the Backups page also offers daily/weekly schedules and size triggers |
-| `CAIRN_BACKUP_PASSPHRASE`| *(disabled)*                     | Encrypts backups (needed for restore/verify) |
-| `CAIRN_ENCRYPTION_PASSPHRASE` | *(disabled)*            | Encrypts Cairn's on-disk metadata (.cairn identity + thumbnails) at rest |
-| `CAIRN_MEDIA_WORKERS`  | *half the CPUs, 1–4*               | Files per library processed at once for thumbnails and metadata |
-| `CAIRN_ML_ENABLED`      | `false`                           | Enable local ML similarity search           |
-| `CAIRN_ML_SIMILARITY`   | `true`                            | Run a similarity pass when ML is enabled    |
-| `CAIRN_ML_WORKERS`      | `2`                               | Bounded concurrency for the similarity pass |
-| `CAIRN_ML_DISTANCE_THRESHOLD` | `10`                        | Hamming distance for flagging near-duplicates |
-| `CAIRN_ML_FACE_DETECTOR_MODEL` | *(data dir)/models/face-detector.onnx* | Path to the SCRFD face-detector ONNX model. Download via the ML settings page. |
-| `CAIRN_ML_FACE_DETECTOR_URL` | *(InsightFace buffalo_l det_2.5g)* | URL to fetch the SCRFD detector from; override for a mirror or a different model size. |
-| `CAIRN_ML_FACE_MODEL`   | *(data dir)/models/face-recognition.onnx* | Path to the ArcFace R50 recognition ONNX model. Download via the ML settings page. |
-| `CAIRN_ML_FACE_MODEL_URL` | *(InsightFace buffalo_l w600k_r50)* | URL to fetch the ArcFace recognizer from; override for a mirror. |
+| `POPCORN_HTTP_ADDR`      | `127.0.0.1:8715`                   | HTTP listen address                     |
+| `POPCORN_DATA_DIR`       | `$XDG_DATA_HOME/popcorn`             | Server-level data directory             |
+| `POPCORN_LOG_LEVEL`      | `info`                             | `debug`, `info`, `warn`, or `error`     |
+| `POPCORN_WEB_DIST`       | *(embedded frontend)*              | Serve an on-disk build instead (dev)    |
+| `POPCORN_COOKIE_SECURE`  | `false`                            | Force `Secure` on session cookies (TLS-terminating proxy) |
+| `POPCORN_BACKUP_DIR`     | *(disabled)*                       | Starting local backup folder; the Backups page can set a folder, mounted drive, SFTP, FTP or SMB destination instead |
+| `POPCORN_BACKUP_KEEP`    | `4`                                | Completed backups retained; older are pruned |
+| `POPCORN_BACKUP_INTERVAL_MIN` | `0`                            | Starting backup interval in minutes (`0` = manual only); the Backups page also offers daily/weekly schedules and size triggers |
+| `POPCORN_BACKUP_PASSPHRASE`| *(disabled)*                     | Encrypts backups (needed for restore/verify) |
+| `POPCORN_ENCRYPTION_PASSPHRASE` | *(disabled)*            | Encrypts Popcorn's on-disk metadata (.popcorn identity + thumbnails) at rest |
+| `POPCORN_MEDIA_WORKERS`  | *half the CPUs, 1–4*               | Files per library processed at once for thumbnails and metadata |
+| `POPCORN_ML_ENABLED`      | `false`                           | Enable local ML similarity search           |
+| `POPCORN_ML_SIMILARITY`   | `true`                            | Run a similarity pass when ML is enabled    |
+| `POPCORN_ML_WORKERS`      | `2`                               | Bounded concurrency for the similarity pass |
+| `POPCORN_ML_DISTANCE_THRESHOLD` | `10`                        | Hamming distance for flagging near-duplicates |
+| `POPCORN_ML_FACE_DETECTOR_MODEL` | *(data dir)/models/face-detector.onnx* | Path to the SCRFD face-detector ONNX model. Download via the ML settings page. |
+| `POPCORN_ML_FACE_DETECTOR_URL` | *(InsightFace buffalo_l det_2.5g)* | URL to fetch the SCRFD detector from; override for a mirror or a different model size. |
+| `POPCORN_ML_FACE_MODEL`   | *(data dir)/models/face-recognition.onnx* | Path to the ArcFace R50 recognition ONNX model. Download via the ML settings page. |
+| `POPCORN_ML_FACE_MODEL_URL` | *(InsightFace buffalo_l w600k_r50)* | URL to fetch the ArcFace recognizer from; override for a mirror. |
 
 ## Repository layout
 
 ```text
-cmd/cairn/             entrypoint
+cmd/popcorn/             entrypoint
 internal/
   audit/               security event (audit) logging
   auth/                users, passwords, sessions, roles

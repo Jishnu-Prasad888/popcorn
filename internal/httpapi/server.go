@@ -6,17 +6,17 @@ import (
 	"net/http"
 	"sync/atomic"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/backups"
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/indexer"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metrics"
-	"github.com/Jishnu-Prasad888/Cairn/internal/ml"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/backups"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/indexer"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metrics"
+	"github.com/Jishnu-Prasad888/popcorn/internal/ml"
 )
 
-// Server is the Cairn HTTP application. It is a small composition of the
+// Server is the Popcorn HTTP application. It is a small composition of the
 // routes and shared dependencies; individual handlers stay in their own
 // files.
 type Server struct {
@@ -80,7 +80,7 @@ type Dependencies struct {
 	// the backup-management endpoints return SERVICE_UNAVAILABLE.
 	Backups *backups.Manager
 	// Keys is the optional at-rest encryption key (Phase 13) used to seal the
-	// .cairn identity and thumbnails. It may be nil or disabled, in which
+	// .popcorn identity and thumbnails. It may be nil or disabled, in which
 	// case metadata is written in the clear.
 	Keys *crypto.Keys
 	// SecureCookies forces the Secure flag on session cookies even when the
@@ -374,7 +374,7 @@ func (s *Server) Handler() http.Handler {
 	} else {
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			writeError(w, s.logger, requestIDOrEmpty(r), http.StatusNotFound, CodeNotFound,
-				"No web frontend is configured. Build the frontend or point CAIRN_WEB_DIST at a built web/dist directory.")
+				"No web frontend is configured. Build the frontend or point POPCORN_WEB_DIST at a built web/dist directory.")
 		})
 	}
 

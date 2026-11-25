@@ -1,6 +1,6 @@
 // Package librarydb manages per-library SQLite databases.
 //
-// Each Cairn library keeps its own SQLite database at <root>/.cairn/library.db.
+// Each Popcorn library keeps its own SQLite database at <root>/.popcorn/library.db.
 // This database holds library-scoped data: indexed files, folders, jobs,
 // thumbnails, embeddings, and any other data that travels with the library.
 //
@@ -21,13 +21,13 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
 
 	_ "modernc.org/sqlite" // pure-Go SQLite driver
 )
 
 const (
-	// dbFileName is the per-library database filename inside .cairn/.
+	// dbFileName is the per-library database filename inside .popcorn/.
 	dbFileName = "library.db"
 
 	// SchemaVersion is the current version of the library-level database
@@ -56,8 +56,8 @@ func (d *DB) Close() error {
 }
 
 // AcquireDB is Acquire wrapped as a DB whose Close releases the shared pool.
-func AcquireDB(cairnDir string) (*DB, error) {
-	pool, release, err := Acquire(cairnDir)
+func AcquireDB(popcornDir string) (*DB, error) {
+	pool, release, err := Acquire(popcornDir)
 	if err != nil {
 		return nil, err
 	}
@@ -65,9 +65,9 @@ func AcquireDB(cairnDir string) (*DB, error) {
 }
 
 // OpenDB opens (creating if necessary) the per-library SQLite database at
-// <cairnDir>/library.db and applies any pending schema migrations.
-func OpenDB(cairnDir string) (*DB, error) {
-	pool, err := Open(cairnDir)
+// <popcornDir>/library.db and applies any pending schema migrations.
+func OpenDB(popcornDir string) (*DB, error) {
+	pool, err := Open(popcornDir)
 	if err != nil {
 		return nil, err
 	}
@@ -75,9 +75,9 @@ func OpenDB(cairnDir string) (*DB, error) {
 }
 
 // Open opens (creating if necessary) the per-library SQLite database at
-// <cairnDir>/library.db and applies any pending schema migrations.
-func Open(cairnDir string) (*sql.DB, error) {
-	path := filepath.Join(cairnDir, dbFileName)
+// <popcornDir>/library.db and applies any pending schema migrations.
+func Open(popcornDir string) (*sql.DB, error) {
+	path := filepath.Join(popcornDir, dbFileName)
 
 	// Every call opens its own *sql.DB pointed at the same file — callers
 	// across internal/ml and elsewhere each hold their own short-lived
@@ -109,7 +109,7 @@ func Open(cairnDir string) (*sql.DB, error) {
 	}
 	// The schema (DDL) only has to be brought forward once per process. The
 	// stamp in user_version is re-read on every open, so a database file that
-	// was swapped out underneath (a restore, a re-created .cairn) is migrated
+	// was swapped out underneath (a restore, a re-created .popcorn) is migrated
 	// again rather than trusted on the strength of its path.
 	if !migratedBefore(path) || !stamped(pool) {
 		if _, err := pool.Exec(`PRAGMA journal_mode = WAL`); err != nil {
@@ -665,7 +665,7 @@ CREATE INDEX IF NOT EXISTS memory_images_source_idx ON memory_images (source_fil
 
 -- memory_derived_media records edited copies rendered for a memory image when
 -- the "create edited copies" setting is on. Files live under
--- .cairn/memory-media/<memory-id>/ (rel_path is relative to .cairn/), which
+-- .popcorn/memory-media/<memory-id>/ (rel_path is relative to .popcorn/), which
 -- the indexer never scans. Rows are regenerable and are garbage collected only
 -- once no memory_images row references them.
 CREATE TABLE IF NOT EXISTS memory_derived_media (
@@ -801,7 +801,7 @@ CREATE TABLE IF NOT EXISTS ml_rules (
 
 -- favorite_folders are folders starred as favourites, by path. A folder has no
 -- id of its own (it is whatever is on disk), so renaming or moving it through
--- Cairn rewrites the path here too.
+-- Popcorn rewrites the path here too.
 CREATE TABLE IF NOT EXISTS favorite_folders (
 	rel_path   TEXT PRIMARY KEY,
 	created_at TEXT NOT NULL

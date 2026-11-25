@@ -74,7 +74,7 @@ func TestIncrementalWithoutHardLinksReferencesAndPrunes(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(first.Destination, rel)); err != nil {
 		t.Fatalf("referenced file was pruned: %v", err)
 	}
-	if _, err := os.Stat(filepath.Join(first.Destination, "server", "cairn.db")); err == nil {
+	if _, err := os.Stat(filepath.Join(first.Destination, "server", "popcorn.db")); err == nil {
 		t.Fatal("unreferenced payload survived pruning")
 	}
 

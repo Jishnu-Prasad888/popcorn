@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
 )
 
 // openMediaService opens the per-library DB and returns a media.Service and
@@ -26,8 +26,8 @@ func (s *Server) openMediaService(
 		return nil, nil, false
 	}
 
-	cairnDir := lib.Root + "/.cairn"
-	db, release, err := librarydb.Acquire(cairnDir)
+	popcornDir := lib.Root + "/.popcorn"
+	db, release, err := librarydb.Acquire(popcornDir)
 	if err != nil {
 		s.logger.Error("open library db", "library_id", lib.ID, "error", err)
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,
@@ -742,7 +742,7 @@ func (s *Server) withColors(r *http.Request, lib *library.Library, out []fileRes
 	if len(out) == 0 {
 		return out
 	}
-	db, release, err := librarydb.Acquire(lib.Root + "/.cairn")
+	db, release, err := librarydb.Acquire(lib.Root + "/.popcorn")
 	if err != nil {
 		return out
 	}

@@ -21,9 +21,9 @@ import { useAuth } from '../auth/authContext';
 import { ApiError, apiGet } from './client';
 import type { Library } from './types';
 
-export const LIBRARY_STORAGE_KEY = 'cairn.library';
+export const LIBRARY_STORAGE_KEY = 'popcorn.library';
 /** The set of libraries the user has opened, as a JSON array of ids. */
-export const OPEN_LIBRARIES_STORAGE_KEY = 'cairn.libraries.open';
+export const OPEN_LIBRARIES_STORAGE_KEY = 'popcorn.libraries.open';
 
 /** Read the remembered library id, or null when there is nothing to restore. */
 export function readStoredLibraryId(): string | null {

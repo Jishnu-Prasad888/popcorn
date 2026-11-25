@@ -12,8 +12,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
 )
 
 // makeJPEG writes a minimal valid JPEG image to path and returns it.
@@ -137,11 +137,11 @@ func TestExtractFromReader(t *testing.T) {
 
 func TestGenerateThumbnailJPEG(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 	srcPath := filepath.Join(dir, "photo.jpg")
 	makeJPEG(t, srcPath, 1200, 900)
 
-	ok, err := metadata.GenerateThumbnail(srcPath, cairnDir, "file-id-1", crypto.NewKeys(""))
+	ok, err := metadata.GenerateThumbnail(srcPath, popcornDir, "file-id-1", crypto.NewKeys(""))
 	if err != nil {
 		t.Fatalf("GenerateThumbnail: %v", err)
 	}
@@ -149,7 +149,7 @@ func TestGenerateThumbnailJPEG(t *testing.T) {
 		t.Fatal("expected thumbnail to be generated")
 	}
 
-	thumbPath := metadata.ThumbPath(cairnDir, "file-id-1")
+	thumbPath := metadata.ThumbPath(popcornDir, "file-id-1")
 	if _, err := os.Stat(thumbPath); err != nil {
 		t.Fatalf("thumbnail not on disk: %v", err)
 	}
@@ -169,11 +169,11 @@ func TestGenerateThumbnailJPEG(t *testing.T) {
 
 func TestGenerateThumbnailPNG(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 	srcPath := filepath.Join(dir, "photo.png")
 	makePNG(t, srcPath, 800, 600)
 
-	ok, err := metadata.GenerateThumbnail(srcPath, cairnDir, "file-id-2", crypto.NewKeys(""))
+	ok, err := metadata.GenerateThumbnail(srcPath, popcornDir, "file-id-2", crypto.NewKeys(""))
 	if err != nil {
 		t.Fatalf("GenerateThumbnail: %v", err)
 	}
@@ -184,9 +184,9 @@ func TestGenerateThumbnailPNG(t *testing.T) {
 
 func TestGenerateThumbnailWebP(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 
-	ok, err := metadata.GenerateThumbnail(filepath.Join("testdata", "photo.webp"), cairnDir, "file-id-webp", crypto.NewKeys(""))
+	ok, err := metadata.GenerateThumbnail(filepath.Join("testdata", "photo.webp"), popcornDir, "file-id-webp", crypto.NewKeys(""))
 	if err != nil {
 		t.Fatalf("GenerateThumbnail: %v", err)
 	}
@@ -207,13 +207,13 @@ func TestGenerateThumbnailAVIF(t *testing.T) {
 	if !metadata.VideoFramesAvailable() {
 		t.Skip("AVIF thumbnails need ffmpeg")
 	}
-	cairnDir := filepath.Join(t.TempDir(), ".cairn")
+	popcornDir := filepath.Join(t.TempDir(), ".popcorn")
 
-	ok, err := metadata.GenerateThumbnail(filepath.Join("testdata", "photo.avif"), cairnDir, "file-id-avif", crypto.NewKeys(""))
+	ok, err := metadata.GenerateThumbnail(filepath.Join("testdata", "photo.avif"), popcornDir, "file-id-avif", crypto.NewKeys(""))
 	if err != nil || !ok {
 		t.Fatalf("GenerateThumbnail = %v, %v; want a thumbnail", ok, err)
 	}
-	data, _, err := metadata.ReadThumb(cairnDir, "file-id-avif", crypto.NewKeys(""))
+	data, _, err := metadata.ReadThumb(popcornDir, "file-id-avif", crypto.NewKeys(""))
 	if err != nil {
 		t.Fatalf("ReadThumb: %v", err)
 	}
@@ -230,7 +230,7 @@ func TestGenerateThumbnailAVIF(t *testing.T) {
 // both must succeed and leave a whole JPEG.
 func TestGenerateThumbnailConcurrent(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 	srcPath := filepath.Join(dir, "photo.png")
 	makePNG(t, srcPath, 64, 48)
 
@@ -238,7 +238,7 @@ func TestGenerateThumbnailConcurrent(t *testing.T) {
 	errs := make(chan error, 16)
 	for range 16 {
 		wg.Go(func() {
-			if ok, err := metadata.GenerateThumbnail(srcPath, cairnDir, "same", crypto.NewKeys("")); err != nil || !ok {
+			if ok, err := metadata.GenerateThumbnail(srcPath, popcornDir, "same", crypto.NewKeys("")); err != nil || !ok {
 				errs <- fmt.Errorf("ok=%v err=%v", ok, err)
 			}
 		})
@@ -249,27 +249,27 @@ func TestGenerateThumbnailConcurrent(t *testing.T) {
 		t.Error(err)
 	}
 
-	data, _, err := metadata.ReadThumb(cairnDir, "same", crypto.NewKeys(""))
+	data, _, err := metadata.ReadThumb(popcornDir, "same", crypto.NewKeys(""))
 	if err != nil {
 		t.Fatalf("ReadThumb: %v", err)
 	}
 	if _, err := jpeg.Decode(bytes.NewReader(data)); err != nil {
 		t.Errorf("thumbnail is not a whole JPEG: %v", err)
 	}
-	if tmps, _ := filepath.Glob(filepath.Join(cairnDir, metadata.ThumbsDirName, "*.tmp")); len(tmps) > 0 {
+	if tmps, _ := filepath.Glob(filepath.Join(popcornDir, metadata.ThumbsDirName, "*.tmp")); len(tmps) > 0 {
 		t.Errorf("temp files left behind: %v", tmps)
 	}
 }
 
 func TestGenerateThumbnailNonImage(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 	srcPath := filepath.Join(dir, "video.mp4")
 	if err := os.WriteFile(srcPath, []byte("not an image"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
-	ok, err := metadata.GenerateThumbnail(srcPath, cairnDir, "file-id-3", crypto.NewKeys(""))
+	ok, err := metadata.GenerateThumbnail(srcPath, popcornDir, "file-id-3", crypto.NewKeys(""))
 	if err != nil {
 		t.Fatalf("unexpected error for non-image: %v", err)
 	}
@@ -280,13 +280,13 @@ func TestGenerateThumbnailNonImage(t *testing.T) {
 
 func TestGenerateThumbnailDoesNotModifyOriginal(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 	srcPath := filepath.Join(dir, "photo.jpg")
 	makeJPEG(t, srcPath, 600, 400)
 
 	statBefore, _ := os.Stat(srcPath)
 
-	if _, err := metadata.GenerateThumbnail(srcPath, cairnDir, "file-id-4", crypto.NewKeys("")); err != nil {
+	if _, err := metadata.GenerateThumbnail(srcPath, popcornDir, "file-id-4", crypto.NewKeys("")); err != nil {
 		t.Fatal(err)
 	}
 
@@ -301,12 +301,12 @@ func TestGenerateThumbnailDoesNotModifyOriginal(t *testing.T) {
 
 func TestThumbnailSmallImageUnchanged(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 	srcPath := filepath.Join(dir, "tiny.jpg")
 	// Image smaller than ThumbnailSize — should still be written as thumbnail.
 	makeJPEG(t, srcPath, 100, 100)
 
-	ok, err := metadata.GenerateThumbnail(srcPath, cairnDir, "file-id-5", crypto.NewKeys(""))
+	ok, err := metadata.GenerateThumbnail(srcPath, popcornDir, "file-id-5", crypto.NewKeys(""))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -314,7 +314,7 @@ func TestThumbnailSmallImageUnchanged(t *testing.T) {
 		t.Error("expected thumbnail for small image")
 	}
 
-	thumbPath := metadata.ThumbPath(cairnDir, "file-id-5")
+	thumbPath := metadata.ThumbPath(popcornDir, "file-id-5")
 	f, _ := os.Open(thumbPath)
 	defer func() { _ = f.Close() }()
 	cfg, _, _ := image.DecodeConfig(f)
@@ -326,13 +326,13 @@ func TestThumbnailSmallImageUnchanged(t *testing.T) {
 
 func TestThumbnailEncryptedRoundTrip(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 	srcPath := filepath.Join(dir, "photo.jpg")
 	makeJPEG(t, srcPath, 800, 600)
 
 	keys := crypto.NewKeys("a phrasey passphrase")
 
-	ok, err := metadata.GenerateThumbnail(srcPath, cairnDir, "enc-1", keys)
+	ok, err := metadata.GenerateThumbnail(srcPath, popcornDir, "enc-1", keys)
 	if err != nil {
 		t.Fatalf("GenerateThumbnail: %v", err)
 	}
@@ -341,7 +341,7 @@ func TestThumbnailEncryptedRoundTrip(t *testing.T) {
 	}
 
 	// On disk the artifact is sealed; it must not be a decodable JPEG.
-	thumbPath := metadata.ThumbPath(cairnDir, "enc-1")
+	thumbPath := metadata.ThumbPath(popcornDir, "enc-1")
 	raw, err := os.ReadFile(thumbPath)
 	if err != nil {
 		t.Fatalf("read sealed thumbnail: %v", err)
@@ -354,7 +354,7 @@ func TestThumbnailEncryptedRoundTrip(t *testing.T) {
 	}
 
 	// Reading back with the same keys yields a valid, decodable JPEG.
-	data, _, err := metadata.ReadThumb(cairnDir, "enc-1", keys)
+	data, _, err := metadata.ReadThumb(popcornDir, "enc-1", keys)
 	if err != nil {
 		t.Fatalf("ReadThumb: %v", err)
 	}
@@ -368,7 +368,7 @@ func TestThumbnailEncryptedRoundTrip(t *testing.T) {
 
 	// The wrong passphrase cannot decrypt it.
 	wrong := crypto.NewKeys("nope")
-	if _, _, err := metadata.ReadThumb(cairnDir, "enc-1", wrong); err == nil {
+	if _, _, err := metadata.ReadThumb(popcornDir, "enc-1", wrong); err == nil {
 		t.Fatal("wrong passphrase read the sealed thumbnail")
 	}
 }
@@ -376,7 +376,7 @@ func TestThumbnailEncryptedRoundTrip(t *testing.T) {
 // --- ThumbPath ---
 
 func TestThumbPath(t *testing.T) {
-	p := metadata.ThumbPath("/tmp/.cairn", "abc123")
+	p := metadata.ThumbPath("/tmp/.popcorn", "abc123")
 	if !strings.HasSuffix(p, "abc123.jpg") {
 		t.Errorf("ThumbPath = %q, want suffix abc123.jpg", p)
 	}

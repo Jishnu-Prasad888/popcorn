@@ -12,8 +12,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
 	"golang.org/x/image/draw"
 )
 
@@ -22,23 +22,23 @@ const (
 	ThumbnailSize = 400
 	// ThumbnailQuality is the JPEG quality for generated thumbnails (0-100).
 	ThumbnailQuality = 82
-	// ThumbsDirName is the thumbnails subdirectory name inside .cairn/.
+	// ThumbsDirName is the thumbnails subdirectory name inside .popcorn/.
 	ThumbsDirName = "thumbs"
 )
 
 // ThumbPath returns the absolute path for the thumbnail of a file identified
-// by fileID, given the library's .cairn directory.
-func ThumbPath(cairnDir, fileID string) string {
-	return filepath.Join(cairnDir, ThumbsDirName, fileID+".jpg")
+// by fileID, given the library's .popcorn directory.
+func ThumbPath(popcornDir, fileID string) string {
+	return filepath.Join(popcornDir, ThumbsDirName, fileID+".jpg")
 }
 
 // GenerateThumbnail creates a JPEG thumbnail from srcPath and writes it to
-// ThumbPath(cairnDir, fileID). Photos are decoded directly, except AVIF and
+// ThumbPath(popcornDir, fileID). Photos are decoded directly, except AVIF and
 // HEIC, and photos past safeimage's pixel cap, which go through ffmpeg; videos use their first frame, extracted with
 // ffmpeg too. The original file is never modified; when keys are enabled the
 // on-disk thumbnail is sealed with the at-rest key. Returns (true, nil) when the thumbnail was written,
 // (false, nil) when the file has no thumbnail this server can make.
-func GenerateThumbnail(srcPath, cairnDir, fileID string, keys *crypto.Keys) (bool, error) {
+func GenerateThumbnail(srcPath, popcornDir, fileID string, keys *crypto.Keys) (bool, error) {
 	if media.DetectMediaType(srcPath) == media.MediaTypeVideo {
 		if !VideoFramesAvailable() {
 			return false, nil
@@ -50,7 +50,7 @@ func GenerateThumbnail(srcPath, cairnDir, fileID string, keys *crypto.Keys) (boo
 			// treating it as a server error.
 			return false, nil
 		}
-		if err := writeThumb(frame, cairnDir, fileID, keys); err != nil {
+		if err := writeThumb(frame, popcornDir, fileID, keys); err != nil {
 			return false, err
 		}
 		return true, nil
@@ -61,7 +61,7 @@ func GenerateThumbnail(srcPath, cairnDir, fileID string, keys *crypto.Keys) (boo
 		if err != nil {
 			return false, nil // not decodable after all; skip like any other
 		}
-		if err := writeThumb(img, cairnDir, fileID, keys); err != nil {
+		if err := writeThumb(img, popcornDir, fileID, keys); err != nil {
 			return false, err
 		}
 		return true, nil
@@ -79,16 +79,16 @@ func GenerateThumbnail(srcPath, cairnDir, fileID string, keys *crypto.Keys) (boo
 		// silently (audio, docs, etc.).
 		return false, nil
 	}
-	if err := writeThumb(img, cairnDir, fileID, keys); err != nil {
+	if err := writeThumb(img, popcornDir, fileID, keys); err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
 // writeThumb resizes img, encodes it as JPEG and commits it atomically to
-// ThumbPath(cairnDir, fileID), sealed when keys are enabled.
-func writeThumb(img image.Image, cairnDir, fileID string, keys *crypto.Keys) error {
-	return writeRendition(resizeToFit(img, ThumbnailSize), ThumbPath(cairnDir, fileID), ThumbnailQuality, keys)
+// ThumbPath(popcornDir, fileID), sealed when keys are enabled.
+func writeThumb(img image.Image, popcornDir, fileID string, keys *crypto.Keys) error {
+	return writeRendition(resizeToFit(img, ThumbnailSize), ThumbPath(popcornDir, fileID), ThumbnailQuality, keys)
 }
 
 // writeRendition encodes img as JPEG and commits it atomically to destPath,
@@ -128,16 +128,16 @@ func writeRendition(img image.Image, destPath string, quality int, keys *crypto.
 
 // ThumbModTime returns when fileID's thumbnail was last written. A missing
 // thumbnail returns an os.ErrNotExist-wrapped error.
-func ThumbModTime(cairnDir, fileID string) (time.Time, error) {
-	return renditionModTime(ThumbPath(cairnDir, fileID))
+func ThumbModTime(popcornDir, fileID string) (time.Time, error) {
+	return renditionModTime(ThumbPath(popcornDir, fileID))
 }
 
 // ReadThumb reads and decrypts the thumbnail for fileID, returning the JPEG
 // bytes and the file's modification time. A missing thumbnail returns an
 // os.ErrNotExist-wrapped error; legacy plaintext thumbnails are returned
 // unchanged even when keys are enabled.
-func ReadThumb(cairnDir, fileID string, keys *crypto.Keys) ([]byte, time.Time, error) {
-	return readRendition(ThumbPath(cairnDir, fileID), keys)
+func ReadThumb(popcornDir, fileID string, keys *crypto.Keys) ([]byte, time.Time, error) {
+	return readRendition(ThumbPath(popcornDir, fileID), keys)
 }
 
 func renditionModTime(path string) (time.Time, error) {

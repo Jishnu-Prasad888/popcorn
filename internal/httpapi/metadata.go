@@ -8,12 +8,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
 )
 
 // handleGetFileMetadata — GET /api/v1/libraries/{id}/files/{fileID}/metadata
@@ -25,8 +25,8 @@ func (s *Server) handleGetFileMetadata(w http.ResponseWriter, r *http.Request, u
 		return
 	}
 
-	cairnDir := filepath.Join(lib.Root, ".cairn")
-	db, release, err := librarydb.Acquire(cairnDir)
+	popcornDir := filepath.Join(lib.Root, ".popcorn")
+	db, release, err := librarydb.Acquire(popcornDir)
 	if err != nil {
 		s.logger.Error("open library db", "error", err)
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,
@@ -134,12 +134,12 @@ func (s *Server) handleGetThumbnail(w http.ResponseWriter, r *http.Request, u *a
 		return
 	}
 
-	cairnDir := filepath.Join(lib.Root, ".cairn")
+	popcornDir := filepath.Join(lib.Root, ".popcorn")
 	fileID := r.PathValue("fileID")
 
 	// Resolve the file so the capability check runs on its resource key even
 	// when the thumbnail already exists on disk.
-	db, release, err := librarydb.Acquire(cairnDir)
+	db, release, err := librarydb.Acquire(popcornDir)
 	if err != nil {
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,
 			CodeInternal, "Failed to open library database.")
@@ -179,8 +179,8 @@ func (s *Server) handleGetPreview(w http.ResponseWriter, r *http.Request, u *aut
 		return
 	}
 
-	cairnDir := filepath.Join(lib.Root, ".cairn")
-	db, release, err := librarydb.Acquire(cairnDir)
+	popcornDir := filepath.Join(lib.Root, ".popcorn")
+	db, release, err := librarydb.Acquire(popcornDir)
 	if err != nil {
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,
 			CodeInternal, "Failed to open library database.")
@@ -205,16 +205,16 @@ func (s *Server) handleGetPreview(w http.ResponseWriter, r *http.Request, u *aut
 	s.serveRendition(w, r, lib.Root, f, previewRendition)
 }
 
-// rendition is a derived image of a file kept under .cairn: the grid's
+// rendition is a derived image of a file kept under .popcorn: the grid's
 // thumbnail or the viewer's preview.
 type rendition struct {
 	name string
 	// original: when none can be made, redirect to the original instead of
 	// answering 404 (the viewer's preview, which the original stands in for).
 	original bool
-	modTime  func(cairnDir, fileID string) (time.Time, error)
-	read     func(cairnDir, fileID string, keys *crypto.Keys) ([]byte, time.Time, error)
-	generate func(srcPath, cairnDir, fileID string, keys *crypto.Keys) (bool, error)
+	modTime  func(popcornDir, fileID string) (time.Time, error)
+	read     func(popcornDir, fileID string, keys *crypto.Keys) ([]byte, time.Time, error)
+	generate func(srcPath, popcornDir, fileID string, keys *crypto.Keys) (bool, error)
 }
 
 var (
@@ -242,13 +242,13 @@ func (s *Server) serveThumbnail(w http.ResponseWriter, r *http.Request, root str
 // again. Without a version the browser revalidates, which the If-Modified-Since
 // check below answers without reading the rendition.
 func (s *Server) serveRendition(w http.ResponseWriter, r *http.Request, root string, f *media.File, kind rendition) {
-	cairnDir := filepath.Join(root, ".cairn")
-	modTime, err := kind.modTime(cairnDir, f.ID)
+	popcornDir := filepath.Join(root, ".popcorn")
+	modTime, err := kind.modTime(popcornDir, f.ID)
 	have := err == nil
 	stale := have && thumbStale(modTime, f.ModTime)
 	if !have || stale {
 		var ok bool
-		if modTime, have, stale, ok = s.makeRendition(r, root, cairnDir, f, kind); !ok {
+		if modTime, have, stale, ok = s.makeRendition(r, root, popcornDir, f, kind); !ok {
 			return // the client went away while waiting; nobody to answer
 		}
 		if !have {
@@ -273,7 +273,7 @@ func (s *Server) serveRendition(w http.ResponseWriter, r *http.Request, root str
 		w.WriteHeader(http.StatusNotModified)
 		return
 	}
-	data, modTime, err := kind.read(cairnDir, f.ID, s.keys)
+	data, modTime, err := kind.read(popcornDir, f.ID, s.keys)
 	if err != nil {
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,
 			CodeInternal, "Failed to open "+strings.ToLower(kind.name)+".")
@@ -299,7 +299,7 @@ func (s *Server) redirectToOriginal(w http.ResponseWriter, r *http.Request, f *m
 // makeRendition generates f's rendition kind on demand, waiting for a slot
 // of s.thumbs, which is held only for the decode. It reports the rendition's
 // state afterwards, and ok=false if the client gave up while waiting.
-func (s *Server) makeRendition(r *http.Request, root, cairnDir string, f *media.File, kind rendition) (
+func (s *Server) makeRendition(r *http.Request, root, popcornDir string, f *media.File, kind rendition) (
 	modTime time.Time, have, stale, ok bool,
 ) {
 	release, ok := s.thumbs.acquire(r.Context())
@@ -309,18 +309,18 @@ func (s *Server) makeRendition(r *http.Request, root, cairnDir string, f *media.
 	defer release()
 	// While this request waited, another one (or the background worker) may
 	// have made it.
-	if mt, err := kind.modTime(cairnDir, f.ID); err == nil && !thumbStale(mt, f.ModTime) {
+	if mt, err := kind.modTime(popcornDir, f.ID); err == nil && !thumbStale(mt, f.ModTime) {
 		return mt, true, false, true
 	}
 	absPath := filepath.Join(root, filepath.FromSlash(f.RelPath))
-	if generated, err := kind.generate(absPath, cairnDir, f.ID, s.keys); err == nil && generated {
-		if mt, err := kind.modTime(cairnDir, f.ID); err == nil {
+	if generated, err := kind.generate(absPath, popcornDir, f.ID, s.keys); err == nil && generated {
+		if mt, err := kind.modTime(popcornDir, f.ID); err == nil {
 			return mt, true, false, true
 		}
 	}
 	// Not made here: report what is there now — one the background worker
 	// made meanwhile, or the old one — if anything.
-	mt, err := kind.modTime(cairnDir, f.ID)
+	mt, err := kind.modTime(popcornDir, f.ID)
 	if err != nil {
 		return time.Time{}, false, false, true
 	}
@@ -434,9 +434,9 @@ func (s *Server) handlePutThumbnail(w http.ResponseWriter, r *http.Request, u *a
 		return
 	}
 
-	cairnDir := filepath.Join(lib.Root, ".cairn")
+	popcornDir := filepath.Join(lib.Root, ".popcorn")
 	fileID := r.PathValue("fileID")
-	db, release, err := librarydb.Acquire(cairnDir)
+	db, release, err := librarydb.Acquire(popcornDir)
 	if err != nil {
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,
 			CodeInternal, "Failed to open library database.")
@@ -460,7 +460,7 @@ func (s *Server) handlePutThumbnail(w http.ResponseWriter, r *http.Request, u *a
 	}
 
 	stored, err := metadata.StorePoster(http.MaxBytesReader(w, r.Body, metadata.MaxPosterBytes),
-		cairnDir, f.ID, s.keys)
+		popcornDir, f.ID, s.keys)
 	if err != nil {
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusBadRequest,
 			CodeBadRequest, "The thumbnail could not be read as an image.")

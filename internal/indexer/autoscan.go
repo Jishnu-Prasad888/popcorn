@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/jobs"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/jobs"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
 )
 
 // StartAutoScan rescans every online library on a timer, so files added,
@@ -38,7 +38,7 @@ func (m *IndexManager) StartAutoScan(ctx context.Context, interval time.Duration
 		}
 	}
 	go func() {
-		// Once at startup, to catch up on whatever changed while Cairn was off.
+		// Once at startup, to catch up on whatever changed while Popcorn was off.
 		pass()
 		t := time.NewTicker(interval)
 		defer t.Stop()

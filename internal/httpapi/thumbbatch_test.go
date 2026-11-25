@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 )
 
 // readBatch splits a batch response into its manifest and each item's bytes.
@@ -62,7 +62,7 @@ func TestThumbnailBatch(t *testing.T) {
 		_ = f.Close()
 	}
 	stamp := time.Now().Add(-time.Hour).UTC().Format(time.RFC3339Nano)
-	ldb, err := librarydb.Open(filepath.Join(libRoot, ".cairn"))
+	ldb, err := librarydb.Open(filepath.Join(libRoot, ".popcorn"))
 	if err != nil {
 		t.Fatal(err)
 	}

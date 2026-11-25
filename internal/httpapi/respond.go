@@ -1,4 +1,4 @@
-// Package httpapi implements the Cairn HTTP interface: the JSON/API v1
+// Package httpapi implements the Popcorn HTTP interface: the JSON/API v1
 // routes and the embedded web frontend.
 //
 // Handlers in this package stay thin. Business logic lives in application

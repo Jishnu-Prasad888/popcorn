@@ -13,15 +13,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/audit"
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/db"
-	"github.com/Jishnu-Prasad888/Cairn/internal/indexer"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/ml"
+	"github.com/Jishnu-Prasad888/popcorn/internal/audit"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/db"
+	"github.com/Jishnu-Prasad888/popcorn/internal/indexer"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/ml"
 )
 
 // testFaceProvider reports one face per image and distinguishes the lighter
@@ -103,8 +103,8 @@ func newFacesTestServer(t *testing.T) (http.Handler, *testClient, *sql.DB, strin
 	}
 	libID := lib.ID
 
-	cairnDir := filepath.Join(libRoot, ".cairn")
-	ldb, err := librarydb.Open(cairnDir)
+	popcornDir := filepath.Join(libRoot, ".popcorn")
+	ldb, err := librarydb.Open(popcornDir)
 	if err != nil {
 		t.Fatalf("open library db: %v", err)
 	}

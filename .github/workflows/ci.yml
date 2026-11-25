@@ -34,7 +34,7 @@ jobs:
       - name: go test
         run: go test -race -cover ./cmd/... ./internal/...
       - name: Build binary (without embedded web assets)
-        run: go build ./cmd/cairn
+        run: go build ./cmd/popcorn
 
   frontend:
     name: Frontend (format, lint, typecheck, test, build)
@@ -84,29 +84,29 @@ jobs:
       - name: Smoke-test the produced binary
         run: |
           tmp="$(mktemp -d)"
-          CAIRN_DATA_DIR="$tmp/data" CAIRN_HTTP_ADDR=127.0.0.1:18717 ./bin/cairn &
+          POPCORN_DATA_DIR="$tmp/data" POPCORN_HTTP_ADDR=127.0.0.1:18717 ./bin/popcorn &
           pid=$!
           sleep 2
           curl -fsS http://127.0.0.1:18717/api/v1/health
           echo
           curl -fsS http://127.0.0.1:18717/api/v1/ready
           echo
-          curl -fsS http://127.0.0.1:18717/api/v1/metrics | grep -q "cairn_http_requests_total"
-          curl -fsS http://127.0.0.1:18717/ | grep -q "<title>Cairn</title>"
+          curl -fsS http://127.0.0.1:18717/api/v1/metrics | grep -q "popcorn_http_requests_total"
+          curl -fsS http://127.0.0.1:18717/ | grep -q "<title>Popcorn</title>"
           kill "$pid"
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cairn-linux-amd64
-          path: bin/cairn
+          name: popcorn-linux-amd64
+          path: bin/popcorn
           if-no-files-found: error
       - name: Cross-compile ARM64 release binary
         run: make release-cross PLATFORMS="linux/arm64"
       - name: Upload ARM64 artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cairn-linux-arm64
-          path: dist/cairn-linux-arm64
+          name: popcorn-linux-arm64
+          path: dist/popcorn-linux-arm64
           if-no-files-found: error
 
   docker:
@@ -115,4 +115,4 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Build container image
-        run: docker build -t cairn:ci .
+        run: docker build -t popcorn:ci .

@@ -14,15 +14,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/audit"
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/db"
-	"github.com/Jishnu-Prasad888/Cairn/internal/indexer"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/ml"
+	"github.com/Jishnu-Prasad888/popcorn/internal/audit"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/db"
+	"github.com/Jishnu-Prasad888/popcorn/internal/indexer"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/ml"
 )
 
 // newMLTestServer wires a server with an ML manager, one registered library,
@@ -63,8 +63,8 @@ func newMLTestServer(t *testing.T) (http.Handler, *testClient, *sql.DB, string) 
 	libID := lib.ID
 
 	// Index the files directly so the library DB has rows to sign.
-	cairnDir := filepath.Join(libRoot, ".cairn")
-	ldb, err := librarydb.Open(cairnDir)
+	popcornDir := filepath.Join(libRoot, ".popcorn")
+	ldb, err := librarydb.Open(popcornDir)
 	if err != nil {
 		t.Fatalf("open library db: %v", err)
 	}
@@ -351,8 +351,8 @@ func TestMLDisabledEndpointUnavailable(t *testing.T) {
 
 	// Seed one file so the similar-files lookup reaches the ML layer instead
 	// of returning 404 for a nonexistent file.
-	cairnDir := filepath.Join(libRoot, ".cairn")
-	ldb, err := librarydb.Open(cairnDir)
+	popcornDir := filepath.Join(libRoot, ".popcorn")
+	ldb, err := librarydb.Open(popcornDir)
 	if err != nil {
 		t.Fatalf("open library db: %v", err)
 	}

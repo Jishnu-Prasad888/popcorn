@@ -1,6 +1,6 @@
-# Cairn design system
+# Popcorn design system
 
-Cairn is a personal media library: smooth pebbles, handmade clay, warm paper,
+Popcorn is a personal media library: smooth pebbles, handmade clay, warm paper,
 and the owner's own photographs. The interface stays quiet so the photographs
 carry the color. This document is the contract for how the web UI looks and
 behaves; the tokens it names live in `web/src/styles/tokens.css`.
@@ -22,7 +22,7 @@ behaves; the tokens it names live in `web/src/styles/tokens.css`.
 
 ## Color
 
-Only the Cairn palette is used; components consume semantic tokens, never hex.
+Only the Popcorn palette is used; components consume semantic tokens, never hex.
 Light and dark are both defined in `tokens.css`; "system" follows
 `prefers-color-scheme`. Dark is `#29221f`, never black.
 

@@ -58,7 +58,7 @@ async function readAll(dir: FsDirectoryEntry): Promise<FsEntry[]> {
 }
 
 async function walk(entry: FsEntry, prefix: string, out: UploadEntry[]): Promise<void> {
-  // Hidden files (.DS_Store, .git) are not listed by Cairn, so they are not sent.
+  // Hidden files (.DS_Store, .git) are not listed by Popcorn, so they are not sent.
   if (isHidden(entry.name)) return;
   const relPath = prefix ? `${prefix}/${entry.name}` : entry.name;
   if (entry.isFile) {

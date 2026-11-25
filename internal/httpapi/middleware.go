@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/metrics"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metrics"
 )
 
 // maxRequestIDLen bounds the length of client-supplied request IDs so the log

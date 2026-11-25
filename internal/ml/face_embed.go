@@ -5,7 +5,7 @@ import (
 	"image"
 	"math"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/ml/onnx"
+	"github.com/Jishnu-Prasad888/popcorn/internal/ml/onnx"
 )
 
 // Reference 5-point landmarks for the InsightFace 112×112 aligned face crop

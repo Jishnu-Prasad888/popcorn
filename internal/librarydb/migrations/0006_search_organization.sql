@@ -1,6 +1,6 @@
 -- 0006_search_organization: full-text search, tags, albums, and favorites.
 --
--- Applied to each library's <root>/.cairn/library.db. All statements use
+-- Applied to each library's <root>/.popcorn/library.db. All statements use
 -- CREATE TABLE/TRIGGER IF NOT EXISTS so this migration is idempotent.
 
 -- fts_files is a FTS5 virtual table that enables fast full-text search over

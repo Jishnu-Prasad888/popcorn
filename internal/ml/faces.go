@@ -13,8 +13,8 @@ import (
 )
 
 // FaceConfig controls the local face capability off the Phase 11 ML seam.
-// Everything is off unless FaceConfig.Enabled (CAIRN_ML_FACES) is true, which
-// in turn requires the master ML switch (CAIRN_ML_ENABLED).
+// Everything is off unless FaceConfig.Enabled (POPCORN_ML_FACES) is true, which
+// in turn requires the master ML switch (POPCORN_ML_ENABLED).
 type FaceConfig struct {
 	// Enabled gates this capability independently of similarity.
 	Enabled bool

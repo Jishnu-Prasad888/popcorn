@@ -15,13 +15,13 @@ Accepted (Phase 15).
 
 ## Context
 
-Phase 11 (ADR-0009) built Cairn's optional local ML layer around a provider
+Phase 11 (ADR-0009) built Popcorn's optional local ML layer around a provider
 seam and shipped dependency-free perceptual similarity, explicitly deferring
 face recognition to "the same provider contract". Face recognition in the
 product definition means: detect faces, group them into nameable people,
 search by person, purge derived data, keep everything local/optional/ARM64.
 
-The obstacle to a learned embedder (FaceNet/ArcFace-style) is that Cairn has
+The obstacle to a learned embedder (FaceNet/ArcFace-style) is that Popcorn has
 no ML runtime and ships no model artifacts: the project is a small pure-Go
 binary, and bundling an ONNX/TFLite engine plus multi-MB models contradicts
 its "optional, removable, dependency-light, Raspberry Pi" constraints. Most
@@ -58,7 +58,7 @@ owning file's read capability.
 
 ## Consequences
 
-- **Pros:** fully local, opt-in (`CAIRN_ML_ENABLED` + `CAIRN_ML_FACES`),
+- **Pros:** fully local, opt-in (`POPCORN_ML_ENABLED` + `POPCORN_ML_FACES`),
   dependency-light (one MIT pure-Go lib + a 240 KB cascade), ARM64-safe,
   no model/licensing burden, eraseable derived data, schema/API stable when a
   learned embedder lands.

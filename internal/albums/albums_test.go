@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/albums"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/albums"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
 )
 
 // --- helpers ---
@@ -18,11 +18,11 @@ import (
 func newTestStore(t *testing.T) *albums.AlbumStore {
 	t.Helper()
 	root := t.TempDir()
-	cairnDir := filepath.Join(root, ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	popcornDir := filepath.Join(root, ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	db, err := librarydb.Open(cairnDir)
+	db, err := librarydb.Open(popcornDir)
 	if err != nil {
 		t.Fatalf("open library db: %v", err)
 	}
@@ -33,11 +33,11 @@ func newTestStore(t *testing.T) *albums.AlbumStore {
 func newTestStoreWithFiles(t *testing.T) (*albums.AlbumStore, *media.FileStore) {
 	t.Helper()
 	root := t.TempDir()
-	cairnDir := filepath.Join(root, ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	popcornDir := filepath.Join(root, ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	db, err := librarydb.Open(cairnDir)
+	db, err := librarydb.Open(popcornDir)
 	if err != nil {
 		t.Fatalf("open library db: %v", err)
 	}

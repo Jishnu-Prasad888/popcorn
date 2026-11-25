@@ -118,7 +118,7 @@ kbd {
   border-radius: var(--radius-xs);
 }
 
-/* The Cairn wordmark and other branded moments. Never for dense UI. */
+/* The Popcorn wordmark and other branded moments. Never for dense UI. */
 .brand {
   font-family: var(--font-brand);
   font-weight: 400;

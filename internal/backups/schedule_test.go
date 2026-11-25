@@ -172,7 +172,7 @@ func TestLoadMarksInterruptedBackupsFailed(t *testing.T) {
 	pool, serverPath := tempServerDB(t)
 	ctx := context.Background()
 	m := newManager(t, pool, serverPath, t.TempDir(), "", 4)
-	rec := &Record{ID: "bkp-stale", Status: StatusRunning, Destination: "/x/cairn-backup-1",
+	rec := &Record{ID: "bkp-stale", Status: StatusRunning, Destination: "/x/popcorn-backup-1",
 		StartedAt: time.Now(), CreatedAt: time.Now(), ServerDB: serverPath}
 	if err := m.store.Create(ctx, rec); err != nil {
 		t.Fatal(err)

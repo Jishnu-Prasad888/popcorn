@@ -38,7 +38,7 @@ type Target struct {
 // Runtime owns the administrator-controlled ML master switch.
 //
 // The switch is stored in the server database, so it survives restarts and
-// wins over the CAIRN_ML_ENABLED default once an administrator has used it.
+// wins over the POPCORN_ML_ENABLED default once an administrator has used it.
 // Turning it on enables similarity and people recognition together and
 // immediately starts a pass over every online library; from then on every
 // finished library scan (new uploads included) feeds new images through the
@@ -278,7 +278,7 @@ func (r *Runtime) StartAll() {
 }
 
 // AfterScan is the indexer hook, called after every scan — including the
-// catch-up scan at startup, so images added while Cairn was off count too. It
+// catch-up scan at startup, so images added while Popcorn was off count too. It
 // returns immediately so the index worker is never held up by ML. The models
 // run once at least BatchSize images are waiting; fewer stay pending (the
 // library database is the record of what has not been processed) and are

@@ -9,11 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
 )
 
 // MaxThumbBatch is the most thumbnails one batch request may ask for. A
@@ -76,8 +76,8 @@ func (s *Server) handleThumbnailBatch(w http.ResponseWriter, r *http.Request, u 
 		return
 	}
 
-	cairnDir := lib.Root + "/.cairn"
-	db, release, err := librarydb.Acquire(cairnDir)
+	popcornDir := lib.Root + "/.popcorn"
+	db, release, err := librarydb.Acquire(popcornDir)
 	if err != nil {
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,
 			CodeInternal, "Failed to open library database.")
@@ -105,7 +105,7 @@ func (s *Server) handleThumbnailBatch(w http.ResponseWriter, r *http.Request, u 
 		f := byID[id]
 		var data []byte
 		if f != nil && s.mayRead(r, u, authz.FileKey(lib.ID, f.RelPath)) {
-			data = s.storedThumb(r, db, cairnDir, f, small)
+			data = s.storedThumb(r, db, popcornDir, f, small)
 		}
 		if data == nil {
 			items = append(items, thumbBatchItem{ID: id, Missing: true})
@@ -127,7 +127,7 @@ func (s *Server) handleThumbnailBatch(w http.ResponseWriter, r *http.Request, u 
 
 	// The client keeps what it receives in its own store, keyed by each
 	// file's version; a batch (an arbitrary set of ids) is never asked again.
-	w.Header().Set("Content-Type", "application/vnd.cairn.thumbnails")
+	w.Header().Set("Content-Type", "application/vnd.popcorn.thumbnails")
 	w.Header().Set("Cache-Control", "private, no-store")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(head[:])
@@ -138,19 +138,19 @@ func (s *Server) handleThumbnailBatch(w http.ResponseWriter, r *http.Request, u 
 // storedThumb returns f's thumbnail bytes when they can be had without
 // decoding the original, or nil. A missing small thumbnail is derived from a
 // current full one (a 400px decode), and its colour recorded on the way.
-func (s *Server) storedThumb(r *http.Request, db *sql.DB, cairnDir string, f *media.File, small bool) []byte {
+func (s *Server) storedThumb(r *http.Request, db *sql.DB, popcornDir string, f *media.File, small bool) []byte {
 	if f.MediaType != media.MediaTypePhoto && f.MediaType != media.MediaTypeVideo {
 		return nil
 	}
 	fresh := func(modTime func(string, string) (time.Time, error)) bool {
-		mt, err := modTime(cairnDir, f.ID)
+		mt, err := modTime(popcornDir, f.ID)
 		return err == nil && !thumbStale(mt, f.ModTime)
 	}
 	if !small {
 		if !fresh(metadata.ThumbModTime) {
 			return nil
 		}
-		data, _, err := metadata.ReadThumb(cairnDir, f.ID, s.keys)
+		data, _, err := metadata.ReadThumb(popcornDir, f.ID, s.keys)
 		if err != nil {
 			return nil
 		}
@@ -160,7 +160,7 @@ func (s *Server) storedThumb(r *http.Request, db *sql.DB, cairnDir string, f *me
 		if !fresh(metadata.ThumbModTime) {
 			return nil
 		}
-		color, err := metadata.MakeSmallThumb(cairnDir, f.ID, s.keys)
+		color, err := metadata.MakeSmallThumb(popcornDir, f.ID, s.keys)
 		if err != nil {
 			s.logger.Warn("make small thumbnail", "file_id", f.ID, "error", err)
 			return nil
@@ -169,7 +169,7 @@ func (s *Server) storedThumb(r *http.Request, db *sql.DB, cairnDir string, f *me
 			s.logger.Warn("store placeholder colour", "file_id", f.ID, "error", err)
 		}
 	}
-	data, _, err := metadata.ReadSmallThumb(cairnDir, f.ID, s.keys)
+	data, _, err := metadata.ReadSmallThumb(popcornDir, f.ID, s.keys)
 	if err != nil {
 		return nil
 	}

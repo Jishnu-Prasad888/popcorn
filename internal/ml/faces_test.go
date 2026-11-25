@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
-	"github.com/Jishnu-Prasad888/Cairn/internal/ml"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/ml"
 	_ "modernc.org/sqlite"
 )
 
@@ -132,7 +132,7 @@ func TestFaceStoreLifecycle(t *testing.T) {
 	root := t.TempDir()
 	seedFiles(t, root, []imgSeed{{id: "file0", rel: "img0.png"}})
 
-	db, err := librarydb.OpenDB(filepath.Join(root, ".cairn"))
+	db, err := librarydb.OpenDB(filepath.Join(root, ".popcorn"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -333,15 +333,15 @@ type imgSeed struct {
 	img          image.Image
 }
 
-// seedFiles creates the .cairn dir (when missing), writes any provided files,
+// seedFiles creates the .popcorn dir (when missing), writes any provided files,
 // and records an indexed_files + photo media_metadata row for each.
 func seedFiles(t *testing.T, root string, files []imgSeed) {
 	t.Helper()
-	cairnDir := filepath.Join(root, ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	popcornDir := filepath.Join(root, ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	db, err := librarydb.OpenDB(cairnDir)
+	db, err := librarydb.OpenDB(popcornDir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -388,11 +388,11 @@ func writePNGImage(t *testing.T, path string, img image.Image) {
 // so a freshly scanned photo must already be eligible for face detection.
 func TestFilesToScanDoesNotNeedMediaMetadata(t *testing.T) {
 	root := t.TempDir()
-	cairnDir := filepath.Join(root, ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	popcornDir := filepath.Join(root, ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	db, err := librarydb.OpenDB(cairnDir)
+	db, err := librarydb.OpenDB(popcornDir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -448,7 +448,7 @@ func TestAssignPersonKeepsCoversAndDropsEmptyGroups(t *testing.T) {
 	root := t.TempDir()
 	ctx := context.Background()
 	seedFiles(t, root, []imgSeed{{id: "f1", rel: "a.png"}, {id: "f2", rel: "b.png"}})
-	db, err := librarydb.OpenDB(filepath.Join(root, ".cairn"))
+	db, err := librarydb.OpenDB(filepath.Join(root, ".popcorn"))
 	if err != nil {
 		t.Fatal(err)
 	}

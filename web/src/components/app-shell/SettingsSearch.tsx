@@ -94,7 +94,7 @@ const SETTING_ENTRIES: SettingEntry[] = [
     words: 'access libraries permissions shared with you',
   },
   {
-    label: 'About Cairn',
+    label: 'About Popcorn',
     section: 'about',
     hint: 'About',
     words: 'version build health status license',

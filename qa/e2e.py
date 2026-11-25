@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cairn v1.0 end-to-end QA harness (Phase 19).
+"""Popcorn v1.0 end-to-end QA harness (Phase 19).
 
 Builds the server binary and drives real server processes against temporary
 data directories, exercising the Phase 19 validation matrix:
@@ -152,7 +152,7 @@ class Client:
 
     def upload(self, lib_id, rel_path, local_path, content_type="image/jpeg"):
         """Multipart form upload: fields file + path."""
-        boundary = "----cairnqa" + random_hex(12)
+        boundary = "----popcornqa" + random_hex(12)
         with open(local_path, "rb") as f:
             file_bytes = f.read()
         parts = []
@@ -191,9 +191,9 @@ class Server:
         base_env = dict(os.environ)
         base_env.update(
             {
-                "CAIRN_DATA_DIR": self.data,
-                "CAIRN_HTTP_ADDR": f"127.0.0.1:{self.port}",
-                "CAIRN_LOG_LEVEL": "info",
+                "POPCORN_DATA_DIR": self.data,
+                "POPCORN_HTTP_ADDR": f"127.0.0.1:{self.port}",
+                "POPCORN_LOG_LEVEL": "info",
             }
         )
         if env:
@@ -277,7 +277,7 @@ def main():
     import argparse
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("--binary", default="bin/cairn")
+    ap.add_argument("--binary", default="bin/popcorn")
     ap.add_argument("--keep", action="store_true", help="keep temp dirs on failure")
     args = ap.parse_args()
 
@@ -285,16 +285,16 @@ def main():
     if not os.path.exists(binary):
         print("building binary...")
         subprocess.run(
-            ["go", "build", "-o", binary, "./cmd/cairn"], check=True, cwd=repo_root()
+            ["go", "build", "-o", binary, "./cmd/popcorn"], check=True, cwd=repo_root()
         )
 
-    work = tempfile.mkdtemp(prefix="cairn-qa-", dir="/tmp/opencode")
+    work = tempfile.mkdtemp(prefix="popcorn-qa-", dir="/tmp/opencode")
     libs = os.path.join(work, "libraries")
     os.makedirs(libs)
     servers = []
 
     def start_server(name, env=None):
-        base = {"CAIRN_BACKUP_DIR": os.path.join(work, "backups")}
+        base = {"POPCORN_BACKUP_DIR": os.path.join(work, "backups")}
         if env:
             base.update(env)
         s = Server(name, work, env=base)
@@ -495,9 +495,9 @@ def main():
         REPORT.check("S12", "password-protected share created", s == 201 and token2, f"{s}")
         s, _, _ = A.json("GET", f"/api/v1/shares/{token2}/files")
         REPORT.check("S12", "protected share denies without password", s == 401, f"{s}")
-        s, _, _ = A.json("GET", f"/api/v1/shares/{token2}/files", headers={"X-Cairn-Share-Password": "wrong-password"})
+        s, _, _ = A.json("GET", f"/api/v1/shares/{token2}/files", headers={"X-Popcorn-Share-Password": "wrong-password"})
         REPORT.check("S12", "protected share denies wrong password", s == 401, f"{s}")
-        s, body, _ = A.json("GET", f"/api/v1/shares/{token2}/files", headers={"X-Cairn-Share-Password": "share-secret-9"})
+        s, body, _ = A.json("GET", f"/api/v1/shares/{token2}/files", headers={"X-Popcorn-Share-Password": "share-secret-9"})
         REPORT.check("S12", "protected share grants with correct password", s == 200 and isinstance((body or {}).get("files"), list), f"{s}")
 
         # ---- S13 memories --------------------------------------------------
@@ -575,8 +575,8 @@ def main():
         REPORT.check("S16b", "backup after reconnect completes", bool(rec) and rec.get("status") == "completed", f"{str(rec)[:120]}")
         dest2 = os.path.join(work, "restore-dest2")
         s, _, _ = C.json("POST", f"/api/v1/backups/{backup2}/restore", {"destination": dest2})
-        # Restore mirrors the documented layout: server/cairn.db + libraries/<id>/...
-        srv_db = os.path.join(dest2, "server", "cairn.db")
+        # Restore mirrors the documented layout: server/popcorn.db + libraries/<id>/...
+        srv_db = os.path.join(dest2, "server", "popcorn.db")
         lib1_db = os.path.join(dest2, "libraries", lib_id, "library.db")
         lib2_db = os.path.join(dest2, "libraries", drive_id, "library.db")
         media_ok = any(os.path.isfile(os.path.join(dest2, "libraries", lib_id, "files", p)) for p in ("notes.txt", "IMG_0001.png"))
@@ -585,7 +585,7 @@ def main():
         REPORT.check("S16b", "restore brings back media files", media_ok, f"media={media_ok}")
 
         # ---- S17 upload cap (413) -----------------------------------------
-        cap_srv = start_server("cap", env={"CAIRN_MAX_UPLOAD_BYTES": "2048"})
+        cap_srv = start_server("cap", env={"POPCORN_MAX_UPLOAD_BYTES": "2048"})
         CC = Client(cap_srv.base)
         CC.json("POST", "/api/v1/auth/bootstrap", {"username": "admin", "password": "admin-pass-1234"})
         lib_cap = os.path.join(libs, "cap-lib")
@@ -599,7 +599,7 @@ def main():
         REPORT.check("S17", "oversized upload rejected with 413", s == 413, f"{s}")
 
         # ---- S18 ML enabled ------------------------------------------------
-        ml_srv = start_server("ml", env={"CAIRN_ML_ENABLED": "true", "CAIRN_ML_FACES": "true"})
+        ml_srv = start_server("ml", env={"POPCORN_ML_ENABLED": "true", "POPCORN_ML_FACES": "true"})
         M = Client(ml_srv.base)
         M.json("POST", "/api/v1/auth/bootstrap", {"username": "admin", "password": "admin-pass-1234"})
         lib_ml = os.path.join(libs, "photos-ml")

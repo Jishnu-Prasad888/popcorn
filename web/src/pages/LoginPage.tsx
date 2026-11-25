@@ -51,7 +51,7 @@ export default function LoginPage() {
       setError(
         e instanceof ApiError
           ? e.message
-          : 'Could not reach the Cairn server. Check your connection and try again.',
+          : 'Could not reach the Popcorn server. Check your connection and try again.',
       );
     } finally {
       setBusy(false);
@@ -63,10 +63,10 @@ export default function LoginPage() {
       <section className="auth-card" aria-labelledby="login-title">
         <header className="auth-header">
           <h1 className="auth-brand">
-            <Brand>Cairn</Brand>
+            <Brand>Popcorn</Brand>
           </h1>
           <h2 id="login-title" className="auth-title">
-            Sign in to Cairn
+            Sign in to Popcorn
           </h2>
           <p className="auth-subtitle">
             {bootstrapRequired

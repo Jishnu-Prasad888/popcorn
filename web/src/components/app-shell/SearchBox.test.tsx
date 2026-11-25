@@ -40,7 +40,7 @@ describe('SearchBox', () => {
 
   it('suggests searching everything, photos, and videos for what was typed', async () => {
     setup();
-    const input = screen.getByRole('combobox', { name: 'Search Cairn' });
+    const input = screen.getByRole('combobox', { name: 'Search Popcorn' });
     fireEvent.change(input, { target: { value: 'mountains' } });
 
     const list = await screen.findByRole('listbox');

@@ -84,7 +84,7 @@ describe('App routing', () => {
     mockFetch({ authenticated: false });
     setup('/albums');
 
-    expect(await screen.findByRole('heading', { name: 'Sign in to Cairn' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Sign in to Popcorn' })).toBeInTheDocument();
   });
 
   it('sends a brand-new server to the first-run setup page', async () => {

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
 )
 
 // StateStore persists and queries indexed file records in the per-library

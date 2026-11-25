@@ -1,6 +1,6 @@
 # Markdown
 
-This documents the Markdown dialect used by the text blocks of Cairn memories
+This documents the Markdown dialect used by the text blocks of Popcorn memories
 ([memories.md](memories.md)). Markdown is the canonical content: the server
 stores it verbatim and never stores HTML. The dialect is implemented in the
 web renderer (`web/src/lib/markdown.ts`) and the Go reference parser
@@ -8,7 +8,7 @@ web renderer (`web/src/lib/markdown.ts`) and the Go reference parser
 
 ## Standard Markdown subset
 
-Cairn renders a safe, bounded subset of CommonMark:
+Popcorn renders a safe, bounded subset of CommonMark:
 
 - ATX headings (`#` to `######`)
 - paragraphs; a single newline inside a paragraph is a line break
@@ -46,7 +46,7 @@ while a block is not focused. Paste and drop insert plain text only.
 
 ## Internal references
 
-Wikilink-style references resolve against Cairn objects. Reference types:
+Wikilink-style references resolve against Popcorn objects. Reference types:
 
 ```markdown
 [[media:<id>]]      → a photo, video, or file

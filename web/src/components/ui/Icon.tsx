@@ -1,5 +1,5 @@
 /**
- * Cairn's one icon set.
+ * Popcorn's one icon set.
  *
  * Every glyph is drawn on the same 24px grid with the same 1.75 stroke and
  * round joins, so icons from different parts of the app sit at the same visual

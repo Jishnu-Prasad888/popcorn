@@ -18,7 +18,7 @@ import { useLibraries } from '../../api/libraries';
 /** Sections whose last location is remembered. */
 export const REMEMBERED_SECTIONS = ['/files', '/albums'] as const;
 
-const KEY = 'cairn.nav.last';
+const KEY = 'popcorn.nav.last';
 
 interface Entry {
   url: string;

@@ -1,6 +1,6 @@
 /**
  * Tags — the tag vocabulary of every open library and the files that carry
- * each tag. Tags are stored per library (in its `.cairn` folder) but shown
+ * each tag. Tags are stored per library (in its `.popcorn` folder) but shown
  * merged by name, so one "family" tag spans all open libraries.
  *
  * Tags are a flat, colourable vocabulary; the interesting part is the second

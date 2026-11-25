@@ -32,7 +32,7 @@ type ExportOptions struct {
 
 // BuildExport renders a memory as a portable Markdown document with YAML front
 // matter. Text blocks carry their Markdown verbatim. Image blocks link to the
-// embedded image files and preserve Cairn-specific presentation data in HTML
+// embedded image files and preserve Popcorn-specific presentation data in HTML
 // comments, which renderers ignore but a future importer can read back. Images
 // that were not embedded (missing, or unreadable by the caller) are kept as
 // comments so no information is silently dropped.
@@ -95,23 +95,23 @@ func writeExportFrontMatter(b *strings.Builder, m *Memory, opts ExportOptions) {
 	if opts.CoverName != "" {
 		fmt.Fprintf(b, "cover: %s\n", yamlString(opts.CoverName))
 	}
-	fmt.Fprintf(b, "cairn_memory_id: %s\n", yamlString(m.ID))
-	fmt.Fprintf(b, "cairn_revision: %d\n", m.Revision)
+	fmt.Fprintf(b, "popcorn_memory_id: %s\n", yamlString(m.ID))
+	fmt.Fprintf(b, "popcorn_revision: %d\n", m.Revision)
 	if !m.CreatedAt.IsZero() {
-		fmt.Fprintf(b, "cairn_created_at: %s\n", yamlString(m.CreatedAt.UTC().Format(time.RFC3339)))
+		fmt.Fprintf(b, "popcorn_created_at: %s\n", yamlString(m.CreatedAt.UTC().Format(time.RFC3339)))
 	}
 	if !m.UpdatedAt.IsZero() {
-		fmt.Fprintf(b, "cairn_updated_at: %s\n", yamlString(m.UpdatedAt.UTC().Format(time.RFC3339)))
+		fmt.Fprintf(b, "popcorn_updated_at: %s\n", yamlString(m.UpdatedAt.UTC().Format(time.RFC3339)))
 	}
 	if !opts.Now.IsZero() {
-		fmt.Fprintf(b, "cairn_exported_at: %s\n", yamlString(opts.Now.UTC().Format(time.RFC3339)))
+		fmt.Fprintf(b, "popcorn_exported_at: %s\n", yamlString(opts.Now.UTC().Format(time.RFC3339)))
 	}
 	b.WriteString("---\n")
 }
 
 func renderImageBlock(blk *Block, opts ExportOptions) string {
 	var b strings.Builder
-	b.WriteString("<!-- cairn:image-block")
+	b.WriteString("<!-- popcorn:image-block")
 	b.WriteString(" layout=" + commentValue(string(blk.Layout)))
 	b.WriteString(" slideshow=" + commentValue(strconv.FormatBool(blk.Slideshow)))
 	if blk.SlideshowInterval != nil {
@@ -157,7 +157,7 @@ func imageComment(img *Image, ex ExportImage) string {
 			attrs = append(attrs, "edit="+commentValue(edit))
 		}
 	}
-	return "<!-- cairn:image " + strings.Join(attrs, " ") + " -->"
+	return "<!-- popcorn:image " + strings.Join(attrs, " ") + " -->"
 }
 
 // editAttributes renders the non-default parts of an edit pipeline. The names

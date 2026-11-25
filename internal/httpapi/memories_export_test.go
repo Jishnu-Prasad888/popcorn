@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
 )
 
 // zipEntries indexes a zip archive's decompressed entries by name.
@@ -88,7 +88,7 @@ func TestExportMemory(t *testing.T) {
 	body := string(md)
 	for _, want := range []string{
 		`title: "My Trip to Kerala"`,
-		`cairn_memory_id: "` + m.Memory.ID + `"`,
+		`popcorn_memory_id: "` + m.Memory.ID + `"`,
 		"We left early.",
 		`![Backwater](images/`,
 		`edit="rotation=90"`,

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/usersettings"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/usersettings"
 )
 
 // handleGetMemorySettings — GET /api/v1/settings/memories

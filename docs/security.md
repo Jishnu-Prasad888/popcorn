@@ -2,7 +2,7 @@
 
 ## Model
 
-Cairn is personal software with a browser frontend. It must be:
+Popcorn is personal software with a browser frontend. It must be:
 
 - safe to expose only in a trusted network, and
 - configured and operated safely by non-experts behind a reverse proxy.
@@ -17,8 +17,8 @@ Cairn is personal software with a browser frontend. It must be:
 - Passwords are hashed with **argon2id** and compared in constant time; they are
   never stored or logged in plaintext.
 - Sessions use opaque random tokens; only their SHA-256 digest is stored.
-- The `cairn_session` cookie is `HttpOnly` and `SameSite=Lax`. The `Secure` flag
-  is added when the server observes TLS or `CAIRN_COOKIE_SECURE` is set (for a
+- The `popcorn_session` cookie is `HttpOnly` and `SameSite=Lax`. The `Secure` flag
+  is added when the server observes TLS or `POPCORN_COOKIE_SECURE` is set (for a
   TLS-terminating reverse proxy).
 - Login failures all return the same generic `UNAUTHORIZED` so responses never
   reveal whether a username, password, or account state caused the failure.
@@ -35,7 +35,7 @@ downloads:
 - resolves real paths,
 - prevents path traversal,
 - never trusts user-supplied paths for writes,
-- uses explicit allowlists, disallowing `.cairn/` and control characters,
+- uses explicit allowlists, disallowing `.popcorn/` and control characters,
 - protects against HTML/svg injection: issues may bypass browsers' MIME
   sniffing rules; `Content-Disposition` and safe content types are enforced on
   streams.
@@ -67,7 +67,7 @@ downloads:
   frames over 30 000 px per side or 50 megapixels before allocation. Photos
   past the pixel cap go to `ffmpeg` for thumbnails and previews instead,
   bounded at 100 megapixels after a JPEG's reduced-resolution decode.
-- Uploads are capped (`CAIRN_MAX_UPLOAD_BYTES`, default 2 GiB) at both the
+- Uploads are capped (`POPCORN_MAX_UPLOAD_BYTES`, default 2 GiB) at both the
   HTTP and store layers; aborted uploads never strand temp files.
 - Share-token path segments are redacted from logs (matching the
   authentication.md promise).
@@ -83,7 +83,7 @@ should sit behind a reverse proxy and a trusted network.
 ## OS-level hardening checklist
 
 - Run as an unprivileged user; `chown` only the data directory.
-- Keep Cairn up to date; restart after upgrades (immutable cache headers force
+- Keep Popcorn up to date; restart after upgrades (immutable cache headers force
   fresh assets automatically for browsers).
 - Network shares (SMB/NFS) as libraries: mount read-only in the container if
   possible.

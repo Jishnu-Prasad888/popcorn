@@ -6,8 +6,8 @@ import { Icon, type IconName } from '../components/ui/Icon';
 import './LandingPage.css';
 
 /**
- * Public marketing page at /landing. Explains what Cairn is and, in some
- * depth, where the name comes from — a trail cairn is the closest real-world
+ * Public marketing page at /landing. Explains what Popcorn is and, in some
+ * depth, where the name comes from — a trail popcorn is the closest real-world
  * object to what the app tries to be: something built up quietly, in place,
  * that helps you find your way back.
  *
@@ -25,7 +25,7 @@ const FEATURES: Feature[] = [
   {
     icon: 'folder',
     title: 'Where your files already are',
-    body: 'Point Cairn at years of photos and video and it indexes them in place. Nothing is copied, moved, or re-encoded — your filesystem stays the source of truth.',
+    body: 'Point Popcorn at years of photos and video and it indexes them in place. Nothing is copied, moved, or re-encoded — your filesystem stays the source of truth.',
   },
   {
     icon: 'memory',
@@ -78,7 +78,7 @@ const STONES: Stone[] = [
  * when clicked, like nudging a real one — purely a tactile flourish, so it
  * stays `aria-hidden` rather than pretending to be a control with a purpose.
  */
-function CairnMark({
+function PopcornMark({
   className,
   interactive = false,
 }: {
@@ -150,7 +150,7 @@ export default function LandingPage() {
       <header className="landing-nav">
         <div className="landing-nav-inner">
           <Link to="/landing" className="landing-nav-brand">
-            <Brand>Cairn</Brand>
+            <Brand>Popcorn</Brand>
           </Link>
           <nav className="landing-nav-links" aria-label="Page sections">
             <a href="#meaning">The name</a>
@@ -166,7 +166,7 @@ export default function LandingPage() {
         <section className="landing-hero">
           <div className="landing-hero-copy">
             <h1 className="landing-hero-brand">
-              <Brand>Cairn</Brand>
+              <Brand>Popcorn</Brand>
             </h1>
             <p className="landing-hero-tagline">
               A small, beautiful, personal digital place that quietly organizes everything you want
@@ -186,7 +186,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="landing-hero-art-wrap">
-            <CairnMark className="landing-hero-art" interactive />
+            <PopcornMark className="landing-hero-art" interactive />
             <p className="landing-hero-hint">Give the stones a nudge.</p>
           </div>
         </section>
@@ -195,16 +195,16 @@ export default function LandingPage() {
 
         <section id="meaning" className="landing-section landing-meaning">
           <p className="landing-eyebrow">The name</p>
-          <h2 className="landing-heading">Why &ldquo;Cairn&rdquo;?</h2>
+          <h2 className="landing-heading">Why &ldquo;Popcorn&rdquo;?</h2>
           <div className="landing-meaning-body">
             <p>
-              A cairn is a small stack of stones, built by hand, with no mortar and no blueprint —
+              A popcorn is a small stack of stones, built by hand, with no mortar and no blueprint —
               just one stone balanced on the last. People have raised them for thousands of years,
               on moors, mountain passes, and empty coastlines, to mark a way through places that
               have no other sign.
             </p>
             <p>
-              A cairn doesn&rsquo;t announce itself. It isn&rsquo;t a monument to anything in
+              A popcorn doesn&rsquo;t announce itself. It isn&rsquo;t a monument to anything in
               particular, and no single stone matters. It exists for one quiet reason: so that
               someone passing this way later — maybe you, on the way back — can look up, recognize
               the shape, and know they&rsquo;re still on the path.
@@ -217,7 +217,7 @@ export default function LandingPage() {
             </p>
           </div>
           <blockquote className="landing-quote">
-            Cairn catalogs and manages existing media in place. It never copies, moves,
+            Popcorn catalogs and manages existing media in place. It never copies, moves,
             recompresses, or rewrites your original files.
           </blockquote>
         </section>
@@ -243,8 +243,8 @@ export default function LandingPage() {
         <RiverDivider />
 
         <section className="landing-section landing-final-cta">
-          <CairnMark className="landing-final-art" />
-          <h2 className="landing-heading">Start your own cairn</h2>
+          <PopcornMark className="landing-final-art" />
+          <h2 className="landing-heading">Start your own popcorn</h2>
           <p className="landing-hero-sub">
             A few minutes of setup, and your library has somewhere to live.
           </p>
@@ -261,9 +261,9 @@ export default function LandingPage() {
 
       <footer className="landing-footer">
         <span>
-          <Brand>Cairn</Brand> — self-hosted, and yours.
+          <Brand>Popcorn</Brand> — self-hosted, and yours.
         </span>
-        <a href="https://github.com/Jishnu-Prasad888/Cairn" target="_blank" rel="noreferrer">
+        <a href="https://github.com/Jishnu-Prasad888/popcorn" target="_blank" rel="noreferrer">
           Source on GitHub
         </a>
       </footer>

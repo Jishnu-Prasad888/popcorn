@@ -1,7 +1,7 @@
 /**
  * Tags across every open library.
  *
- * Each library keeps its own tags in its `.cairn` database, so a tag lives in
+ * Each library keeps its own tags in its `.popcorn` database, so a tag lives in
  * a library rather than on the server. To the person, though, "family" is one
  * tag: this merges the libraries' tags by name (case-insensitively), and
  * applying a tag to a file creates it in that file's library the first time it
@@ -18,7 +18,7 @@ import { ApiError } from './client';
 import { addFileTag, createTag, listTags } from './queries';
 import type { FileSummary, Tag } from './types';
 
-const CHANGED_EVENT = 'cairn:tags-changed';
+const CHANGED_EVENT = 'popcorn:tags-changed';
 
 /** Tell every tag view that tags or their files changed. */
 export function notifyTagsChanged() {

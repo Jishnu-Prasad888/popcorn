@@ -27,13 +27,13 @@ export function TopBar({
 
   return (
     <header className="topbar" data-sticky-top>
-      <Link to="/" className="topbar-brand" aria-label="Cairn home">
-        <span className="cairn-mark" aria-hidden="true">
+      <Link to="/" className="topbar-brand" aria-label="Popcorn home">
+        <span className="popcorn-mark" aria-hidden="true">
           <span />
           <span />
           <span />
         </span>
-        <span className="brand">Cairn</span>
+        <span className="brand">Popcorn</span>
       </Link>
 
       <div className="topbar-search">

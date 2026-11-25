@@ -223,7 +223,7 @@ export default function SettingsPage() {
       {ffmpeg === false && (
         <p className="settings-warning" role="alert" data-testid="ffmpeg-warning">
           ffmpeg is not installed on the server, so some video thumbnails will not appear. Install
-          ffmpeg and restart Cairn.
+          ffmpeg and restart Popcorn.
         </p>
       )}
 
@@ -401,7 +401,7 @@ export default function SettingsPage() {
 
           {isAdmin ? (
             <>
-              <Section id="accounts" title="Accounts" description="Who can sign in to Cairn.">
+              <Section id="accounts" title="Accounts" description="Who can sign in to Popcorn.">
                 {users.error && (
                   <p className="error-text" role="alert">
                     {users.error}
@@ -524,7 +524,7 @@ export default function SettingsPage() {
                   to="/backups"
                   icon="archive"
                   title="Backups"
-                  description="Take, verify, and restore snapshots of Cairn's data."
+                  description="Take, verify, and restore snapshots of Popcorn's data."
                 />
               </Section>
             </>
@@ -538,7 +538,7 @@ export default function SettingsPage() {
           )}
 
           <Section id="about" title="About">
-            <Row title={<Brand>Cairn</Brand>} description="Your personal media library." />
+            <Row title={<Brand>Popcorn</Brand>} description="Your personal media library." />
             {server.loading && <Row title="Server" description="Checking…" />}
             {server.error && (
               <Row title="Server" description={<span className="error-text">{server.error}</span>}>

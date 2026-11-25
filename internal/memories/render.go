@@ -7,8 +7,8 @@ import (
 	"math"
 	"os"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/metadata"
-	"github.com/Jishnu-Prasad888/Cairn/internal/safeimage"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/safeimage"
 )
 
 // RenderEdited decodes the original at srcPath (opened read-only; the file

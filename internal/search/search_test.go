@@ -10,11 +10,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/albums"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
-	"github.com/Jishnu-Prasad888/Cairn/internal/search"
-	"github.com/Jishnu-Prasad888/Cairn/internal/tags"
+	"github.com/Jishnu-Prasad888/popcorn/internal/albums"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/search"
+	"github.com/Jishnu-Prasad888/popcorn/internal/tags"
 )
 
 // --- test helpers ---
@@ -24,11 +24,11 @@ import (
 func newTestStoreWithMediaStore(t *testing.T) (*search.SearchStore, *media.FileStore, *sql.DB) {
 	t.Helper()
 	root := t.TempDir()
-	cairnDir := filepath.Join(root, ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	popcornDir := filepath.Join(root, ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	db, err := librarydb.Open(cairnDir)
+	db, err := librarydb.Open(popcornDir)
 	if err != nil {
 		t.Fatalf("open library db: %v", err)
 	}

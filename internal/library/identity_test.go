@@ -6,12 +6,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
 )
 
 func TestMetadataDirNaming(t *testing.T) {
-	if got := metadataDir("/mnt/photos"); got != filepath.Join("/mnt/photos", ".cairn") {
-		t.Errorf("metadataDir = %q, want end in /%s", got, cairnDirName)
+	if got := metadataDir("/mnt/photos"); got != filepath.Join("/mnt/photos", ".popcorn") {
+		t.Errorf("metadataDir = %q, want end in /%s", got, popcornDirName)
 	}
 }
 
@@ -166,7 +166,7 @@ func TestCleanRootValidation(t *testing.T) {
 		t.Fatal(err)
 	}
 	if _, err := cleanRoot(metadataDir(dir)); err == nil {
-		t.Error(".cairn directory accepted as root")
+		t.Error(".popcorn directory accepted as root")
 	}
 
 	got, err := cleanRoot(dir)

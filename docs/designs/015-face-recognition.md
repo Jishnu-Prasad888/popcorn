@@ -7,8 +7,8 @@
 
 ## Context
 
-Cairn's ML layer (Phase 11) is optional, local, dependency-light, and
-capability-gated: `CAIRN_ML_ENABLED` is the master switch, similarity arrived
+Popcorn's ML layer (Phase 11) is optional, local, dependency-light, and
+capability-gated: `POPCORN_ML_ENABLED` is the master switch, similarity arrived
 first behind a `Provider` seam, and the Phase 11 note explicitly deferred
 face recognition:
 
@@ -43,7 +43,7 @@ Two hard constraints shape the design:
 - Wire people into search (`person=` filter) and give the web UI a People
   section: people grid, per-person media grid, rename, merge, delete, and a
   privacy purge for all derived face data.
-- Keep everything opt-in (`CAIRN_ML_ENABLED` + `CAIRN_ML_FACES`), local,
+- Keep everything opt-in (`POPCORN_ML_ENABLED` + `POPCORN_ML_FACES`), local,
   streaming-safe, and resumable; derive nothing from videos in this phase.
 - Never read or modify original files beyond best-effort image decode; all
   face data is derived, regenerable, and purgeable in one call.
@@ -141,7 +141,7 @@ type FaceDescriptor = []float32
 pixel grayscale buffer, runs `pigo.CascadeParams{MinSize, MaxSize,
 ShiftFactor: 0.15, ScaleFactor: 1.1}` + `ClusterDetections`, and returns boxes
 with a filterable confidence `Q` (normalized/normalised to 0..1; default
-threshold `CAIRN_ML_FACE_MIN_CONFIDENCE`, ~0.05; pigo scores `Q` on an ~0..100
+threshold `POPCORN_ML_FACE_MIN_CONFIDENCE`, ~0.05; pigo scores `Q` on an ~0..100
 scale, so the default floor is a raw detector score around 5). `MinSize` defaults to
 ~60 px
 (bounded scan cost; tunable via env for Pi). The cascade is embedded via
@@ -159,7 +159,7 @@ documented as a limitation and behind the seam.
 ### Passes (`internal/ml/faces.go`)
 
 - `FacePass(ctx, libraryID, root)` — one per library, bounded workers
-  (`CAIRN_ML_FACE_WORKERS`, default 2). Selects `present` files that have a
+  (`POPCORN_ML_FACE_WORKERS`, default 2). Selects `present` files that have a
   `media_metadata.media_type='photo'` and no face rows for the current
   provider/version, decodes each image (best-effort skip on decode failure),
   detects, embeds, and upserts faces. Per-file writes so a cancelled pass
@@ -167,7 +167,7 @@ documented as a limitation and behind the seam.
 - `ClusterPass(ctx, libraryID, root)` — incremental, deterministic online
   clustering. For every face without a `person_faces` row: compare the
   descriptor to each existing person's running mean (cosine similarity;
-  threshold `CAIRN_ML_FACE_THRESHOLD`, default 0.82); assign to the best
+  threshold `POPCORN_ML_FACE_THRESHOLD`, default 0.82); assign to the best
   candidate above threshold (update that person's mean), else create a new
   auto person ("Person N") whose cover is that face. Manual rows and existing
   assignments are never mutated. Deterministic because it processes faces in
@@ -236,11 +236,11 @@ browse search, pagination, and the count path unchanged).
 
 | Env | Default | Meaning |
 |---|---|---|
-| `CAIRN_ML_FACES` | `false` | faces capability (requires `CAIRN_ML_ENABLED`) |
-| `CAIRN_ML_FACE_WORKERS` | `2` | concurrent files per pass |
-| `CAIRN_ML_FACE_MIN_CONFIDENCE` | `0.05` | detector score floor (pigo `Q/100`) |
-| `CAIRN_ML_FACE_MIN_SIZE` | `60` | detector minimum window (px) |
-| `CAIRN_ML_FACE_THRESHOLD` | `0.82` | clustering cosine similarity |
+| `POPCORN_ML_FACES` | `false` | faces capability (requires `POPCORN_ML_ENABLED`) |
+| `POPCORN_ML_FACE_WORKERS` | `2` | concurrent files per pass |
+| `POPCORN_ML_FACE_MIN_CONFIDENCE` | `0.05` | detector score floor (pigo `Q/100`) |
+| `POPCORN_ML_FACE_MIN_SIZE` | `60` | detector minimum window (px) |
+| `POPCORN_ML_FACE_THRESHOLD` | `0.82` | clustering cosine similarity |
 
 `ml.Config` and `config.Config` gain the matching fields; `main.go` wires a
 `FaceManager` next to the similarity manager and (like similarity) optionally

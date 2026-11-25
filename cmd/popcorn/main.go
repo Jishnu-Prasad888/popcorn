@@ -1,4 +1,4 @@
-// Command cairn runs the Cairn server: the JSON API, background workers, and
+// Command popcorn runs the Popcorn server: the JSON API, background workers, and
 // the embedded web frontend, in a single process.
 package main
 
@@ -13,28 +13,28 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/audit"
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/backups"
-	"github.com/Jishnu-Prasad888/Cairn/internal/config"
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/db"
-	"github.com/Jishnu-Prasad888/Cairn/internal/httpapi"
-	"github.com/Jishnu-Prasad888/Cairn/internal/indexer"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/logging"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metadata"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metrics"
-	"github.com/Jishnu-Prasad888/Cairn/internal/ml"
-	"github.com/Jishnu-Prasad888/Cairn/internal/version"
-	"github.com/Jishnu-Prasad888/Cairn/internal/webui"
+	"github.com/Jishnu-Prasad888/popcorn/internal/audit"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/backups"
+	"github.com/Jishnu-Prasad888/popcorn/internal/config"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/db"
+	"github.com/Jishnu-Prasad888/popcorn/internal/httpapi"
+	"github.com/Jishnu-Prasad888/popcorn/internal/indexer"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/logging"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metrics"
+	"github.com/Jishnu-Prasad888/popcorn/internal/ml"
+	"github.com/Jishnu-Prasad888/popcorn/internal/version"
+	"github.com/Jishnu-Prasad888/popcorn/internal/webui"
 )
 
 func main() {
 	if err := run(); err != nil {
-		fmt.Fprintln(os.Stderr, "cairn:", err)
+		fmt.Fprintln(os.Stderr, "popcorn:", err)
 		os.Exit(1)
 	}
 }
@@ -50,7 +50,7 @@ func run() error {
 
 	logger := logging.New(cfg.LogLevel)
 	info := version.Get()
-	logger.Info("starting cairn",
+	logger.Info("starting popcorn",
 		"version", info.Version,
 		"commit", info.Commit,
 		"build_date", info.BuildDate,
@@ -120,7 +120,7 @@ func run() error {
 		logger.Warn("list libraries for job workers", "error", err)
 	}
 
-	// Pick up files added or removed outside Cairn: rescan on a timer.
+	// Pick up files added or removed outside Popcorn: rescan on a timer.
 	idxManager.StartAutoScan(ctx, time.Duration(cfg.ScanIntervalSeconds)*time.Second,
 		func(c context.Context) ([]library.Library, error) {
 			if err := libraries.RefreshAll(c); err != nil {
@@ -130,7 +130,7 @@ func run() error {
 		})
 
 	// Local ML: optional similarity signatures. The manager is inert unless
-	// CAIRN_ML_ENABLED is set; similarity passes run after index scans and on
+	// POPCORN_ML_ENABLED is set; similarity passes run after index scans and on
 	// explicit API calls.
 	mlManager := ml.NewManager(logger, ml.Config{
 		Enabled:           cfg.MLEnabled,
@@ -139,8 +139,8 @@ func run() error {
 	}, ml.PerceptualHashProvider{})
 
 	// Face recognition requires two models:
-	//   1. SCRFD detector  (face-detector.onnx  / CAIRN_ML_FACE_DETECTOR_MODEL)
-	//   2. ArcFace R50     (face-recognition.onnx / CAIRN_ML_FACE_MODEL)
+	//   1. SCRFD detector  (face-detector.onnx  / POPCORN_ML_FACE_DETECTOR_MODEL)
+	//   2. ArcFace R50     (face-recognition.onnx / POPCORN_ML_FACE_MODEL)
 	// Both must be present for face recognition to work. If either is missing,
 	// the face manager is disabled and the app offers to download them.
 	detectorPath := cfg.MLFaceDetectorModel
@@ -186,7 +186,7 @@ func run() error {
 	}, faceProvider)
 
 	// The master switch is an administrator setting stored in the server
-	// database (Machine learning page); CAIRN_ML_ENABLED is only its default.
+	// database (Machine learning page); POPCORN_ML_ENABLED is only its default.
 	var mlRuntime *ml.Runtime
 
 	// Detector downloader: when the detector arrives, attempt to load both
@@ -266,7 +266,7 @@ func run() error {
 	// Backups: one-shot, scheduled, size-triggered and restore operations
 	// over the server database and every registered library, to a local or
 	// mounted directory or an SFTP/FTP/SMB server. The destination and
-	// schedule come from CAIRN_BACKUP_* unless an administrator set them on
+	// schedule come from POPCORN_BACKUP_* unless an administrator set them on
 	// the Backups page.
 	backupMgr := backups.NewManager(pool, logger, libraries, backups.Config{
 		Dir:        cfg.BackupDir,

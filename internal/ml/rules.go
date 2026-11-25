@@ -101,8 +101,8 @@ func canonicalRulePath(root, p string) (string, error) {
 	if clean == ".." || strings.HasPrefix(clean, "../") {
 		return "", &RuleError{fmt.Sprintf("%q is not inside the library", p)}
 	}
-	if clean == ".cairn" || strings.HasPrefix(clean, ".cairn/") {
-		return "", &RuleError{"Cairn's own .cairn folder is never analysed"}
+	if clean == ".popcorn" || strings.HasPrefix(clean, ".popcorn/") {
+		return "", &RuleError{"Popcorn's own .popcorn folder is never analysed"}
 	}
 	return clean, nil
 }

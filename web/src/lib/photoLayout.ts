@@ -6,7 +6,7 @@
 
 export type PhotoLayout = 'masonry' | 'grid';
 
-const STORAGE_KEY = 'cairn.photos.layout';
+const STORAGE_KEY = 'popcorn.photos.layout';
 
 export function readPhotoLayout(): PhotoLayout {
   if (typeof localStorage === 'undefined') return 'masonry';

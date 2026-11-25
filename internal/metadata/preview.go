@@ -12,8 +12,8 @@ import (
 
 	"github.com/rwcarlsen/goexif/exif"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/safeimage"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/safeimage"
 )
 
 const (
@@ -22,18 +22,18 @@ const (
 	PreviewSize = 2048
 	// PreviewQuality is the JPEG quality for previews (0-100).
 	PreviewQuality = 85
-	// PreviewsDirName is the previews subdirectory name inside .cairn/.
+	// PreviewsDirName is the previews subdirectory name inside .popcorn/.
 	PreviewsDirName = "previews"
 )
 
 // PreviewPath returns the absolute path for the preview of a file identified
-// by fileID, given the library's .cairn directory.
-func PreviewPath(cairnDir, fileID string) string {
-	return filepath.Join(cairnDir, PreviewsDirName, fileID+".jpg")
+// by fileID, given the library's .popcorn directory.
+func PreviewPath(popcornDir, fileID string) string {
+	return filepath.Join(popcornDir, PreviewsDirName, fileID+".jpg")
 }
 
 // GeneratePreview writes a screen-sized JPEG of the photo at srcPath to
-// PreviewPath(cairnDir, fileID): at most PreviewSize on its longer side, with
+// PreviewPath(popcornDir, fileID): at most PreviewSize on its longer side, with
 // the EXIF orientation applied (the encoded JPEG carries no EXIF, so the
 // browser cannot apply it). A photo the size of a screen or less is far
 // cheaper to send and decode than a camera original, which is what makes the
@@ -43,7 +43,7 @@ func PreviewPath(cairnDir, fileID string) string {
 // original serves as well: it already fits and needs no turning, or it is a
 // GIF (which may be animated). It returns (false, nil) too for a file this
 // server cannot decode; the browser may still show the original.
-func GeneratePreview(srcPath, cairnDir, fileID string, keys *crypto.Keys) (bool, error) {
+func GeneratePreview(srcPath, popcornDir, fileID string, keys *crypto.Keys) (bool, error) {
 	src, err := os.Open(srcPath)
 	if err != nil {
 		return false, fmt.Errorf("open source for preview: %w", err)
@@ -72,7 +72,7 @@ func GeneratePreview(srcPath, cairnDir, fileID string, keys *crypto.Keys) (bool,
 		return false, nil
 	}
 	img = orient(resizeToFit(img, PreviewSize), orientation)
-	if err := writeRendition(img, PreviewPath(cairnDir, fileID), PreviewQuality, keys); err != nil {
+	if err := writeRendition(img, PreviewPath(popcornDir, fileID), PreviewQuality, keys); err != nil {
 		return false, err
 	}
 	return true, nil
@@ -80,14 +80,14 @@ func GeneratePreview(srcPath, cairnDir, fileID string, keys *crypto.Keys) (bool,
 
 // PreviewModTime returns when fileID's preview was last written. A missing
 // preview returns an os.ErrNotExist-wrapped error.
-func PreviewModTime(cairnDir, fileID string) (time.Time, error) {
-	return renditionModTime(PreviewPath(cairnDir, fileID))
+func PreviewModTime(popcornDir, fileID string) (time.Time, error) {
+	return renditionModTime(PreviewPath(popcornDir, fileID))
 }
 
 // ReadPreview reads and decrypts the preview for fileID, returning the JPEG
 // bytes and the file's modification time.
-func ReadPreview(cairnDir, fileID string, keys *crypto.Keys) ([]byte, time.Time, error) {
-	return readRendition(PreviewPath(cairnDir, fileID), keys)
+func ReadPreview(popcornDir, fileID string, keys *crypto.Keys) ([]byte, time.Time, error) {
+	return readRendition(PreviewPath(popcornDir, fileID), keys)
 }
 
 // readOrientation returns the EXIF orientation (1–8) of the image r holds,

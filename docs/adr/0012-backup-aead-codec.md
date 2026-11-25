@@ -18,8 +18,8 @@ Accepted (Phase 14).
 
 Phase 13 (ADR-0011) delivered a shared at-rest encryption kernel
 (`internal/crypto`, docs/encryption.md): argon2id-derived AES-256-GCM AEAD
-with a self-describing sealed blob format, used for `.cairn` identity and
-thumbnails. It was explicitly scoped to *Cairn-owned metadata artifacts*, and
+with a self-describing sealed blob format, used for `.popcorn` identity and
+thumbnails. It was explicitly scoped to *Popcorn-owned metadata artifacts*, and
 documented a first-class follow-up:
 
 > Harden the backup codec: migrate from CTR + SHA-256 to the shared AEAD
@@ -48,7 +48,7 @@ payloads already written to disk.
 ## Decision
 
 Migrate the encrypted-backup payload codec from **CTR + unkeyed
-SHA-256** to Cairn's **one shared AEAD kernel** (`internal/crypto`), with:
+SHA-256** to Popcorn's **one shared AEAD kernel** (`internal/crypto`), with:
 
 1. **One derivation, one blob format, one primitive.** Encrypted backup
    payloads become the same self-describing sealed blob Phase 13 introduced
@@ -78,14 +78,14 @@ SHA-256** to Cairn's **one shared AEAD kernel** (`internal/crypto`), with:
 The on-disk *header* is byte-identical to Phase 10 (same magic, flags, sizes,
 sizes, hash fields). Only the **body bytes after the header** change:
 
-- Body starts with the Phase-13 sealed-blob magic (`CAIRNATR` + version):
+- Body starts with the Phase-13 sealed-blob magic (`POPCNATR` + version):
   **AEAD.** The codec opens via the kernel; a mangled or wrong-key blob fails
   with the authenticated `ErrInvalidPassphrase`/`ErrCorrupt`.
 - Body does not start with the magic (legacy CTR ciphertext, or plaintext):
   the **legacy reader runs unchanged** — salt → deriveKey → CTR → SHA-256.
 
 Dispatch is by inspecting the first body bytes for the sealed blob's magic,
-which is unambiguous because the AEAD magic `CAIRNATR` can never coincide with
+which is unambiguous because the AEAD magic `POPCNATR` can never coincide with
 a legacy ciphertext stream's first 8 bytes in practice (and is validated by a
 round-trip test on both formats).
 

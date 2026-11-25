@@ -15,7 +15,7 @@ export interface NavItem {
   end?: boolean;
 }
 
-/** The library: what people open Cairn for. */
+/** The library: what people open Popcorn for. */
 export const PRIMARY_NAV: NavItem[] = [
   { to: '/', label: 'Home', icon: 'home', end: true },
   { to: '/photos', label: 'Photos', icon: 'photo' },

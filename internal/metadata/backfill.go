@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/jobs"
+	"github.com/Jishnu-Prasad888/popcorn/internal/jobs"
 )
 
 // RenditionsBatch is how many files one renditions job brings forward. Each
@@ -37,10 +37,10 @@ func PendingRenditions(ctx context.Context, db *sql.DB) (bool, error) {
 // empty colour so it is not retried forever; a new or changed file is
 // processed afresh by process_media anyway.
 func (p *Processor) HandleRenditions(ctx context.Context, job *jobs.Job) (more bool, err error) {
-	cairnDir, _ := job.Payload["cairn_dir"].(string)
+	popcornDir, _ := job.Payload["popcorn_dir"].(string)
 	db, ok := ctx.Value(dbKey{}).(*sql.DB)
-	if cairnDir == "" || !ok {
-		return false, fmt.Errorf("renditions job %s missing cairn_dir or database", job.ID)
+	if popcornDir == "" || !ok {
+		return false, fmt.Errorf("renditions job %s missing popcorn_dir or database", job.ID)
 	}
 	rows, err := db.QueryContext(ctx, `
 		SELECT m.file_id FROM media_metadata m JOIN indexed_files f ON f.id = m.file_id
@@ -67,7 +67,7 @@ func (p *Processor) HandleRenditions(ctx context.Context, job *jobs.Job) (more b
 		if err := ctx.Err(); err != nil {
 			return false, err
 		}
-		color, err := MakeSmallThumb(cairnDir, id, p.keys)
+		color, err := MakeSmallThumb(popcornDir, id, p.keys)
 		if err != nil {
 			p.logger.Debug("small thumbnail not made", "file_id", id, "error", err)
 			color = ""

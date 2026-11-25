@@ -344,4 +344,4 @@ function PromptForm({
   );
 }
 
-const promptFormId = 'cairn-prompt-form';
+const promptFormId = 'popcorn-prompt-form';

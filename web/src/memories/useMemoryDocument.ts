@@ -50,7 +50,7 @@ const OFFLINE_RETRY = 5000;
 const UNDO_LIMIT = 60;
 
 const draftKey = (libraryId: string, memoryId: string) =>
-  `cairn.memory.draft.${libraryId}.${memoryId}`;
+  `popcorn.memory.draft.${libraryId}.${memoryId}`;
 
 export function readDraft(libraryId: string, memoryId: string): DraftRecord | null {
   try {

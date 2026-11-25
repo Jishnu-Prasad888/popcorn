@@ -111,7 +111,7 @@ function NewShareDialog({
         <p className="share-hint">
           A whole library is <code>library:&lt;id&gt;</code>, a folder and everything under it is{' '}
           <code>folder:&lt;path&gt;</code>, and one file is <code>file:&lt;path&gt;</code> (the
-          library id prefix on the path is optional — the dialogs elsewhere in Cairn create these
+          library id prefix on the path is optional — the dialogs elsewhere in Popcorn create these
           for you).
         </p>
 
@@ -211,7 +211,7 @@ export default function SharingPage() {
   const header = (
     <PageHeader
       title="Sharing"
-      subtitle="Read-mostly links that let someone without a Cairn account see a resource."
+      subtitle="Read-mostly links that let someone without a Popcorn account see a resource."
       controls={
         <>
           <LibraryPicker />
@@ -262,8 +262,8 @@ export default function SharingPage() {
         <div className="share-fresh" role="status" data-testid="fresh-share">
           <h2>Your link is ready</h2>
           <p className="muted">
-            This is the only time Cairn shows the token. Copy it now — it cannot be recovered later,
-            only replaced.
+            This is the only time Popcorn shows the token. Copy it now — it cannot be recovered
+            later, only replaced.
           </p>
           <div className="share-fresh-row">
             <label className="visually-hidden" htmlFor="fresh-share-url">
@@ -361,8 +361,8 @@ export default function SharingPage() {
 
       {shares.data !== null && shares.data.some((s) => !expired(s)) && (
         <p className="muted share-note">
-          The link itself is not shown here on purpose — Cairn only ever returns the token once, at
-          creation. If you lose it, revoke the share and make a new one.
+          The link itself is not shown here on purpose — Popcorn only ever returns the token once,
+          at creation. If you lose it, revoke the share and make a new one.
         </p>
       )}
 

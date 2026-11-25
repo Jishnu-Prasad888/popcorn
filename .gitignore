@@ -1,5 +1,5 @@
-# Cairn local data
-cairn-data/
+# Popcorn local data
+popcorn-data/
 data/
 *.db
 *.db-shm

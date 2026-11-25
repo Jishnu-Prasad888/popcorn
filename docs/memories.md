@@ -20,7 +20,7 @@ Memory ── metadata: title, date, description, location, background, tags, co
                      └── derived copy   (optional, see "Edited copies")
 ```
 
-Relational storage in the library database (`<library>/.cairn/library.db`):
+Relational storage in the library database (`<library>/.popcorn/library.db`):
 
 | Table                  | Holds                                                         |
 | ---------------------- | ------------------------------------------------------------- |
@@ -132,7 +132,7 @@ memories**.
   non-default edits gets a rendered JPEG (quality 90, full resolution) at
 
   ```text
-  <library>/.cairn/memory-media/<memory-id>/<memory-image-id>-<signature>.jpg
+  <library>/.popcorn/memory-media/<memory-id>/<memory-image-id>-<signature>.jpg
   ```
 
 Rules:
@@ -149,7 +149,7 @@ Rules:
   files) are removed; copies of soft-deleted memories stay. Version snapshots
   store edit parameters, not files, so restoring a version re-renders.
 - **Encrypted like thumbnails** when at-rest encryption is on.
-- **Never indexed** — `.cairn/` is excluded from scanning — and never shown as
+- **Never indexed** — `.popcorn/` is excluded from scanning — and never shown as
   a user folder.
 
 The reserved directory, collision handling and lifecycle are described in
@@ -324,16 +324,16 @@ unreadable references are described in the Markdown instead of being embedded.
 
 The archive contains `<slug>.md` (the title reduced to a file name) and an
 `images/` directory. The Markdown starts with YAML front matter (title, date,
-description, location, tags, cover, and `cairn_*` ids) and keeps Cairn-specific
+description, location, tags, cover, and `popcorn_*` ids) and keeps Popcorn-specific
 presentation data — block layout, slideshow, captions, crops, rotation, filter
-and adjustments — in `<!-- cairn:image … -->` comments that other renderers
+and adjustments — in `<!-- popcorn:image … -->` comments that other renderers
 ignore. Text blocks are written verbatim, so the file reads naturally in
 Obsidian or any other Markdown tool. Edited images are embedded from their
 derived copy when one exists, otherwise the original is embedded and the edits
 stay in the comment.
 
 The toolbar's **Export** control offers both that zip and a **PDF**. The PDF is
-made entirely in the browser: Cairn lays the memory out as a plain document —
+made entirely in the browser: Popcorn lays the memory out as a plain document —
 title, date, text and photos in order at their natural shape — hides the rest
 of the app, and opens the browser's print dialog so the reader can print it or
 save it as a PDF. There is no server-side PDF route, so the output follows the
@@ -341,7 +341,7 @@ browser's own pagination and the photos print at screen quality.
 
 ## Internal references
 
-`[[type:id]]` wikilinks reference other Cairn objects (`media`, `memory`,
+`[[type:id]]` wikilinks reference other Popcorn objects (`media`, `memory`,
 `album`, `person`, `tag`) with an optional label, e.g.
 `[[album:xyz|Rye trip]]`. On every save they are re-extracted from the text
 blocks into `memory_refs`, together with a `media` reference for every image

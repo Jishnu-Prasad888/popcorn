@@ -26,8 +26,8 @@ Resource-based authorization is deliberately out of scope ([permissions.md](perm
 - A session token is 32 random bytes (`crypto/rand`), base64url-encoded.
 - Only the **SHA-256 digest** of the token is stored in `sessions`; a database
   leak never yields usable credentials.
-- The token travels as the `cairn_session` cookie: `HttpOnly`, `SameSite=Lax`,
-  with `Secure` added when TLS is observed or `CAIRN_COOKIE_SECURE` is set.
+- The token travels as the `popcorn_session` cookie: `HttpOnly`, `SameSite=Lax`,
+  with `Secure` added when TLS is observed or `POPCORN_COOKIE_SECURE` is set.
 - TTL is **30 days**. Expired and revoked sessions are deleted; the server
   prunes expired sessions at startup and opportunistically when a stale session
   is presented.

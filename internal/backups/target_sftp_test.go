@@ -15,7 +15,7 @@ import (
 )
 
 // startSFTPServer runs an in-process SSH server with the sftp subsystem,
-// accepting user "cairn" / password "secret". It returns the address and the
+// accepting user "popcorn" / password "secret". It returns the address and the
 // server's host key fingerprint.
 func startSFTPServer(t *testing.T) (string, string) {
 	t.Helper()
@@ -29,7 +29,7 @@ func startSFTPServer(t *testing.T) (string, string) {
 	}
 	cfg := &ssh.ServerConfig{
 		PasswordCallback: func(c ssh.ConnMetadata, pass []byte) (*ssh.Permissions, error) {
-			if c.User() == "cairn" && string(pass) == "secret" {
+			if c.User() == "popcorn" && string(pass) == "secret" {
 				return nil, nil
 			}
 			return nil, errors.New("denied")
@@ -93,7 +93,7 @@ func TestSFTPDestinationEndToEnd(t *testing.T) {
 	for _, c := range portStr {
 		port = port*10 + int(c-'0')
 	}
-	remote := filepath.Join(t.TempDir(), "remote", "cairn")
+	remote := filepath.Join(t.TempDir(), "remote", "popcorn")
 
 	pool, serverPath := tempServerDB(t)
 	ctx := context.Background()
@@ -103,7 +103,7 @@ func TestSFTPDestinationEndToEnd(t *testing.T) {
 
 	wrong := "nope"
 	if _, err := m.SetDestination(ctx, DestinationUpdate{
-		Destination: Destination{Kind: KindSFTP, Host: host, Port: port, Username: "cairn", Path: remote},
+		Destination: Destination{Kind: KindSFTP, Host: host, Port: port, Username: "popcorn", Path: remote},
 		Password:    &wrong,
 	}); err == nil {
 		t.Fatal("bad password accepted")
@@ -111,7 +111,7 @@ func TestSFTPDestinationEndToEnd(t *testing.T) {
 
 	pw := "secret"
 	d, err := m.SetDestination(ctx, DestinationUpdate{
-		Destination: Destination{Kind: KindSFTP, Host: host, Port: port, Username: "cairn", Path: remote},
+		Destination: Destination{Kind: KindSFTP, Host: host, Port: port, Username: "popcorn", Path: remote},
 		Password:    &pw,
 	})
 	if err != nil {

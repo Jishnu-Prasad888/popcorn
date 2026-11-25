@@ -31,8 +31,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/fts"
-	"github.com/Jishnu-Prasad888/Cairn/internal/markdown"
+	"github.com/Jishnu-Prasad888/popcorn/internal/fts"
+	"github.com/Jishnu-Prasad888/popcorn/internal/markdown"
 )
 
 // ErrNotFound is returned when a memory does not exist.

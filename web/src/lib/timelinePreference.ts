@@ -4,7 +4,7 @@
  * it on.
  */
 
-const OPEN_KEY = 'cairn.timeline.open';
+const OPEN_KEY = 'popcorn.timeline.open';
 
 export function readTimelineOpen(): boolean {
   try {
@@ -23,7 +23,7 @@ export function storeTimelineOpen(open: boolean): void {
   }
 }
 
-const SCALE_KEY = 'cairn.timeline.scale';
+const SCALE_KEY = 'popcorn.timeline.scale';
 const SCALES = ['day', 'week', 'month', 'year'] as const;
 type Scale = (typeof SCALES)[number];
 

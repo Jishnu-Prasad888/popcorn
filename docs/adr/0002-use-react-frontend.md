@@ -5,7 +5,7 @@
 
 ## Context
 
-Cairn's UI must feel personal, calm, and tactile while remaining information
+Popcorn's UI must feel personal, calm, and tactile while remaining information
 dense, responsive across desktop/tablet/mobile, and accessible. The frontend
 must be a pure client of the HTTP API so that native clients can be built later
 without sharing UI code.
@@ -14,7 +14,7 @@ without sharing UI code.
 
 The frontend is React with TypeScript, built with Vite. Client-side routing uses
 react-router. Testing uses Vitest with Testing Library. No component library or
-CSS framework is adopted up front; the Cairn visual system is implemented with
+CSS framework is adopted up front; the Popcorn visual system is implemented with
 CSS custom properties (design tokens) defined in `web/src/styles/tokens.css`.
 
 ## Consequences

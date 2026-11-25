@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
 )
 
 // ErrNotFound is returned when an album does not exist.

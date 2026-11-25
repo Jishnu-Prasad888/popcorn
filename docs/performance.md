@@ -4,7 +4,7 @@ Performance goals and commitments.
 
 ## Principle
 
-The filesystem is the source of truth for media; metadata in SQLite lets Cairn
+The filesystem is the source of truth for media; metadata in SQLite lets Popcorn
 answer most questions without touching media bytes. `stat`-heavy operations are
 avoided; content hashing is reserved (see [indexing.md](indexing.md)).
 
@@ -32,7 +32,7 @@ avoided; content hashing is reserved (see [indexing.md](indexing.md)).
   hashed, so other writers are not held up. Follow-up media jobs are enqueued
   in batches, and files are classified (`media_type`) as they are indexed.
 - **Background jobs drain back to back** and media jobs run on a bounded pool
-  (`CAIRN_MEDIA_WORKERS`, default half the CPUs, 1–4: two on a Raspberry
+  (`POPCORN_MEDIA_WORKERS`, default half the CPUs, 1–4: two on a Raspberry
   Pi 4). Scans of one library never overlap. The claim query walks an index
   rather than sorting the queue.
 - **Thumbnails** are cached by the browser for good when the URL carries the

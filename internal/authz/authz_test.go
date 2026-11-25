@@ -9,15 +9,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/audit"
-	"github.com/Jishnu-Prasad888/Cairn/internal/db"
+	"github.com/Jishnu-Prasad888/popcorn/internal/audit"
+	"github.com/Jishnu-Prasad888/popcorn/internal/db"
 )
 
 // newTestService opens a fresh migrated server database with a user account
 // and returns an authorization Service wired to it.
 func newTestService(t *testing.T) (*Service, *sql.DB, string) {
 	t.Helper()
-	pool, err := db.Open(filepath.Join(t.TempDir(), "cairn.db"))
+	pool, err := db.Open(filepath.Join(t.TempDir(), "popcorn.db"))
 	if err != nil {
 		t.Fatalf("open test database: %v", err)
 	}

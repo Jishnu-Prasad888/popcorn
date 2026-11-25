@@ -516,7 +516,7 @@ export type BackupStatus = 'running' | 'completed' | 'failed' | 'pruned' | strin
 export interface BackupRecord {
   id: string;
   status: BackupStatus;
-  /** A local path, or a URL such as sftp://me@nas:22/backups/cairn-backup-… */
+  /** A local path, or a URL such as sftp://me@nas:22/backups/popcorn-backup-… */
   destination: string;
   /** The server always sets this; a record without it is not a record. */
   started_at: string;

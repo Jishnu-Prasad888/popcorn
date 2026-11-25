@@ -79,7 +79,7 @@ describe('SettingsPage', () => {
     await waitFor(() => {
       expect(document.documentElement.dataset.theme).toBe('dark');
     });
-    expect(localStorage.getItem('cairn.theme')).toBe('dark');
+    expect(localStorage.getItem('popcorn.theme')).toBe('dark');
 
     fireEvent.click(screen.getByRole('radio', { name: 'Match system' }));
     await waitFor(() => {
@@ -94,7 +94,7 @@ describe('SettingsPage', () => {
     fireEvent.click(screen.getByRole('radio', { name: /Midnight/ }));
     await waitFor(() => expect(document.documentElement.dataset.theme).toBe('midnight'));
     expect(document.documentElement.dataset.mode).toBe('dark');
-    expect(localStorage.getItem('cairn.theme')).toBe('midnight');
+    expect(localStorage.getItem('popcorn.theme')).toBe('midnight');
 
     fireEvent.click(screen.getByRole('radio', { name: /Sage/ }));
     await waitFor(() => expect(document.documentElement.dataset.theme).toBe('sage'));
@@ -112,7 +112,7 @@ describe('SettingsPage', () => {
 
     fireEvent.click(screen.getByRole('radio', { name: 'Grid' }));
     await waitFor(() => {
-      expect(localStorage.getItem('cairn.photos.layout')).toBe('grid');
+      expect(localStorage.getItem('popcorn.photos.layout')).toBe('grid');
     });
     expect(screen.getByRole('radio', { name: 'Grid' })).toBeChecked();
   });

@@ -1,4 +1,4 @@
-// Package version holds build-time metadata for the Cairn binary.
+// Package version holds build-time metadata for the Popcorn binary.
 //
 // The fields in this package are intended to be overridden at build time via
 // the -ldflags flag. See the Makefile's `build` target for details.
@@ -12,7 +12,7 @@ import (
 
 // These values may be set at build time:
 //
-//	-X "github.com/Jishnu-Prasad888/Cairn/internal/version.Version=..."
+//	-X "github.com/Jishnu-Prasad888/popcorn/internal/version.Version=..."
 var (
 	// Version is the semantic version of the build. "dev" indicates a
 	// local development build.

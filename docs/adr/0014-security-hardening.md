@@ -34,7 +34,7 @@ no security headers/CSRF defense-in-depth, and no brute-force lockout.
    `safeimage.Decode` enforces `50 MP` pixel and `30 000 px` per-dimension
    caps (via `image.DecodeConfig` pre-scan) at every decode site before
    allocation.
-5. **Uploads are capped and atomic.** A configurable `CAIRN_MAX_UPLOAD_BYTES`
+5. **Uploads are capped and atomic.** A configurable `POPCORN_MAX_UPLOAD_BYTES`
    (default 2 GiB) caps multipart bodies with `http.MaxBytesReader` (→ 413)
    and the store stream with `io.LimitReader`; temp files are removed
    unconditionally on abort.

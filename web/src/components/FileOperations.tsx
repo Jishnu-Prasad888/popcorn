@@ -171,7 +171,7 @@ export function useFileOperations(
             <>
               {pending.kind === 'permanent' ? (
                 <p>
-                  <strong>{pending.file.name}</strong> will be erased from Cairn's index and its
+                  <strong>{pending.file.name}</strong> will be erased from Popcorn's index and its
                   bytes deleted from disk. <strong>This cannot be undone.</strong>
                 </p>
               ) : (

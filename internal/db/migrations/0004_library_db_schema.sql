@@ -3,7 +3,7 @@
 -- This migration runs against the SERVER-LEVEL database to record the schema
 -- version used when a library-level database was last initialised. The actual
 -- per-library tables (indexed_files, index_jobs) live in each library's own
--- SQLite database at <root>/.cairn/library.db and are created by the library
+-- SQLite database at <root>/.popcorn/library.db and are created by the library
 -- database initialisation code.
 --
 -- Having this migration in the server schema lets us track which libraries

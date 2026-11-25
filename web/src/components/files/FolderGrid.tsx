@@ -4,7 +4,7 @@
  * A tile behaves like a folder in a desktop file manager:
  * - click opens it; right-click (or the ⋯ button) opens its menu;
  * - it can be dragged onto another folder or a breadcrumb to move it;
- * - files or folders dragged inside Cairn can be dropped on it to move them
+ * - files or folders dragged inside Popcorn can be dropped on it to move them
  *   in, and files dragged in from the desktop drop on it to upload into it;
  * - a favourite folder carries a small star.
  */

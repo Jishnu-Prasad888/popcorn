@@ -1,9 +1,9 @@
 openapi: 3.0.3
 info:
-  title: Cairn API
+  title: Popcorn API
   version: 0.1.0
   description: >
-    Cairn is a self-hosted personal media, file, and memory server. This
+    Popcorn is a self-hosted personal media, file, and memory server. This
     specification is the complete contract for the HTTP API. A client (web app,
     React Native, desktop, CLI) can be built against this document alone.
 
@@ -13,8 +13,8 @@ info:
     an X-Request-ID header.
   termsOfService: https://example.com/terms # placeholder until licensing is decided
   contact:
-    name: Cairn
-    url: https://github.com/Jishnu-Prasad888/Cairn
+    name: Popcorn
+    url: https://github.com/Jishnu-Prasad888/popcorn
 servers:
   - url: http://127.0.0.1:8715/api/v1
     description: Local default
@@ -148,9 +148,9 @@ paths:
               schema:
                 type: string
               example: |
-                # HELP cairn_http_requests_total Total HTTP requests by method and status code.
-                # TYPE cairn_http_requests_total counter
-                cairn_http_requests_total{method="GET",status="200"} 42
+                # HELP popcorn_http_requests_total Total HTTP requests by method and status code.
+                # TYPE popcorn_http_requests_total counter
+                popcorn_http_requests_total{method="GET",status="200"} 42
 
   /auth/status:
     get:
@@ -195,7 +195,7 @@ paths:
           description: Admin account created and session started
           headers:
             Set-Cookie:
-              description: The cairn_session cookie (HttpOnly, SameSite=Lax)
+              description: The popcorn_session cookie (HttpOnly, SameSite=Lax)
               schema:
                 $ref: '#/components/schemas/SessionCookie'
           content:
@@ -213,7 +213,7 @@ paths:
       operationId: login
       summary: Authenticate with credentials and start a session
       description: >
-        Public. Valid credentials start a session and set the cairn_session
+        Public. Valid credentials start a session and set the popcorn_session
         cookie. All failures — unknown username, wrong password, disabled
         account — return the same UNAUTHORIZED body so responses never reveal
         which part was wrong.
@@ -230,7 +230,7 @@ paths:
           description: Session started
           headers:
             Set-Cookie:
-              description: The cairn_session cookie (HttpOnly, SameSite=Lax)
+              description: The popcorn_session cookie (HttpOnly, SameSite=Lax)
               schema:
                 $ref: '#/components/schemas/SessionCookie'
           content:
@@ -404,7 +404,7 @@ paths:
       summary: Register a library (create or adopt)
       description: >
         Requires an admin session. Registers the absolute `path`. When the path
-        already contains a `.cairn` metadata directory the library is adopted:
+        already contains a `.popcorn` metadata directory the library is adopted:
         the persistent identity, database, tags, albums, and index are reused and
         nothing is reprocessed. Otherwise fresh metadata is written. The response
         `mode` reports which happened. A root that is already registered or
@@ -437,7 +437,7 @@ paths:
       summary: Inspect a candidate path without registering it
       description: >
         Requires an admin session. Read-only: reports whether the path exists, is
-        a directory, is writable, already carries `.cairn` metadata, and is
+        a directory, is writable, already carries `.popcorn` metadata, and is
         already registered. Non-existent paths are valid; they report
         `path_exists: false` instead of erroring.
       requestBody:
@@ -487,7 +487,7 @@ paths:
       operationId: deleteLibrary
       summary: Unregister a library
       description: >
-        Requires an admin session. Removes the registration only; the `.cairn`
+        Requires an admin session. Removes the registration only; the `.popcorn`
         metadata directory is left in place so the library can be re-adopted
         later. Content on disk is never modified.
       parameters:
@@ -510,7 +510,7 @@ paths:
         Requires an admin session. With an empty body the last-known root is
         re-stat'd and `status` reconciled to `online`/`offline`. With `path`, the
         library is reconnected there; the new location must contain the same
-        `.cairn` identity or the request is rejected with BAD_REQUEST.
+        `.popcorn` identity or the request is rejected with BAD_REQUEST.
       parameters:
         - $ref: '#/components/parameters/LibraryID'
       requestBody:
@@ -935,7 +935,7 @@ paths:
       summary: Move a file to the library trash (soft delete)
       description: >
         Requires an authenticated session with the `delete` capability on the
-        file. The bytes move to `.cairn/trash/<fileID>` on the library; the
+        file. The bytes move to `.popcorn/trash/<fileID>` on the library; the
         index row, metadata, tags, and relationships are retained and the row
         keeps its original path. A file already in trash yields CONFLICT.
         Restore it with POST .../restore.
@@ -1142,7 +1142,7 @@ paths:
       summary: Restore a file from the library trash
       description: >
         Requires an authenticated session with the `edit` capability on the file.
-        Moves bytes back from `.cairn/trash/<fileID>` to the original path and
+        Moves bytes back from `.popcorn/trash/<fileID>` to the original path and
         marks the file `present`. A file not in trash, or whose original path is
         now occupied, yields CONFLICT.
       parameters:
@@ -1316,7 +1316,7 @@ paths:
       description: >
         Requires an authenticated session with the `read` capability on the file.
         Returns a JPEG thumbnail (max 400 px on the longer side, quality 82) with
-        Range support. Thumbnails are derived data under `.cairn/`; the original
+        Range support. Thumbnails are derived data under `.popcorn/`; the original
         is never modified. Missing thumbnails are generated on demand when the
         file is a decodeable image; otherwise NOT_FOUND.
       parameters:
@@ -1351,7 +1351,7 @@ paths:
         Requires an authenticated session with the `download` capability on the
         file, as it is the photo's content. Returns a JPEG of at most 2048 px on
         the longer side (quality 85) with the EXIF orientation applied, made on
-        first request and kept under `.cairn/previews/`. With `?v=` (the file's
+        first request and kept under `.popcorn/previews/`. With `?v=` (the file's
         mod time and size) it is cached by the browser as immutable. NOT_FOUND
         when the original serves as well: it already fits and needs no turning,
         it is a GIF, it is not a photo, or this server cannot decode it.
@@ -2611,7 +2611,7 @@ paths:
       operationId: getMemoryImageDerived
       summary: Fetch the edited copy of a memory image
       description: >
-        Serves the JPEG rendered into .cairn/memory-media when the owner's
+        Serves the JPEG rendered into .popcorn/memory-media when the owner's
         "create edited copies" setting was on. Requires read on the memory and on
         the source file.
       parameters:
@@ -2964,7 +2964,7 @@ paths:
       description: >
         Admin only. Runs a full backup synchronously and returns the resulting
         record. Arguments are server-side (the backup directory from
-        /backups/settings or CAIRN_BACKUP_DIR, passphrase, retention); no
+        /backups/settings or POPCORN_BACKUP_DIR, passphrase, retention); no
         per-call override is accepted. A run that is already in
         progress is refused with 409 Conflict.
       responses:
@@ -3030,7 +3030,7 @@ paths:
       summary: Set the backup directory
       description: >
         Admin only. Stores the backup directory in the server database, where it
-        wins over CAIRN_BACKUP_DIR. The path must be absolute and outside every
+        wins over POPCORN_BACKUP_DIR. The path must be absolute and outside every
         library; it is created if missing and must be writable. An empty value
         disables backups.
       requestBody:
@@ -3796,12 +3796,12 @@ components:
       required: true
       description: >
         The raw share token returned once by createShare. Authenticates the
-        share; a password-protected share also requires the `X-Cairn-Share-Password`
+        share; a password-protected share also requires the `X-Popcorn-Share-Password`
         header.
       schema:
         type: string
     SharePasswordHeader:
-      name: X-Cairn-Share-Password
+      name: X-Popcorn-Share-Password
       in: header
       required: false
       description: >
@@ -3976,10 +3976,10 @@ components:
     SessionCookie:
       description: >
         Storage directive only; clients never read or send this value by hand —
-        HTTP libraries manage the cookie jar. `cairn_session` is HttpOnly and
+        HTTP libraries manage the cookie jar. `popcorn_session` is HttpOnly and
         SameSite=Lax, and carries the Secure flag when served over TLS.
       type: string
-      example: cairn_session=…; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000
+      example: popcorn_session=…; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000
     Health:
       type: object
       required: [status, database]
@@ -4369,7 +4369,7 @@ components:
         edited_copies:
           type: boolean
           default: false
-          description: Render edited memory photos into .cairn/memory-media/.
+          description: Render edited memory photos into .popcorn/memory-media/.
         default_layout:
           $ref: '#/components/schemas/MemoryLayout'
         default_mode:
@@ -4461,7 +4461,7 @@ components:
         type:
           type: string
           enum: [media, memory, album, person, tag]
-          description: Kind of referenced Cairn object.
+          description: Kind of referenced Popcorn object.
         id:
           type: string
           description: Opaque id of the referenced object.
@@ -4776,7 +4776,7 @@ components:
           enum: [created, adopted]
           description: >
             `created` means fresh metadata was written; `adopted` means an
-            existing `.cairn` metadata directory was bound and reused.
+            existing `.popcorn` metadata directory was bound and reused.
         indexing:
           type: boolean
           description: >
@@ -4805,7 +4805,7 @@ components:
           type: boolean
         has_metadata:
           type: boolean
-          description: A `.cairn` metadata directory already exists at the path.
+          description: A `.popcorn` metadata directory already exists at the path.
         existing_id:
           type: string
           description: Existing library id when `has_metadata` is true.
@@ -4832,7 +4832,7 @@ components:
           type: string
           description: >
             Optional new location to reconnect to; the new root must contain the
-            same `.cairn` identity.
+            same `.popcorn` identity.
     IndexTriggerResult:
       type: object
       required: [job_id, library_id]
@@ -5382,7 +5382,7 @@ components:
     cookieAuth:
       type: apiKey
       in: cookie
-      name: cairn_session
+      name: popcorn_session
       description: >
         Opaque session token issued by /auth/login or /auth/bootstrap and stored
         in an HttpOnly, SameSite=Lax cookie. Only the SHA-256 digest is kept

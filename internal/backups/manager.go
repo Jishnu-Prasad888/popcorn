@@ -20,14 +20,14 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/sanitize"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/sanitize"
 )
 
 // Config drives the backup subsystem.
 type Config struct {
-	// Dir is the starting local destination directory (CAIRN_BACKUP_DIR). A
+	// Dir is the starting local destination directory (POPCORN_BACKUP_DIR). A
 	// destination an administrator saved wins over it. Empty disables
 	// backups until one is configured.
 	Dir string
@@ -40,7 +40,7 @@ type Config struct {
 	// Restore requires the same passphrase.
 	Passphrase string
 
-	// Interval is the starting scheduled cadence (CAIRN_BACKUP_INTERVAL_MIN);
+	// Interval is the starting scheduled cadence (POPCORN_BACKUP_INTERVAL_MIN);
 	// a schedule an administrator saved wins over it. 0 disables it.
 	Interval time.Duration
 
@@ -63,7 +63,7 @@ type Manager struct {
 	libs    *library.Manager
 	store   *Store
 	cfg     Config
-	server  string // absolute path of the server-level cairn.db
+	server  string // absolute path of the server-level popcorn.db
 	secrets *secretBox
 
 	// mu guards the administrator-editable policy below.
@@ -97,7 +97,7 @@ type Manager struct {
 }
 
 // NewManager builds the backup manager. serverDB is the absolute path of the
-// server-level cairn.db so it can be snapshotted.
+// server-level popcorn.db so it can be snapshotted.
 func NewManager(db *sql.DB, logger *slog.Logger, libs *library.Manager, cfg Config, serverDB string) *Manager {
 	if cfg.Keep <= 0 {
 		cfg.Keep = 4
@@ -288,7 +288,7 @@ func (m *Manager) begin(ctx context.Context, reason string) (*pendingRun, error)
 		rec.Target = d.Key()
 	}
 
-	base := "cairn-backup-" + now.Format("20060102-150405")
+	base := "popcorn-backup-" + now.Format("20060102-150405")
 	folder := base
 	for i := 1; exists(tgt, path.Join(folder, "header.json")); i++ {
 		folder = fmt.Sprintf("%s-%d", base, i)
@@ -341,7 +341,7 @@ func (m *Manager) complete(ctx context.Context, r *pendingRun) (*Record, error) 
 	}
 
 	mf := &Manifest{
-		Format:    "cairn-backup",
+		Format:    "popcorn-backup",
 		Version:   1,
 		CreatedAt: now,
 		Encrypted: encrypted,
@@ -433,7 +433,7 @@ type writer struct {
 	noLink    bool  // the target refused a hard link once; stop trying
 }
 
-// snapshotServerDB copies the server cairn.db into the backup after forcing a
+// snapshotServerDB copies the server popcorn.db into the backup after forcing a
 // WAL checkpoint so the file is self-contained.
 func (m *Manager) snapshotServerDB(ctx context.Context, w *writer) (Entry, error) {
 	if m.server == "" {
@@ -442,7 +442,7 @@ func (m *Manager) snapshotServerDB(ctx context.Context, w *writer) (Entry, error
 	if _, err := m.db.ExecContext(ctx, "PRAGMA wal_checkpoint(TRUNCATE)"); err != nil {
 		return Entry{}, err
 	}
-	e, err := w.put(m.server, path.Join("server", "cairn.db"), true)
+	e, err := w.put(m.server, path.Join("server", "popcorn.db"), true)
 	if err != nil {
 		return Entry{}, err
 	}
@@ -451,12 +451,12 @@ func (m *Manager) snapshotServerDB(ctx context.Context, w *writer) (Entry, error
 }
 
 // snapshotLibraryDB checkpoints a library's metadata db and copies it.
-func (m *Manager) snapshotLibraryDB(ctx context.Context, w *writer, libID, cairnDir string) (Entry, error) {
-	dbPath := filepath.Join(cairnDir, "library.db")
+func (m *Manager) snapshotLibraryDB(ctx context.Context, w *writer, libID, popcornDir string) (Entry, error) {
+	dbPath := filepath.Join(popcornDir, "library.db")
 	if _, err := os.Stat(dbPath); err != nil {
 		return Entry{}, err
 	}
-	db, err := librarydb.Open(cairnDir)
+	db, err := librarydb.Open(popcornDir)
 	if err != nil {
 		return Entry{}, err
 	}
@@ -465,19 +465,19 @@ func (m *Manager) snapshotLibraryDB(ctx context.Context, w *writer, libID, cairn
 	return w.put(dbPath, path.Join("libraries", libID, "library.db"), true)
 }
 
-// backupLibrary copies one library's .cairn metadata and its media files.
+// backupLibrary copies one library's .popcorn metadata and its media files.
 func (m *Manager) backupLibrary(ctx context.Context, w *writer, lib library.Library) (LibraryBackup, error) {
-	cairnDir := filepath.Join(lib.Root, ".cairn")
+	popcornDir := filepath.Join(lib.Root, ".popcorn")
 	lb := LibraryBackup{ID: lib.ID, Name: lib.Name, Root: lib.Root}
 
-	dbEntry, err := m.snapshotLibraryDB(ctx, w, lib.ID, cairnDir)
+	dbEntry, err := m.snapshotLibraryDB(ctx, w, lib.ID, popcornDir)
 	if err != nil {
 		m.logger.Warn("library db backup skipped", "library_id", lib.ID, "error", err)
 	} else {
 		lb.DB = &dbEntry
 	}
 
-	idSrc := filepath.Join(cairnDir, "library.json")
+	idSrc := filepath.Join(popcornDir, "library.json")
 	if _, err := os.Stat(idSrc); err == nil {
 		entry, cerr := w.put(idSrc, path.Join("libraries", lib.ID, "library.json"), true)
 		if cerr != nil {
@@ -499,7 +499,7 @@ func (m *Manager) backupLibrary(ctx context.Context, w *writer, lib library.Libr
 			return nil
 		}
 		if d.IsDir() {
-			if rel == ".cairn" {
+			if rel == ".popcorn" {
 				return filepath.SkipDir
 			}
 			return nil
@@ -801,7 +801,7 @@ func verifyEntry(tgt Target, folder string, e Entry, key []byte) bool {
 }
 
 // Restore writes the contents of a completed backup into dest, a directory on
-// the server, mirroring the stored layout (server/cairn.db, libraries/<id>/...).
+// the server, mirroring the stored layout (server/popcorn.db, libraries/<id>/...).
 func (m *Manager) Restore(ctx context.Context, id, dest string) (*Record, error) {
 	rec, err := m.store.Get(ctx, id)
 	if err != nil {
@@ -1148,7 +1148,7 @@ func shouldCompress(name string) bool {
 // writeHeader writes header.json (always plaintext) into a backup folder.
 func writeHeader(tgt Target, folder string, encrypted bool, salt string) error {
 	h := headerMetadata{
-		Format:    "cairn-backup",
+		Format:    "popcorn-backup",
 		Version:   1,
 		CreatedAt: time.Now().UTC().Format(time.RFC3339Nano),
 		Encrypted: encrypted,

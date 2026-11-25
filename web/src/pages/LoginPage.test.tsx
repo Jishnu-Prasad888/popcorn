@@ -96,7 +96,7 @@ describe('LoginPage', () => {
     const fn = mockFetch();
     setup();
 
-    await screen.findByRole('heading', { name: 'Sign in to Cairn' });
+    await screen.findByRole('heading', { name: 'Sign in to Popcorn' });
     signIn();
 
     expect(await screen.findByText('app home')).toBeInTheDocument();
@@ -109,7 +109,7 @@ describe('LoginPage', () => {
     mockFetch({ loginError: 401 });
     setup();
 
-    await screen.findByRole('heading', { name: 'Sign in to Cairn' });
+    await screen.findByRole('heading', { name: 'Sign in to Popcorn' });
     signIn();
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Invalid username or password.');
@@ -120,7 +120,7 @@ describe('LoginPage', () => {
     const fn = mockFetch();
     setup();
 
-    await screen.findByRole('heading', { name: 'Sign in to Cairn' });
+    await screen.findByRole('heading', { name: 'Sign in to Popcorn' });
     fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Enter your username and password.');
@@ -131,7 +131,7 @@ describe('LoginPage', () => {
     mockFetch({ bootstrapRequired: true });
     setup();
 
-    expect(await screen.findByRole('heading', { name: 'Sign in to Cairn' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Sign in to Popcorn' })).toBeInTheDocument();
     expect(screen.getByText(/no accounts yet/)).toBeInTheDocument();
     expect(screen.getByText('First time on this server?')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Create an account' })).toBeInTheDocument();
@@ -151,7 +151,7 @@ describe('LoginPage', () => {
     const fn = mockFetch();
     setup();
 
-    await screen.findByRole('heading', { name: 'Sign in to Cairn' });
+    await screen.findByRole('heading', { name: 'Sign in to Popcorn' });
     // The button stays, so the route is discoverable: /setup explains that an
     // administrator creates accounts. Only the first-run wording changes.
     expect(screen.getByText('Need an account?')).toBeInTheDocument();

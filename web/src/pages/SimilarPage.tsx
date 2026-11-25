@@ -1,5 +1,5 @@
 /**
- * Similar photos — visual near-duplicates found by Cairn's local similarity
+ * Similar photos — visual near-duplicates found by Popcorn's local similarity
  * pass, grouped so the ones worth trimming can be reviewed together instead
  * of one file at a time.
  *
@@ -275,7 +275,7 @@ export default function SimilarPage() {
   const header = (
     <PageHeader
       title="Similar photos"
-      subtitle="Visual near-duplicates found by Cairn's local similarity pass."
+      subtitle="Visual near-duplicates found by Popcorn's local similarity pass."
       controls={<LibraryPicker />}
     />
   );
@@ -336,7 +336,7 @@ function Similar({
       {phase?.kind === 'unavailable' && (
         <EmptyState title="Not available on this server" icon="spark" testId="similar-unavailable">
           <p className="muted">
-            This Cairn server was built without local image similarity, so visual near-duplicates
+            This Popcorn server was built without local image similarity, so visual near-duplicates
             cannot be found.
           </p>
         </EmptyState>
@@ -350,7 +350,7 @@ function Similar({
                 Turn it on in <Link to="/ml">Machine learning</Link> to find photos that look alike.
               </>
             ) : (
-              'An admin needs to turn it on in Machine learning settings before Cairn can find photos that look alike.'
+              'An admin needs to turn it on in Machine learning settings before Popcorn can find photos that look alike.'
             )}
           </p>
         </EmptyState>
@@ -373,7 +373,7 @@ function Similar({
 
       {phase?.kind === 'ready' && groups.length === 0 && (
         <EmptyState title="Nothing looks alike" testId="similar-empty" icon="spark">
-          <p className="muted">Every photo Cairn has checked looks distinct from every other.</p>
+          <p className="muted">Every photo Popcorn has checked looks distinct from every other.</p>
         </EmptyState>
       )}
 

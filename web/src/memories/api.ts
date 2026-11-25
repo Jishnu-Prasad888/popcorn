@@ -31,7 +31,7 @@ export const getMemoryDocument = (libraryId: string, memoryId: string) =>
  */
 export function getPublicShareMemory(token: string, password?: string): Promise<MemoryResponse> {
   const headers: Record<string, string> = { Accept: 'application/json' };
-  if (password) headers['X-Cairn-Share-Password'] = password;
+  if (password) headers['X-Popcorn-Share-Password'] = password;
   return apiRequest<MemoryResponse>(`/shares/${token}/memory`, { headers });
 }
 

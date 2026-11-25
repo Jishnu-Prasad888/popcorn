@@ -26,7 +26,7 @@ Scanner (internal/indexer)
 StateStore (internal/indexer)
     │  persists/queries indexed_files in per-library SQLite
     ▼
-per-library library.db  (<root>/.cairn/library.db)
+per-library library.db  (<root>/.popcorn/library.db)
 ```
 
 Background jobs (`internal/jobs`) make scanning asynchronous and restart-safe.
@@ -84,7 +84,7 @@ hashing.
 ## Ignore rules
 
 Each library can leave things out of its index. Rules live in the library's
-own `ignore_rules` table (in `.cairn/library.db`), so they travel with it.
+own `ignore_rules` table (in `.popcorn/library.db`), so they travel with it.
 
 | Kind | Pattern | Leaves out |
 |------|---------|------------|
@@ -120,7 +120,7 @@ Jobs survive process restarts: any `running` job found at startup is reset to
 | `GET`  | `/api/v1/libraries/{id}/index/status` | Present/missing/deleted counts + active job. |
 | `GET`  | `/api/v1/libraries/{id}/ignore` | The library's ignore rules: `{"rules": [{"kind", "pattern"}]}`. |
 | `PUT`  | `/api/v1/libraries/{id}/ignore` | Replace the ignore rules; returns them normalized. `400` for an invalid rule. |
-| `GET`  | `/api/v1/libraries/{id}/fs?path=rel` | Folders and files directly inside one folder of the library (relative paths, `.cairn` hidden, at most 2000 files). |
+| `GET`  | `/api/v1/libraries/{id}/fs?path=rel` | Folders and files directly inside one folder of the library (relative paths, `.popcorn` hidden, at most 2000 files). |
 
 All of these require admin authentication. Scanning an offline library returns
 `409 Conflict`.
@@ -139,4 +139,4 @@ All of these require admin authentication. Scanning an offline library returns
 - Writes to any original file
 - Moves, renames, or copies original files
 - Loads large files into memory (streaming I/O, bounded memory)
-- Indexes files inside `.cairn/` (the metadata directory is always skipped)
+- Indexes files inside `.popcorn/` (the metadata directory is always skipped)

@@ -1,5 +1,5 @@
 /**
- * A small, safe Markdown renderer and live highlighter for Cairn memories.
+ * A small, safe Markdown renderer and live highlighter for Popcorn memories.
  *
  * Markdown is the canonical content of a memory's text blocks. This module
  * renders it two ways:

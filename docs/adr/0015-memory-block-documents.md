@@ -26,9 +26,9 @@ concurrent editing from several tabs or devices.
    crop, filter preset, adjustments — defined as CSS filter primitives so the
    browser renders them with CSS and the server reproduces them exactly.
 4. **Edited copies are optional derived media** in the reserved
-   `.cairn/memory-media/` directory, one per memory image, valid only while
+   `.popcorn/memory-media/` directory, one per memory image, valid only while
    their edit signature matches, garbage collected only when unreferenced,
-   claimed with a marker file and never written over a path Cairn did not
+   claimed with a marker file and never written over a path Popcorn did not
    create.
 5. **Writes are whole-document and revision-checked.** The web client saves
    the full ordered block list with `base_revision`; a stale write is a 409.

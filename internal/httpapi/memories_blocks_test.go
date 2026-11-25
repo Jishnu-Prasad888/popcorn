@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 )
 
 // seedPhoto writes a small real JPEG under libRoot and indexes it as a photo.
@@ -37,7 +37,7 @@ func seedPhoto(t *testing.T, libRoot, id, rel string) string {
 	}
 	_ = f.Close()
 
-	ldb, err := librarydb.Open(filepath.Join(libRoot, ".cairn"))
+	ldb, err := librarydb.Open(filepath.Join(libRoot, ".popcorn"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -326,7 +326,7 @@ func TestMemorySettingsAndDerivedCopies(t *testing.T) {
 	if string(before) != string(after) {
 		t.Fatal("original bytes changed")
 	}
-	if _, err := os.Stat(filepath.Join(libRoot, ".cairn", "memory-media", m.Memory.ID)); err != nil {
+	if _, err := os.Stat(filepath.Join(libRoot, ".popcorn", "memory-media", m.Memory.ID)); err != nil {
 		t.Errorf("derived dir missing: %v", err)
 	}
 

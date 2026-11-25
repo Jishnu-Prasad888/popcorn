@@ -8,16 +8,16 @@
 
 Phase 14 is the Phase 13 follow-up that docs/encryption.md deferred as its
 first hardening item ("Migrate the backup codec from CTR+SHA-256 to the shared
-AEAD kernel"). Cairn now has exactly one AEAD kernel (`internal/crypto`, Phase
+AEAD kernel"). Popcorn now has exactly one AEAD kernel (`internal/crypto`, Phase
 13: argon2id-derived AES-256-GCM with a self-describing sealed blob) used for
-the `.cairn` identity and thumbnail artifacts, and it has a Phase 10 backup
+the `.popcorn` identity and thumbnail artifacts, and it has a Phase 10 backup
 codec that still sits on `internal/backups/codec.go`:
 
 - ink derivation: `argon2.IDKey(passphrase, per-backupSalt, 1, 64MiB, 4, 32)`
 - confidentiality: **AES-256-CTR** streaming cipher (XOR keystream)
 - integrity: unkeyed **SHA-256** of the plaintext stored in the payload header
 
-So Cairn currently has **two** at-rest crypto stacks and two on-disk blob
+So Popcorn currently has **two** at-rest crypto stacks and two on-disk blob
 formats. CTR without authentication is exactly the weakness that Phase 13
 documents as the reason the shared kernel is AEAD: a malicious actor who can
 write to a backup store (or an undetected disk fault/truncation) can flip bits
@@ -28,7 +28,7 @@ re-forged byte stream whose plaintext hash was appended to match.
 ## Goal
 
 Move the backup codec's payload confidentiality+integrity onto the shared Phase
-13 AEAD kernel so that **every** encrypted byte path in Cairn uses one kernel,
+13 AEAD kernel so that **every** encrypted byte path in Popcorn uses one kernel,
 one derived-key rule, one self-describing sealed blob, and one authenticated-
 decryption path with a single wrong-passphrase contract. Concretely:
 

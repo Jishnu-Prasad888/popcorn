@@ -12,13 +12,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
-	"github.com/Jishnu-Prasad888/Cairn/internal/ml"
-	"github.com/Jishnu-Prasad888/Cairn/internal/safeimage"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/ml"
+	"github.com/Jishnu-Prasad888/popcorn/internal/safeimage"
 )
 
 // facesLib resolves the library and requires the face capability to be on.
@@ -399,7 +399,7 @@ func (s *Server) handleFaceImage(w http.ResponseWriter, r *http.Request, u *auth
 	}
 	faceID := r.PathValue("faceID")
 
-	db, release, err := librarydb.Acquire(filepath.Join(lib.Root, ".cairn"))
+	db, release, err := librarydb.Acquire(filepath.Join(lib.Root, ".popcorn"))
 	if err != nil {
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,
 			CodeInternal, "Failed to open library database.")

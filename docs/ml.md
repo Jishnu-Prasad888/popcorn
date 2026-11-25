@@ -36,7 +36,7 @@ Not in scope (later phases):
 - **Everything local.** No ML service, no telemetry. Faces and signatures never
   leave the device (nothing is transmitted in this phase regardless — we only
   compute local hashes).
-- **Fully optional.** With `CAIRN_ML_ENABLED=false` (the default) the ML
+- **Fully optional.** With `POPCORN_ML_ENABLED=false` (the default) the ML
   manager is inert and nothing is computed or stored.
 - **Async and resource-limited.** Similarity passes run as a background job
   with a configurable concurrency cap; individual files are processed at low
@@ -86,7 +86,7 @@ logged and skipped without stopping the pass.
   (library schema v5) keyed by `file_id`, storing `provider`, `version`,
   the 64-bit signature, and timestamps. Deriving is idempotent and
   incremental: only files without a row are processed.
-- A `cairn-dir` sidecar is **not** used in this phase — derived signatures
+- A `popcorn-dir` sidecar is **not** used in this phase — derived signatures
   travel with `library.db` exactly like tags/albums do, and are covered by
   backups and restores automatically.
 - Deleting derived data = `DELETE FROM ml_signatures` (exposed via an API
@@ -119,7 +119,7 @@ capability-specific endpoints; callers never branch on provider identity.
 - Constructed with the config and library manager; inert unless enabled.
 - `Pass(ctx, libID)` — runs one similarity pass over a library: opens the
   library DB, lists indexed files that are images and lack a signature, and
-  processes them with a bounded worker pool (default 2, `CAIRN_ML_WORKERS`).
+  processes them with a bounded worker pool (default 2, `POPCORN_ML_WORKERS`).
   Resumable: each file's signature is written as soon as it is derived, so a
   cancelled pass makes progress.
 - `Status(ctx, libID)` — enabled provider, counts (indexed / signed / pending),
@@ -139,8 +139,8 @@ to indexing and gives an obvious retry path (`POST .../ml/similarity/pass`).
 ### Batching new images
 
 After every scan (the periodic auto-scan and the catch-up scan at startup
-included, so files uploaded or moved in by hand — even while Cairn was
-stopped — are noticed) Cairn counts the images the models have not processed.
+included, so files uploaded or moved in by hand — even while Popcorn was
+stopped — are noticed) Popcorn counts the images the models have not processed.
 Nothing extra is stored for that: the library database already records which
 files have a signature / face scan, so the count is simply what is missing.
 When the count reaches the **batch size** (Machine learning page, admin only;
@@ -154,10 +154,10 @@ size and process everything. The face status reports `pending`.
 
 | Env var | Default | Meaning |
 | --- | --- | --- |
-| `CAIRN_ML_ENABLED` | `false` | Master switch. All ML capabilities are off until this is `true`. |
-| `CAIRN_ML_SIMILARITY` | `true` | Whether the similarity capability is on (only consulted when enabled). |
-| `CAIRN_ML_WORKERS` | `2` | Max concurrent files per similarity pass. |
-| `CAIRN_ML_DISTANCE_THRESHOLD` | `10` | Hamming distance at or below which files are reported as similar. |
+| `POPCORN_ML_ENABLED` | `false` | Master switch. All ML capabilities are off until this is `true`. |
+| `POPCORN_ML_SIMILARITY` | `true` | Whether the similarity capability is on (only consulted when enabled). |
+| `POPCORN_ML_WORKERS` | `2` | Max concurrent files per similarity pass. |
+| `POPCORN_ML_DISTANCE_THRESHOLD` | `10` | Hamming distance at or below which files are reported as similar. |
 
 With ML disabled, the ML action endpoints (`similarity/pass`, `purge`,
 `similar`) return `SERVICE_UNAVAILABLE`; the manager does no work and stores
@@ -178,7 +178,7 @@ Admin-gated (like backups):
 
 Faces are an optional capability on the same subsystem: a pure-Go run
 (`pigo` + the standard library) bundled as a static cascade, dependency-free
-at runtime. Nothing runs unless both `CAIRN_ML_ENABLED` and `CAIRN_ML_FACES`
+at runtime. Nothing runs unless both `POPCORN_ML_ENABLED` and `POPCORN_ML_FACES`
 are on. Originals are never modified; all derived data is removable with the
 purge action without touching names or photos.
 
@@ -187,7 +187,7 @@ purge action without touching names or photos.
 1. **Detection pass** (`POST .../ml/faces/pass`, and automatically after a
    scan finishes) — selects `present` photos not yet recorded in `face_scans`
    for the current provider/version, decodes each, runs SCRFD, drops faces
-   smaller than `CAIRN_ML_FACE_MIN_SIZE`, and stores the file's `faces` rows
+   smaller than `POPCORN_ML_FACE_MIN_SIZE`, and stores the file's `faces` rows
    and its `face_scans` record in one transaction. Photos without faces are
    recorded too, so they are not analysed again; a photo that cannot be
    decoded is logged and skipped without stopping the pass. Passes (detection
@@ -196,7 +196,7 @@ purge action without touching names or photos.
 2. **Face embedding** — when a recognition model is installed (see
    [Recognition model](#recognition-model)) each face is aligned on its eyes
    (pigo pupil localisation, similarity-warped to the 112×112 ArcFace layout)
-   and run through a MobileFaceNet ONNX network by Cairn's built-in pure-Go
+   and run through a MobileFaceNet ONNX network by Popcorn's built-in pure-Go
    inference engine (`internal/ml/onnx`), giving an L2-normalised 512-value
    vector (provider `mobilefacenet`, version 2). Same-person faces stay close
    across pose, lighting, expression and age. Without a model, the fallback
@@ -227,7 +227,7 @@ purge action without touching names or photos.
    places it. `DELETE …/people/{personID}?faces=delete` removes the person's
    faces too, so the group is not rebuilt.
    **Learning from merges.** Dragging one person onto another (or *Merge into…*)
-   tells Cairn they are the same. The merged faces are recorded as hand-assigned
+   tells Popcorn they are the same. The merged faces are recorded as hand-assigned
    evidence, and new faces are matched against up to 40 individual faces of each
    person (the mean of the two best matches), not just the person's average, so
    a person with two distinct looks is recognised as either. The merge also folds
@@ -269,19 +269,19 @@ accepted). Saving applies them in the background.
 
 | Env var | Default | Meaning |
 | --- | --- | --- |
-| `CAIRN_ML_FACES` | `false` | Face capability (requires `CAIRN_ML_ENABLED`). |
-| `CAIRN_ML_FACE_WORKERS` | `2` | Max concurrent files per detection pass. |
-| `CAIRN_ML_FACE_MIN_CONFIDENCE` | `0.05` | Detector score floor (pigo `Q/100`). |
-| `CAIRN_ML_FACE_MIN_SIZE` | `48` | Smallest face kept, in source pixels (smaller faces are ignored). |
-| `CAIRN_ML_FACE_THRESHOLD` | provider default (`0.45` for SCRFD + ArcFace) | Grouping cosine similarity; the Machine learning page's slider overrides it. |
-| `CAIRN_ML_FACE_MODEL` | `<data dir>/models/face-recognition.onnx` | ONNX recognition model; used when the file exists. |
+| `POPCORN_ML_FACES` | `false` | Face capability (requires `POPCORN_ML_ENABLED`). |
+| `POPCORN_ML_FACE_WORKERS` | `2` | Max concurrent files per detection pass. |
+| `POPCORN_ML_FACE_MIN_CONFIDENCE` | `0.05` | Detector score floor (pigo `Q/100`). |
+| `POPCORN_ML_FACE_MIN_SIZE` | `48` | Smallest face kept, in source pixels (smaller faces are ignored). |
+| `POPCORN_ML_FACE_THRESHOLD` | provider default (`0.45` for SCRFD + ArcFace) | Grouping cosine similarity; the Machine learning page's slider overrides it. |
+| `POPCORN_ML_FACE_MODEL` | `<data dir>/models/face-recognition.onnx` | ONNX recognition model; used when the file exists. |
 
 ### Recognition model
 
 `scripts/fetch-face-model.sh` downloads InsightFace's MobileFaceNet (13 MB).
 Those weights are licensed for **non-commercial research use**; any ArcFace-style
 ONNX model (112×112 input, 512 outputs, operators Conv/PReLU/Add/BatchNorm/
-Flatten/Gemm) can be used instead. Cairn never downloads it by itself.
+Flatten/Gemm) can be used instead. Popcorn never downloads it by itself.
 
 ### API
 
@@ -329,7 +329,7 @@ permission capabilities for the rest:
 - Removing per-image derived data via the web UI (API-only in this phase).
 ## Runtime switch (Machine learning page)
 
-`CAIRN_ML_ENABLED` is only the **default**. An administrator turns ML on or off
+`POPCORN_ML_ENABLED` is only the **default**. An administrator turns ML on or off
 from **Machine learning → Recognise people automatically**; the choice is stored
 in the server database (`server_settings`, key `ml.enabled`, migration 0008) and
 wins over the environment from then on.

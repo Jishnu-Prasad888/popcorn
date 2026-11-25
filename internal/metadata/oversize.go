@@ -8,7 +8,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/safeimage"
+	"github.com/Jishnu-Prasad888/popcorn/internal/safeimage"
 )
 
 // maxOversizePixels bounds the frame ffmpeg holds while it decodes a photo

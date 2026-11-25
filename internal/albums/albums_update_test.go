@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/albums"
+	"github.com/Jishnu-Prasad888/popcorn/internal/albums"
 )
 
 func strPtr(s string) *string { return &s }

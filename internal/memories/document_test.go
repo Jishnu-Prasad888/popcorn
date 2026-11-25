@@ -13,35 +13,35 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/memories"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/memories"
 )
 
 // testLibrary is a temporary library root with an open library database.
 type testLibrary struct {
-	root     string
-	cairnDir string
-	db       *sql.DB
-	store    *memories.MemoryStore
+	root       string
+	popcornDir string
+	db         *sql.DB
+	store      *memories.MemoryStore
 }
 
 func newTestLibrary(t *testing.T) *testLibrary {
 	t.Helper()
 	root := t.TempDir()
-	cairnDir := filepath.Join(root, ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	popcornDir := filepath.Join(root, ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	db, err := librarydb.Open(cairnDir)
+	db, err := librarydb.Open(popcornDir)
 	if err != nil {
 		t.Fatalf("open library db: %v", err)
 	}
 	t.Cleanup(func() { _ = db.Close() })
-	return &testLibrary{root: root, cairnDir: cairnDir, db: db, store: memories.NewMemoryStore(db)}
+	return &testLibrary{root: root, popcornDir: popcornDir, db: db, store: memories.NewMemoryStore(db)}
 }
 
 func (l *testLibrary) deriver() *memories.Deriver {
-	return &memories.Deriver{LibraryRoot: l.root, CairnDir: l.cairnDir}
+	return &memories.Deriver{LibraryRoot: l.root, PopcornDir: l.popcornDir}
 }
 
 // addPhoto writes a real JPEG (w×h, a horizontal gradient so crops and
@@ -242,11 +242,11 @@ func TestLegacyUpdateRefusesStructuredMemory(t *testing.T) {
 
 func TestLegacyMemoryMigratesToTextBlock(t *testing.T) {
 	root := t.TempDir()
-	cairnDir := filepath.Join(root, ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	popcornDir := filepath.Join(root, ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	db, err := librarydb.Open(cairnDir)
+	db, err := librarydb.Open(popcornDir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -259,7 +259,7 @@ func TestLegacyMemoryMigratesToTextBlock(t *testing.T) {
 	}
 	_ = db.Close()
 
-	db, err = librarydb.Open(cairnDir) // the upgrade runs on open
+	db, err = librarydb.Open(popcornDir) // the upgrade runs on open
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -282,7 +282,7 @@ func TestLegacyMemoryMigratesToTextBlock(t *testing.T) {
 		t.Fatalf("search after migration = %v, %v", res, err)
 	}
 	// Re-opening is a no-op (no duplicate block).
-	db2, _ := librarydb.Open(cairnDir)
+	db2, _ := librarydb.Open(popcornDir)
 	_ = db2.Close()
 	got, _ = store.GetDocument(ctx(t), "legacy1")
 	if len(got.Blocks) != 1 {

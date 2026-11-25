@@ -206,7 +206,7 @@ export function NoLibrariesState({ isAdmin }: { isAdmin: boolean }) {
       }
     >
       <p>
-        Cairn organizes media that already lives on your disk. Point it at a folder and it will
+        Popcorn organizes media that already lives on your disk. Point it at a folder and it will
         index it in place — nothing is copied or changed.
       </p>
       {!isAdmin && (
@@ -218,7 +218,7 @@ export function NoLibrariesState({ isAdmin }: { isAdmin: boolean }) {
 
 /**
  * The library's drive is not connected. Not an error and not empty: the
- * details Cairn keeps (albums, tags, memories) are still here, the files are
+ * details Popcorn keeps (albums, tags, memories) are still here, the files are
  * not. Administrators also see where the drive was last mounted.
  */
 export function LibraryOfflineNotice({ library }: { library: Library }) {
@@ -232,7 +232,7 @@ export function LibraryOfflineNotice({ library }: { library: Library }) {
         <p className="notice-title">{library.name} is unavailable</p>
         <p>
           The drive holding this library is disconnected. Your albums, tags, and memories are safe —
-          reconnect it and Cairn will pick up where it left off.
+          reconnect it and Popcorn will pick up where it left off.
         </p>
         {user?.role === 'admin' && (
           <p className="notice-detail">

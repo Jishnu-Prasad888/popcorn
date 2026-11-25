@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/backups"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/backups"
 )
 
 // backupResponse is the API representation of a backup record.
@@ -173,7 +173,7 @@ type backupDestination struct {
 	backups.Destination
 	PasswordSet   bool `json:"password_set"`
 	PrivateKeySet bool `json:"private_key_set"`
-	// Location is the human-readable destination ("/mnt/usb/cairn",
+	// Location is the human-readable destination ("/mnt/usb/popcorn",
 	// "sftp://me@nas:22/backups").
 	Location string `json:"location"`
 }

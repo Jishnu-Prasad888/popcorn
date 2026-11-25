@@ -63,11 +63,11 @@ func TestBuildExportFrontMatterAndBlocks(t *testing.T) {
 		`description: "Monsoon\ntrip"`,
 		`location: "Kochi"`,
 		`tags: ["travel", "family \"fun\""]`,
-		`cairn_memory_id: "mem12345"`,
-		`cairn_revision: 7`,
-		`cairn_exported_at: "2026-10-09T12:00:00Z"`,
+		`popcorn_memory_id: "mem12345"`,
+		`popcorn_revision: 7`,
+		`popcorn_exported_at: "2026-10-09T12:00:00Z"`,
 		"# Day one\nWe left early.",
-		`<!-- cairn:image-block layout="grid" slideshow="true" interval="20" -->`,
+		`<!-- popcorn:image-block layout="grid" slideshow="true" interval="20" -->`,
 		`![The road -- to Munnar](images/01.jpg)`,
 		`source="photos/1.jpg"`,
 		`edit="rotation=90 filter=warm brightness=5"`,
@@ -106,7 +106,7 @@ func TestBuildExportEscapesCommentBreakout(t *testing.T) {
 		}}},
 	}
 	out := BuildExport(m, ExportOptions{Images: map[string]ExportImage{"i1": {Name: "images/01.jpg"}}})
-	start := strings.Index(out, "<!-- cairn:image ")
+	start := strings.Index(out, "<!-- popcorn:image ")
 	if start < 0 {
 		t.Fatalf("no image comment:\n%s", out)
 	}

@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/memories"
+	"github.com/Jishnu-Prasad888/popcorn/internal/memories"
 )
 
 func bytesReader(b []byte) *bytes.Reader { return bytes.NewReader(b) }

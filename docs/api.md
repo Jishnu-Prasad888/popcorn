@@ -1,6 +1,6 @@
 # API
 
-Cairn exposes a REST/JSON API under `/api/v1/`. The API is a first-class
+Popcorn exposes a REST/JSON API under `/api/v1/`. The API is a first-class
 product: the entire frontend talks only to it, and future clients (React
 Native, desktop, CLI, third-party integrations) are expected to be built
 against it without reading Go source.
@@ -103,7 +103,7 @@ listing parameters.
 ## Authentication
 
 Authentication uses opaque session tokens delivered as an **HTTP-only cookie**
-(`cairn_session`). This is the model browsers use most safely: JavaScript never
+(`popcorn_session`). This is the model browsers use most safely: JavaScript never
 reads the cookie, and `SameSite=Lax` blocks most cross-site request forgery.
 Native clients store the cookie their HTTP library manages and send it with
 every request — no custom token plumbing.
@@ -130,7 +130,7 @@ Other details:
 - Passwords are hashed with **argon2id** (never a homegrown hash, never stored
   in plaintext) and never logged. Credentials and tokens are never logged.
 - The cookie carries the `Secure` flag when the server observes TLS or
-  `CAIRN_COOKIE_SECURE` is set for a TLS-terminating reverse proxy.
+  `POPCORN_COOKIE_SECURE` is set for a TLS-terminating reverse proxy.
 - The error body never reveals whether a login failed because of the username,
   the password, or the account state.
 
@@ -405,12 +405,12 @@ GET /api/v1/metrics
 ```
 
 ```text
-# HELP cairn_http_requests_total Total HTTP requests by method and status code.
-# TYPE cairn_http_requests_total counter
-cairn_http_requests_total{method="GET",status="200"} 42
-# HELP cairn_http_request_duration_seconds HTTP request latency.
-# TYPE cairn_http_request_duration_seconds histogram
-cairn_http_request_duration_seconds_bucket{le="0.25"} 41
+# HELP popcorn_http_requests_total Total HTTP requests by method and status code.
+# TYPE popcorn_http_requests_total counter
+popcorn_http_requests_total{method="GET",status="200"} 42
+# HELP popcorn_http_request_duration_seconds HTTP request latency.
+# TYPE popcorn_http_request_duration_seconds histogram
+popcorn_http_request_duration_seconds_bucket{le="0.25"} 41
 ```
 
 Prometheus text exposition format, with no third-party dependencies. Exposes
@@ -427,7 +427,7 @@ POST /api/v1/auth/login
 
 ```text
 HTTP/1.1 200 OK
-Set-Cookie: cairn_session=…; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000
+Set-Cookie: popcorn_session=…; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000
 ```
 
 ```json

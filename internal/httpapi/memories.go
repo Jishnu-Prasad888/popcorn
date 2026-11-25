@@ -11,14 +11,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/fts"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/markdown"
-	"github.com/Jishnu-Prasad888/Cairn/internal/memories"
-	"github.com/Jishnu-Prasad888/Cairn/internal/usersettings"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/fts"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/markdown"
+	"github.com/Jishnu-Prasad888/popcorn/internal/memories"
+	"github.com/Jishnu-Prasad888/popcorn/internal/usersettings"
 )
 
 // apiBase prefixes URLs handed to clients.
@@ -33,8 +33,8 @@ func (s *Server) openMemoryStore(
 			CodeConflict, "Library is offline.")
 		return nil, nil, false
 	}
-	cairnDir := lib.Root + "/.cairn"
-	db, release, err := librarydb.Acquire(cairnDir)
+	popcornDir := lib.Root + "/.popcorn"
+	db, release, err := librarydb.Acquire(popcornDir)
 	if err != nil {
 		s.logger.Error("open library db for memories", "library_id", lib.ID, "error", err)
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,
@@ -45,7 +45,7 @@ func (s *Server) openMemoryStore(
 }
 
 func (s *Server) deriverFor(lib *library.Library) *memories.Deriver {
-	return &memories.Deriver{LibraryRoot: lib.Root, CairnDir: lib.Root + "/.cairn", Keys: s.keys}
+	return &memories.Deriver{LibraryRoot: lib.Root, PopcornDir: lib.Root + "/.popcorn", Keys: s.keys}
 }
 
 // can is requireCap without the 403 side effect, for decisions that shape a
@@ -518,7 +518,7 @@ func (s *Server) respondDocument(w http.ResponseWriter, r *http.Request, u *auth
 		switch {
 		case errors.Is(err, memories.ErrReservedPathConflict):
 			s.logger.Warn("memory-media path conflict", "library_id", mc.lib.ID)
-			warnings = append(warnings, "Edited copies were not created: .cairn/memory-media is occupied by something Cairn did not create. Nothing there was changed.")
+			warnings = append(warnings, "Edited copies were not created: .popcorn/memory-media is occupied by something Popcorn did not create. Nothing there was changed.")
 		case err != nil:
 			s.logger.Error("sync memory derived media", "memory_id", m.ID, "error", err)
 			warnings = append(warnings, "Edited copies could not be updated.")

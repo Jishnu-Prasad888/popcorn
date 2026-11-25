@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
 )
 
 // sessionCookieName is the cookie carrying the opaque session token. It is
 // HttpOnly (never readable by JavaScript) and SameSite=Lax, which together
 // block cookie theft by XSS and most cross-site request forgery.
-const sessionCookieName = "cairn_session"
+const sessionCookieName = "popcorn_session"
 
 // sessionCookieMaxAge seconds matches the 30-day session TTL.
 const sessionCookieMaxAge = 30 * 24 * 60 * 60
@@ -51,8 +51,8 @@ func metaFrom(r *http.Request) auth.Meta {
 }
 
 // cookieSecure reports whether the session cookie must carry the Secure flag,
-// either because TLS is terminated by Cairn itself or the operator configured
-// CAIRN_COOKIE_SECURE for a TLS-terminating reverse proxy.
+// either because TLS is terminated by Popcorn itself or the operator configured
+// POPCORN_COOKIE_SECURE for a TLS-terminating reverse proxy.
 func (s *Server) cookieSecure(r *http.Request) bool {
 	return s.secureCookies || r.TLS != nil
 }

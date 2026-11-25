@@ -5,7 +5,7 @@ Related: ADR-0014, docs/roadmap.md (Phase 16)
 
 ## Problem
 
-Phase 16 is a defensive review of Cairn's server surface. The goal is not new
+Phase 16 is a defensive review of Popcorn's server surface. The goal is not new
 features: it is to close the highest-value gaps an attacker (guest account,
 brute-forcer, or network-local user) could exploit, without changing the
 product's local-first model.
@@ -66,8 +66,8 @@ logging.
 
 5. **Unbounded uploads** (medium-high). `ParseMultipartForm(32 MiB)` only
    bounds in-memory buffering; the remainder spools to disk with no total cap.
-   Aborted uploads also strand `.cairn-upload-*` temp files.
-   → Configurable `CAIRN_MAX_UPLOAD_BYTES` (default 2 GiB): request capped via
+   Aborted uploads also strand `.popcorn-upload-*` temp files.
+   → Configurable `POPCORN_MAX_UPLOAD_BYTES` (default 2 GiB): request capped via
    `http.MaxBytesReader` (→ 413) and the store stream is additionally capped
    with `io.LimitReader` inside `WriteUpload`; temp files are removed
    unconditionally (`defer os.Remove`). (R4)
@@ -123,6 +123,6 @@ logging.
   the security headers; a `/shares/{token}/files` request's captured log has
   the token redacted.
 - Upload: body over the cap → 413 and no `file` row; interrupted upload
-  leaves no `.cairn-upload-*` temp in the library.
+  leaves no `.popcorn-upload-*` temp in the library.
 - ML/metadata: existing decode pipelines still pass with the guarded decoder.
 - Escape: a folder literally named `a_b` returns only its own subtree.

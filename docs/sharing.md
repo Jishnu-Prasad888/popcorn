@@ -26,7 +26,7 @@ Shares reference resources (a library, folder, album, memory...) via the same
 resource keys as grants. A share scopes its capabilities to **the shared
 resource and its subtree** — it can never grant access above the share root.
 Requests identify the share by the token in the URL path and optionally supply
-the password via the `X-Cairn-Share-Password` header.
+the password via the `X-Popcorn-Share-Password` header.
 
 Access still flows through the same authorization evaluation as everything else:
 a public request must satisfy **both** the share's capabilities **and** the key
@@ -55,5 +55,5 @@ actor has `manage`.
 - Listing a folder *above* the share root returns 403 (the scope is the shared
   subtree only).
 - Wrong password, missing password, expired share, revoked share, and unknown
-  token all return 401 `CairnErrUnauthorized` — the server does not reveal which
+  token all return 401 `PopcornErrUnauthorized` — the server does not reveal which
   condition failed.

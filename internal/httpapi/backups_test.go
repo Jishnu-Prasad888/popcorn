@@ -11,14 +11,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/audit"
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/backups"
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/db"
-	"github.com/Jishnu-Prasad888/Cairn/internal/indexer"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/audit"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/backups"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/db"
+	"github.com/Jishnu-Prasad888/popcorn/internal/indexer"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
 )
 
 // newBackupTestServer wires a server with a backups manager, one registered
@@ -173,7 +173,7 @@ func TestBackupRunListVerifyRestoreFlow(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("POST restore status = %d body=%s", rec.Code, rec.Body.String())
 	}
-	if _, err := os.Stat(filepath.Join(dst, "server", "cairn.db")); err != nil {
+	if _, err := os.Stat(filepath.Join(dst, "server", "popcorn.db")); err != nil {
 		t.Fatalf("restored server db missing: %v", err)
 	}
 

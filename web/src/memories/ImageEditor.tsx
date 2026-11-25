@@ -477,7 +477,7 @@ function ImageEditorPanel({
           <p className="ie-note">
             Edits belong to this memory only — the original photo is never changed.
             {editedCopies
-              ? ' Because “Create edited copies” is on, Cairn also saves an edited copy inside the library’s .cairn/memory-media folder.'
+              ? ' Because “Create edited copies” is on, Popcorn also saves an edited copy inside the library’s .popcorn/memory-media folder.'
               : ''}
           </p>
         </div>

@@ -6,15 +6,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
 )
 
 // seedIndexedFile inserts an indexed_files row directly with an explicit
 // content hash so duplicate tests don't depend on the scanner/ML pipeline.
 func seedIndexedFile(t *testing.T, store *media.FileStore, root, id, relPath string, size int64, hash, status string) {
 	t.Helper()
-	ldb, err := librarydb.Open(filepath.Join(root, ".cairn"))
+	ldb, err := librarydb.Open(filepath.Join(root, ".popcorn"))
 	if err != nil {
 		t.Fatalf("open library db: %v", err)
 	}

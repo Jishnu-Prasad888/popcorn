@@ -226,7 +226,7 @@ describe('MemoriesPage (notebook)', () => {
     expect(screen.queryByLabelText('Library')).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'List view' }));
-    expect(localStorage.getItem('cairn.memories.view')).toBe('list');
+    expect(localStorage.getItem('popcorn.memories.view')).toBe('list');
     expect(screen.getByText('My Trip to Kerala').closest('.mem-row')).not.toBeNull();
   });
 
@@ -297,7 +297,7 @@ describe('MemoriesPage (notebook)', () => {
 
   it('never overwrites newer server content with an old draft without asking', async () => {
     localStorage.setItem(
-      'cairn.memory.draft.lib1.mem1',
+      'popcorn.memory.draft.lib1.mem1',
       JSON.stringify({
         base_revision: 2,
         blocks: [{ id: 'blk-text-1', type: 'text', markdown: 'Old draft' }],
@@ -485,8 +485,8 @@ describe('MemoriesPage across multiple libraries', () => {
   });
 
   function setupOpen(open: string[]) {
-    localStorage.setItem('cairn.library', 'lib1');
-    localStorage.setItem('cairn.libraries.open', JSON.stringify(open));
+    localStorage.setItem('popcorn.library', 'lib1');
+    localStorage.setItem('popcorn.libraries.open', JSON.stringify(open));
     const lib1Mem = memoryDoc({ id: 'mem1', title: 'Primary memory' });
     const lib2Mem = memoryDoc({ id: 'mem2', title: 'Archive memory' });
     return mockApi(

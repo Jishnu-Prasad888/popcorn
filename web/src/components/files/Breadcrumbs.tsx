@@ -8,7 +8,7 @@
 import { useState } from 'react';
 
 import { Icon } from '../ui/Icon';
-import { isCairnDrag } from './dragPayload';
+import { isPopcornDrag } from './dragPayload';
 import './Files.css';
 
 function crumbSegments(folderPath: string): Array<{ label: string; path: string }> {
@@ -48,7 +48,7 @@ export function Breadcrumbs({
                 aria-current={current ? 'page' : undefined}
                 onClick={() => onNavigate(crumb.path)}
                 onDragOver={(event) => {
-                  if (!onDropFile || !isCairnDrag(event)) return;
+                  if (!onDropFile || !isPopcornDrag(event)) return;
                   event.preventDefault();
                   setOver(crumb.path);
                 }}

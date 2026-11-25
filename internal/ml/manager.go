@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 )
 
 // Config controls the ML manager. Everything is off unless Enabled is true.
@@ -419,8 +419,8 @@ func (m *Manager) Purge(ctx context.Context, libraryID, root string) (int, error
 // openLibraryDB borrows the shared pool for the per-library database at root;
 // the caller must Close it to hand it back.
 func openLibraryDB(root string) (*librarydb.DB, error) {
-	cairnDir := filepath.Join(root, ".cairn")
-	return librarydb.AcquireDB(cairnDir)
+	popcornDir := filepath.Join(root, ".popcorn")
+	return librarydb.AcquireDB(popcornDir)
 }
 
 // ErrDisabled is returned by ML operations when ML is not enabled.

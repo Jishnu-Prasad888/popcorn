@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
 )
 
 func pngBytes(t *testing.T, w, h int) []byte {
@@ -23,14 +23,14 @@ func pngBytes(t *testing.T, w, h int) []byte {
 }
 
 func TestStorePosterResizesAndKeepsExisting(t *testing.T) {
-	cairnDir := filepath.Join(t.TempDir(), ".cairn")
+	popcornDir := filepath.Join(t.TempDir(), ".popcorn")
 	keys := crypto.NewKeys("")
 
-	stored, err := metadata.StorePoster(bytes.NewReader(pngBytes(t, 1920, 1080)), cairnDir, "vid-1", keys)
+	stored, err := metadata.StorePoster(bytes.NewReader(pngBytes(t, 1920, 1080)), popcornDir, "vid-1", keys)
 	if err != nil || !stored {
 		t.Fatalf("StorePoster = %v, %v; want stored", stored, err)
 	}
-	data, _, err := metadata.ReadThumb(cairnDir, "vid-1", keys)
+	data, _, err := metadata.ReadThumb(popcornDir, "vid-1", keys)
 	if err != nil {
 		t.Fatalf("ReadThumb: %v", err)
 	}
@@ -43,18 +43,18 @@ func TestStorePosterResizesAndKeepsExisting(t *testing.T) {
 	}
 
 	// A second poster never replaces the first.
-	stored, err = metadata.StorePoster(bytes.NewReader(pngBytes(t, 10, 10)), cairnDir, "vid-1", keys)
+	stored, err = metadata.StorePoster(bytes.NewReader(pngBytes(t, 10, 10)), popcornDir, "vid-1", keys)
 	if err != nil || stored {
 		t.Fatalf("second StorePoster = %v, %v; want kept", stored, err)
 	}
 }
 
 func TestStorePosterRejectsNonImages(t *testing.T) {
-	cairnDir := filepath.Join(t.TempDir(), ".cairn")
-	if _, err := metadata.StorePoster(strings.NewReader("<svg/>"), cairnDir, "vid-2", crypto.NewKeys("")); err == nil {
+	popcornDir := filepath.Join(t.TempDir(), ".popcorn")
+	if _, err := metadata.StorePoster(strings.NewReader("<svg/>"), popcornDir, "vid-2", crypto.NewKeys("")); err == nil {
 		t.Fatal("expected an error for a non-image body")
 	}
-	if _, err := os.Stat(metadata.ThumbPath(cairnDir, "vid-2")); !os.IsNotExist(err) {
+	if _, err := os.Stat(metadata.ThumbPath(popcornDir, "vid-2")); !os.IsNotExist(err) {
 		t.Fatalf("nothing should be written, stat err = %v", err)
 	}
 }
@@ -68,7 +68,7 @@ func TestGenerateThumbnailVideoWithoutFFmpeg(t *testing.T) {
 	if err := os.WriteFile(src, []byte("not really a video"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	ok, err := metadata.GenerateThumbnail(src, filepath.Join(dir, ".cairn"), "vid-3", crypto.NewKeys(""))
+	ok, err := metadata.GenerateThumbnail(src, filepath.Join(dir, ".popcorn"), "vid-3", crypto.NewKeys(""))
 	if err != nil || ok {
 		t.Fatalf("GenerateThumbnail = %v, %v; want no thumbnail and no error", ok, err)
 	}

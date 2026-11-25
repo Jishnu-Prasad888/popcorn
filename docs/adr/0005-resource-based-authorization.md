@@ -5,7 +5,7 @@
 
 ## Context
 
-Cairn exposes libraries, folders, files, albums, memories, tags, and shares.
+Popcorn exposes libraries, folders, files, albums, memories, tags, and shares.
 Access control must scale to large permission graphs without traversing
 filesystem trees per request, support inheritance, overrides, and revocation,
 and keep cross-library isolation strict. Roles such as Admin/User exist as

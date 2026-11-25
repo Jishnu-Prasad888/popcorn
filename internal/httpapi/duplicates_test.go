@@ -9,14 +9,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 )
 
 // seedLibraryFileHash inserts a present indexed_files row with an explicit
 // content hash into a library's per-library database.
 func seedLibraryFileHash(t *testing.T, libRoot, id, relPath string, size int64, hash string) {
 	t.Helper()
-	ldb, err := librarydb.Open(filepath.Join(libRoot, ".cairn"))
+	ldb, err := librarydb.Open(filepath.Join(libRoot, ".popcorn"))
 	if err != nil {
 		t.Fatalf("open library db: %v", err)
 	}

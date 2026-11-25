@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 )
 
 // Triggers start a backup when enough new data has arrived since the last
@@ -70,7 +70,7 @@ func pendingSince(ctx context.Context, libs []library.Library, since time.Time) 
 		if lib.Status != library.StatusOnline {
 			continue
 		}
-		db, release, err := librarydb.Acquire(filepath.Join(lib.Root, ".cairn"))
+		db, release, err := librarydb.Acquire(filepath.Join(lib.Root, ".popcorn"))
 		if err != nil {
 			continue
 		}

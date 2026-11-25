@@ -1,7 +1,7 @@
 /**
  * The masonry layout used by the Photos page: a waterfall of tiles, columns
  * filling independently, Unsplash-style — most tiles a touch wider or taller
- * than the next, none too thin or too tall. Cairn doesn't have every photo's
+ * than the next, none too thin or too tall. Popcorn doesn't have every photo's
  * real dimensions in bulk, so the shape is a stable pseudo-random pick per
  * file id (bounded, and always the same for that photo) rather than its true
  * aspect ratio.

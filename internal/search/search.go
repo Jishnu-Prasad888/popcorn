@@ -16,9 +16,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/fts"
-	"github.com/Jishnu-Prasad888/Cairn/internal/likeutil"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/fts"
+	"github.com/Jishnu-Prasad888/popcorn/internal/likeutil"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
 )
 
 // ErrInvalidQuery is returned when a search query cannot be expressed safely

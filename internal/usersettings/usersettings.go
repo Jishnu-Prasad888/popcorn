@@ -31,7 +31,7 @@ var (
 type MemorySettings struct {
 	// SlideshowInterval is the automatic slideshow advance, in seconds.
 	SlideshowInterval int `json:"slideshow_interval"`
-	// EditedCopies creates a derived JPEG in .cairn/memory-media/ for every
+	// EditedCopies creates a derived JPEG in .popcorn/memory-media/ for every
 	// edited memory image. Off by default: edits stay presentation-only.
 	EditedCopies bool `json:"edited_copies"`
 	// DefaultLayout is the layout given to new image blocks.

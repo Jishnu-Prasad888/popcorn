@@ -7,17 +7,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 )
 
 func openTestStore(t *testing.T) *NoteStore {
 	t.Helper()
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
-		t.Fatalf("mkdir .cairn: %v", err)
+	popcornDir := filepath.Join(dir, ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
+		t.Fatalf("mkdir .popcorn: %v", err)
 	}
-	db, err := librarydb.Open(cairnDir)
+	db, err := librarydb.Open(popcornDir)
 	if err != nil {
 		t.Fatalf("open library db: %v", err)
 	}

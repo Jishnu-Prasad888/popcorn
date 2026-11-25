@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 /**
- * Cairn wordmark. Uses the Handlee branding font. Handlee is reserved for
+ * Popcorn wordmark. Uses the Handlee branding font. Handlee is reserved for
  * branding contexts only (brand header, empty states, welcome screens) and is
  * never used for dense UI.
  */

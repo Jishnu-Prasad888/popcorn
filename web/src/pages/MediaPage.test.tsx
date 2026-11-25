@@ -310,12 +310,12 @@ describe('MediaPage', () => {
 
     const data = new Map<string, string>([
       [
-        'application/cairn-file',
+        'application/popcorn-file',
         JSON.stringify({ id: 'f1', rel_path: photo.rel_path, name: photo.name }),
       ],
     ]);
     const dataTransfer = {
-      types: ['application/cairn-file'],
+      types: ['application/popcorn-file'],
       getData: (t: string) => data.get(t) ?? '',
       dropEffect: 'move',
     };
@@ -890,7 +890,7 @@ describe('MediaPage', () => {
   it('opens with the photo alone and the details closed', async () => {
     setup();
     // setup() starts returning users with the drawer open; this one is new.
-    localStorage.setItem('cairn.viewer.panel', 'closed');
+    localStorage.setItem('popcorn.viewer.panel', 'closed');
 
     await screen.findByTestId('file-grid');
     fireEvent.click(screen.getByText('IMG_0001.png'));
@@ -903,7 +903,7 @@ describe('MediaPage', () => {
     fireEvent.keyDown(window, { key: 't' });
     expect(await screen.findByTestId('viewer-details-panel')).toBeInTheDocument();
     // The choice is remembered for the next photo.
-    expect(localStorage.getItem('cairn.viewer.panel')).toBe('open');
+    expect(localStorage.getItem('popcorn.viewer.panel')).toBe('open');
   });
 
   it('hides the controls on request and brings them back on movement', async () => {
@@ -1163,7 +1163,7 @@ describe('MediaPage', () => {
     await waitFor(() => {
       expect(called(fetchMock, 'DELETE', '/api/v1/libraries/lib1/files/f1')).toBe(true);
     });
-    expect(localStorage.getItem('cairn.trash.skipConfirm')).toBe('1');
+    expect(localStorage.getItem('popcorn.trash.skipConfirm')).toBe('1');
 
     // The next one goes straight to the trash.
     await waitFor(() => {
@@ -1738,8 +1738,8 @@ describe('MediaPage', () => {
     };
     // When two libraries are open, both are asked.
     function setup() {
-      localStorage.setItem('cairn.library', 'lib1');
-      localStorage.setItem('cairn.libraries.open', JSON.stringify(['lib1', 'lib2']));
+      localStorage.setItem('popcorn.library', 'lib1');
+      localStorage.setItem('popcorn.libraries.open', JSON.stringify(['lib1', 'lib2']));
       return mockApi(
         apiRules([
           (url) => (url.includes('/api/v1/libraries/lib1/folders') ? json(lib1Folder) : undefined),

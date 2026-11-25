@@ -1,6 +1,6 @@
 -- 0009_faces: face observations and people for local ML (Phase 15).
 --
--- Applied to each library's <root>/.cairn/library.db. These statements mirror
+-- Applied to each library's <root>/.popcorn/library.db. These statements mirror
 -- the canonical schema embedded in internal/librarydb/librarydb.go and are
 -- idempotent (CREATE TABLE/INDEX IF NOT EXISTS) so they can be applied on top
 -- of an existing database.

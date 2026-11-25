@@ -8,16 +8,16 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/jobs"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/jobs"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 )
 
 func TestHasActiveIndexJobPreventsPileUp(t *testing.T) {
-	cairnDir := filepath.Join(t.TempDir(), ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	popcornDir := filepath.Join(t.TempDir(), ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	db, err := librarydb.OpenDB(cairnDir)
+	db, err := librarydb.OpenDB(popcornDir)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -7,14 +7,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/indexer"
-	"github.com/Jishnu-Prasad888/Cairn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/indexer"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
 )
 
 // An old photo moved to another folder with a file manager that gives it a
 // fresh modification time is not "recently added": it keeps the date it
 // joined the library, and a photo that really is new stays ahead of it.
-// That holds for a photo Cairn wrote itself (an upload, stored without a
+// That holds for a photo Popcorn wrote itself (an upload, stored without a
 // hash) too.
 func TestMovedFileIsNotRecentlyAdded(t *testing.T) {
 	ctx := context.Background()
@@ -28,7 +28,7 @@ func TestMovedFileIsNotRecentlyAdded(t *testing.T) {
 	if err := os.Chtimes(filepath.Join(root, "2019", "beach.jpg"), old, old); err != nil {
 		t.Fatal(err)
 	}
-	// Uploaded through Cairn: indexed straight away, without a hash.
+	// Uploaded through Popcorn: indexed straight away, without a hash.
 	writeFile(t, filepath.Join(root, "uploads", "cat.jpg"), "an uploaded cat photo")
 	if err := os.Chtimes(filepath.Join(root, "uploads", "cat.jpg"), old, old); err != nil {
 		t.Fatal(err)

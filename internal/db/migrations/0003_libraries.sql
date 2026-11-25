@@ -1,13 +1,13 @@
 -- 0003_libraries: server-level registrar for storage libraries.
 --
--- A library is any existing directory Cairn catalogs in place (ADR-0004). The
+-- A library is any existing directory Popcorn catalogs in place (ADR-0004). The
 -- registrar tracks registered libraries at server scope; the per-library
--- identity and configuration live inside the library at <root>/.cairn/.
+-- identity and configuration live inside the library at <root>/.popcorn/.
 --
 -- identity is NOT the mount path: each library carries a persistent id inside
--- its .cairn/library.json, so a disk reconnected at a different path is
+-- its .popcorn/library.json, so a disk reconnected at a different path is
 -- recognized as the same library. volume_id is a best-effort filesystem
--- identity used as a secondary signal when .cairn is not found at a path.
+-- identity used as a secondary signal when .popcorn is not found at a path.
 
 CREATE TABLE libraries (
 	id             TEXT PRIMARY KEY,

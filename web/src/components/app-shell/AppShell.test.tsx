@@ -184,7 +184,7 @@ describe('AppShell', () => {
     shell('/photos');
 
     fireEvent.keyDown(window, { key: '/' });
-    expect(screen.getByLabelText('Search Cairn')).toHaveFocus();
+    expect(screen.getByLabelText('Search Popcorn')).toHaveFocus();
   });
 
   it('narrows the top-bar search to files on the files page', () => {

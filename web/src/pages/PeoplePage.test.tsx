@@ -275,7 +275,7 @@ describe('PeoplePage', () => {
 
     const store: Record<string, string> = {};
     const dataTransfer = {
-      types: ['application/x-cairn-person'],
+      types: ['application/x-popcorn-person'],
       setData: (k: string, v: string) => {
         store[k] = v;
       },

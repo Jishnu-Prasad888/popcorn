@@ -15,12 +15,12 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/audit"
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/db"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/audit"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/db"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
 )
 
 // newAuthzTestServer wires the full dependency graph including the
@@ -95,7 +95,7 @@ func rawUpload(t *testing.T, c *testClient, libID, path string) *httptest.Respon
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := fw.Write([]byte("hello cairn")); err != nil {
+	if _, err := fw.Write([]byte("hello popcorn")); err != nil {
 		t.Fatal(err)
 	}
 	if err := mw.WriteField("path", path); err != nil {

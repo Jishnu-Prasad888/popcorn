@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/auth"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/ml"
+	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/ml"
 )
 
 // handleGetMLRules lists the photos machine learning skips or always
@@ -18,7 +18,7 @@ func (s *Server) handleGetMLRules(w http.ResponseWriter, r *http.Request, u *aut
 	if !ok {
 		return
 	}
-	db, release, err := librarydb.Acquire(filepath.Join(lib.Root, ".cairn"))
+	db, release, err := librarydb.Acquire(filepath.Join(lib.Root, ".popcorn"))
 	if err != nil {
 		s.logger.Error("open library db for ml rules", "library_id", lib.ID, "error", err)
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,
@@ -62,7 +62,7 @@ func (s *Server) handlePutMLRules(w http.ResponseWriter, r *http.Request, u *aut
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusBadRequest, CodeBadRequest, msg)
 		return
 	}
-	db, release, err := librarydb.Acquire(filepath.Join(lib.Root, ".cairn"))
+	db, release, err := librarydb.Acquire(filepath.Join(lib.Root, ".popcorn"))
 	if err != nil {
 		s.logger.Error("open library db for ml rules", "library_id", lib.ID, "error", err)
 		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusInternalServerError,

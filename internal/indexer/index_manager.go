@@ -13,10 +13,10 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/jobs"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/jobs"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
 )
 
 // IndexStatus is the current state of a library's index.
@@ -132,13 +132,13 @@ func (m *IndexManager) StartLibraryWorker(ctx context.Context, libraryID, root s
 		w.Register(jobs.KindRenditions, func(jctx context.Context, job *jobs.Job) error {
 			more, err := p.HandleRenditions(metadata.WithDB(jctx, db), job)
 			if err == nil && more {
-				m.enqueueRenditions(jctx, q, db, job.Payload["cairn_dir"], true)
+				m.enqueueRenditions(jctx, q, db, job.Payload["popcorn_dir"], true)
 			}
 			return err
 		})
 		// A library processed by an older build catches up in the background,
 		// with nobody having to rescan it.
-		m.enqueueRenditions(wctx, q, db, filepath.Join(root, ".cairn"), false)
+		m.enqueueRenditions(wctx, q, db, filepath.Join(root, ".popcorn"), false)
 	}
 	handle := &workerHandle{cancel: cancel, token: &struct{}{}}
 	m.workers[libraryID] = handle
@@ -182,16 +182,16 @@ func (m *IndexManager) StartWorkers(ctx context.Context, libs []library.Library)
 }
 
 // openLibraryDB opens (and migrates) the library-level SQLite database for the
-// library rooted at root. The .cairn directory must already exist.
+// library rooted at root. The .popcorn directory must already exist.
 func (m *IndexManager) openLibraryDB(root string) (*librarydb.DB, error) {
-	cairnDir := filepath.Join(root, ".cairn")
-	return librarydb.OpenDB(cairnDir)
+	popcornDir := filepath.Join(root, ".popcorn")
+	return librarydb.OpenDB(popcornDir)
 }
 
 // acquireLibraryDB borrows the shared pool for the library rooted at root;
 // call release when done. For short operations such as status polls.
 func acquireLibraryDB(root string) (*sql.DB, func(), error) {
-	return librarydb.Acquire(filepath.Join(root, ".cairn"))
+	return librarydb.Acquire(filepath.Join(root, ".popcorn"))
 }
 
 // TriggerScan opens the library DB, resets any stuck jobs, and enqueues a new
@@ -273,7 +273,7 @@ func (m *IndexManager) RunScanJob(ctx context.Context, job *jobs.Job) error {
 		return fmt.Errorf("index job %s missing root", job.ID)
 	}
 
-	cairnDir := root + "/.cairn"
+	popcornDir := root + "/.popcorn"
 	ldb, err := m.openLibraryDB(root)
 	if err != nil {
 		return fmt.Errorf("open library db: %w", err)
@@ -310,22 +310,22 @@ func (m *IndexManager) RunScanJob(ctx context.Context, job *jobs.Job) error {
 			// by the file's mod time and size, so one left in place could be
 			// served under the new version for good; the next request (or
 			// the job below) makes a fresh one.
-			if err := os.Remove(metadata.ThumbPath(cairnDir, change.File.ID)); err != nil && !errors.Is(err, os.ErrNotExist) {
+			if err := os.Remove(metadata.ThumbPath(popcornDir, change.File.ID)); err != nil && !errors.Is(err, os.ErrNotExist) {
 				m.logger.Warn("remove outdated thumbnail", "file_id", change.File.ID, "error", err)
 			}
-			if err := metadata.RemoveSmallThumb(cairnDir, change.File.ID); err != nil {
+			if err := metadata.RemoveSmallThumb(popcornDir, change.File.ID); err != nil {
 				m.logger.Warn("remove outdated small thumbnail", "file_id", change.File.ID, "error", err)
 			}
-			if err := os.Remove(metadata.PreviewPath(cairnDir, change.File.ID)); err != nil && !errors.Is(err, os.ErrNotExist) {
+			if err := os.Remove(metadata.PreviewPath(popcornDir, change.File.ID)); err != nil && !errors.Is(err, os.ErrNotExist) {
 				m.logger.Warn("remove outdated preview", "file_id", change.File.ID, "error", err)
 			}
 		}
 		payloads = append(payloads, map[string]any{
-			"library_id": libraryID,
-			"file_id":    change.File.ID,
-			"rel_path":   change.File.RelPath,
-			"root":       root,
-			"cairn_dir":  cairnDir,
+			"library_id":  libraryID,
+			"file_id":     change.File.ID,
+			"rel_path":    change.File.RelPath,
+			"root":        root,
+			"popcorn_dir": popcornDir,
 		})
 	}
 	enqueued, err := q.EnqueueAll(ctx, jobs.KindProcessMedia, payloads)
@@ -337,7 +337,7 @@ func (m *IndexManager) RunScanJob(ctx context.Context, job *jobs.Job) error {
 		m.logger.Info("enqueued media processing jobs", "library_id", libraryID, "count", enqueued)
 	}
 	if m.mediaProcessor != nil {
-		m.enqueueRenditions(ctx, q, ldb.DB(), cairnDir, false)
+		m.enqueueRenditions(ctx, q, ldb.DB(), popcornDir, false)
 	}
 	if m.AfterScan != nil {
 		m.AfterScan(libraryID, root)
@@ -349,7 +349,7 @@ func (m *IndexManager) RunScanJob(ctx context.Context, job *jobs.Job) error {
 // thumbnail and colour and none is queued already. next is set by a finishing
 // renditions job continuing its own work (it is still "running" itself, so
 // the active check would always see it).
-func (m *IndexManager) enqueueRenditions(ctx context.Context, q *jobs.Queue, db *sql.DB, cairnDir any, next bool) {
+func (m *IndexManager) enqueueRenditions(ctx context.Context, q *jobs.Queue, db *sql.DB, popcornDir any, next bool) {
 	if !next {
 		if active, err := q.HasActive(ctx, jobs.KindRenditions); err != nil || active {
 			return
@@ -363,7 +363,7 @@ func (m *IndexManager) enqueueRenditions(ctx context.Context, q *jobs.Queue, db 
 			return
 		}
 	}
-	if _, err := q.Enqueue(ctx, jobs.KindRenditions, map[string]any{"cairn_dir": cairnDir}); err != nil {
+	if _, err := q.Enqueue(ctx, jobs.KindRenditions, map[string]any{"popcorn_dir": popcornDir}); err != nil {
 		m.logger.Warn("enqueue renditions job", "error", err)
 	}
 }

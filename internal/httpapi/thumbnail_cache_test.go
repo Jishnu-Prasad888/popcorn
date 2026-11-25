@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
 )
 
 // TestThumbnailCaching covers the browser cache contract: a versioned URL is
@@ -31,7 +31,7 @@ func TestThumbnailCaching(t *testing.T) {
 	}
 	_ = f.Close()
 	fileMod := time.Now().Add(-time.Hour).UTC()
-	ldb, err := librarydb.Open(filepath.Join(libRoot, ".cairn"))
+	ldb, err := librarydb.Open(filepath.Join(libRoot, ".popcorn"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,7 +70,7 @@ func TestThumbnailCaching(t *testing.T) {
 	}
 
 	// Age the thumbnail past its file: it must be made again.
-	thumb := metadata.ThumbPath(filepath.Join(libRoot, ".cairn"), "pic-1")
+	thumb := metadata.ThumbPath(filepath.Join(libRoot, ".popcorn"), "pic-1")
 	old := fileMod.Add(-time.Hour)
 	if err := os.Chtimes(thumb, old, old); err != nil {
 		t.Fatal(err)

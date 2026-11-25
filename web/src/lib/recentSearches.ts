@@ -3,7 +3,7 @@
  * them again. Per browser, never sent anywhere.
  */
 
-const KEY = 'cairn.recentSearches';
+const KEY = 'popcorn.recentSearches';
 const LIMIT = 6;
 
 export function readRecentSearches(): string[] {

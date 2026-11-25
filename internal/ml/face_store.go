@@ -738,7 +738,7 @@ var crowdSQL = `(? > 0 AND COALESCE(
 	AND NOT ` + alwaysSQL("f.rel_path") + `)`
 
 // DropSkippedFaces discards the faces (and scan records) of photos a rule now
-// skips, with their assignments. People left with no faces go too when Cairn
+// skips, with their assignments. People left with no faces go too when Popcorn
 // named them; names a person chose are kept. Removing the rule later rescans
 // the photos. Returns the number of faces removed.
 func (s *FaceStore) DropSkippedFaces(ctx context.Context) (int, error) {
@@ -858,7 +858,7 @@ func (s *FaceStore) PersonExemplars(ctx context.Context, perPerson int) (map[str
 	return out, rows.Err()
 }
 
-// AutoNamedPeople returns the people Cairn named itself ("Person 12") that no
+// AutoNamedPeople returns the people Popcorn named itself ("Person 12") that no
 // human has touched: no hand-assigned face. Only these may be merged
 // automatically.
 func (s *FaceStore) AutoNamedPeople(ctx context.Context) (map[string]bool, error) {
@@ -934,7 +934,7 @@ func scanFaceFull(rows *sql.Rows) (FaceRecord, error) {
 }
 
 // newID returns a random lowercase-hex id (32 digits) using the same scheme
-// as other Cairn entities.
+// as other Popcorn entities.
 func newID() (string, error) {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {

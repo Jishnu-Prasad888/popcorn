@@ -33,7 +33,7 @@ interface SearchLabels {
 const SCOPE_LABELS: Record<SearchScope | 'default', SearchLabels> = {
   default: {
     placeholder: 'Search your photos, files, people…',
-    aria: 'Search Cairn',
+    aria: 'Search Popcorn',
     hint: 'Search everything',
   },
   files: {

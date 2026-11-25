@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/ml"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/ml"
 )
 
 // writePNG writes a solid-color PNG to path with the given size.
@@ -67,11 +67,11 @@ func TestAverageHashDeterministic(t *testing.T) {
 
 func TestStoreLifecycle(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	popcornDir := filepath.Join(dir, ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	db, err := librarydb.Open(cairnDir)
+	db, err := librarydb.Open(popcornDir)
 	if err != nil {
 		t.Fatalf("Open: %v", err)
 	}
@@ -187,11 +187,11 @@ func TestManagerPassAndSimilarity(t *testing.T) {
 		writePNG(t, filepath.Join(root, "img"+string(rune('0'+i))+".png"), 96, 96, c)
 	}
 
-	cairnDir := filepath.Join(root, ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	popcornDir := filepath.Join(root, ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	db, err := librarydb.Open(cairnDir)
+	db, err := librarydb.Open(popcornDir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -262,11 +262,11 @@ func TestManagerPassAndSimilarity(t *testing.T) {
 // of depending on what a solid test-fixture color happens to hash to.
 func TestManagerGroups(t *testing.T) {
 	root := t.TempDir()
-	cairnDir := filepath.Join(root, ".cairn")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	popcornDir := filepath.Join(root, ".popcorn")
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	db, err := librarydb.Open(cairnDir)
+	db, err := librarydb.Open(popcornDir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -327,10 +327,10 @@ func TestPassSurvivesUndecodableFiles(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if err := os.MkdirAll(filepath.Join(root, ".cairn"), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Join(root, ".popcorn"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	db, err := librarydb.Open(filepath.Join(root, ".cairn"))
+	db, err := librarydb.Open(filepath.Join(root, ".popcorn"))
 	if err != nil {
 		t.Fatal(err)
 	}

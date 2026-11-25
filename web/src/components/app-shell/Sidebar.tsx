@@ -15,7 +15,7 @@ import { Icon } from '../ui/Icon';
 import { MANAGE_NAV, type NavItem, PRIMARY_NAV, SETTINGS_NAV } from './navigation';
 import { useSectionLink } from './sectionMemory';
 
-const MANAGE_KEY = 'cairn.nav.manage';
+const MANAGE_KEY = 'popcorn.nav.manage';
 
 function readManageOpen(): boolean {
   try {
@@ -75,13 +75,13 @@ export function Sidebar({ open, onNavigate }: { open: boolean; onNavigate: () =>
       aria-label="Navigation"
       data-testid="app-sidebar"
     >
-      <Link to="/" className="sidebar-brand" aria-label="Cairn home" onClick={onNavigate}>
-        <span className="cairn-mark" aria-hidden="true">
+      <Link to="/" className="sidebar-brand" aria-label="Popcorn home" onClick={onNavigate}>
+        <span className="popcorn-mark" aria-hidden="true">
           <span />
           <span />
           <span />
         </span>
-        <span className="brand sidebar-wordmark">Cairn</span>
+        <span className="brand sidebar-wordmark">Popcorn</span>
       </Link>
 
       <nav className="sidebar-nav" aria-label="Sections">

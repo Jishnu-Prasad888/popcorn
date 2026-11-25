@@ -8,7 +8,7 @@
  *
  * The public link is always view-only — "edit" is only ever offered for a
  * named person's grant, never a public link, since there is no token-based
- * editing in Cairn.
+ * editing in Popcorn.
  */
 
 import { useCallback, useMemo, useState } from 'react';

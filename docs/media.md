@@ -1,6 +1,6 @@
 # Media API
 
-Cairn's media surface lets clients browse, upload, download, organize, and
+Popcorn's media surface lets clients browse, upload, download, organize, and
 delete files inside a library. This document is the reference for the
 `/libraries/{libraryID}/files*` endpoints; the machine-readable contract is
 [openapi.yaml](openapi.yaml).
@@ -205,7 +205,7 @@ Up to 64 stored thumbnails in one response (`size=sm`, the default, or
 `md` for 400 px), so a screen of tiles costs a few requests instead of one
 each — what matters over HTTP/1.1, where browsers hold about six connections
 per server. The body is binary (`Content-Type:
-application/vnd.cairn.thumbnails`, `Cache-Control: private, no-store`):
+application/vnd.popcorn.thumbnails`, `Cache-Control: private, no-store`):
 
 1. the 4 bytes `CTB1`;
 2. a big-endian `uint32`: the manifest's length;
@@ -288,7 +288,7 @@ Behavior notes:
   entry appears in listings right away).
 - Overwriting an existing path fails with `409 CONFLICT`.
 - The request body is capped: the default maximum upload is 4 GiB
-  (`CAIRN_MAX_UPLOAD_BYTES` overrides). Oversized uploads return
+  (`POPCORN_MAX_UPLOAD_BYTES` overrides). Oversized uploads return
   `413 PAYLOAD_TOO_LARGE`. The multipart parser keeps 32 MiB in memory and
   spools the rest to a temporary file, so large uploads do not exhaust RAM.
 - The destination parent folder capability `create` is required.
@@ -449,7 +449,7 @@ key. A session without the required capability gets `403 FORBIDDEN`.
 ## Video thumbnails
 
 A video's thumbnail is its first frame. The server extracts it with `ffmpeg`
-when that binary is on `PATH` (stored in `.cairn/thumbs/` like photo
+when that binary is on `PATH` (stored in `.popcorn/thumbs/` like photo
 thumbnails, sealed when at-rest encryption is on). Without ffmpeg the web
 client draws the first frame in the browser and uploads it with
 `PUT /api/v1/libraries/{id}/files/{fileID}/thumbnail` (needs `read` + `edit`

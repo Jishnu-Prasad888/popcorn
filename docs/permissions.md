@@ -1,6 +1,6 @@
 # Permissions
 
-Authorization is one of Cairn's most important subsystems and is designed for
+Authorization is one of Popcorn's most important subsystems and is designed for
 long-term scalability (see
 [ADR-0005](adr/0005-resource-based-authorization.md)). It is implemented: every
 content handler now calls into the authorization service and the model described
@@ -99,7 +99,7 @@ the URL, or a fully-qualified key of the same library. Omitting it targets the
 library.
 
 On a permission violation handlers return an error envelope with code
-`CairnErrForbidden` (HTTP 403); unauthenticated requests get 401.
+`PopcornErrForbidden` (HTTP 403); unauthenticated requests get 401.
 
 ## Testing commitments
 

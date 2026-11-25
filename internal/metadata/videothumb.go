@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/safeimage"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/safeimage"
 )
 
 // videoFrameTimeout bounds one ffmpeg invocation, so a damaged or enormous
@@ -148,8 +148,8 @@ func ffmpegFrame(ctx context.Context, bin string, args []string) (image.Image, e
 // decoded with the same safety limits as photos and re-encoded, so nothing a
 // client sends is written verbatim. An existing thumbnail is kept: a frame
 // the server extracted itself always wins.
-func StorePoster(r io.Reader, cairnDir, fileID string, keys *crypto.Keys) (stored bool, err error) {
-	if _, _, err := ReadThumb(cairnDir, fileID, keys); err == nil {
+func StorePoster(r io.Reader, popcornDir, fileID string, keys *crypto.Keys) (stored bool, err error) {
+	if _, _, err := ReadThumb(popcornDir, fileID, keys); err == nil {
 		return false, nil
 	}
 	data, err := io.ReadAll(io.LimitReader(r, MaxPosterBytes+1))
@@ -163,7 +163,7 @@ func StorePoster(r io.Reader, cairnDir, fileID string, keys *crypto.Keys) (store
 	if err != nil {
 		return false, fmt.Errorf("decode poster: %w", err)
 	}
-	if err := writeThumb(img, cairnDir, fileID, keys); err != nil {
+	if err := writeThumb(img, popcornDir, fileID, keys); err != nil {
 		return false, err
 	}
 	return true, nil

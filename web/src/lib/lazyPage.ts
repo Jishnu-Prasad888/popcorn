@@ -1,7 +1,7 @@
 import { lazy } from 'react';
 import type { ComponentType } from 'react';
 
-const RELOAD_KEY = 'cairn.chunkReload';
+const RELOAD_KEY = 'popcorn.chunkReload';
 
 /**
  * `lazy` for route pages that survives a new build. A tab opened before a

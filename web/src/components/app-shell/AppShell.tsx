@@ -101,14 +101,14 @@ export default function AppShell() {
   useEffect(() => {
     if (ffmpeg !== false) return;
     try {
-      if (sessionStorage.getItem('cairn.ffmpegWarned')) return;
-      sessionStorage.setItem('cairn.ffmpegWarned', '1');
+      if (sessionStorage.getItem('popcorn.ffmpegWarned')) return;
+      sessionStorage.setItem('popcorn.ffmpegWarned', '1');
     } catch {
       // Storage unavailable: warn on every load rather than never.
     }
     toast({
       message:
-        'ffmpeg is not installed on the server, so some video thumbnails will not appear. Install ffmpeg and restart Cairn.',
+        'ffmpeg is not installed on the server, so some video thumbnails will not appear. Install ffmpeg and restart Popcorn.',
       tone: 'error',
       duration: 7000,
     });

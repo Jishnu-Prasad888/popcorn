@@ -1,15 +1,15 @@
 /**
  * A folder as a drop target, shared by the grid's tiles and the list's rows:
- * Cairn files and folders dropped on it move in, desktop files upload into it.
+ * Popcorn files and folders dropped on it move in, desktop files upload into it.
  */
 
 import type { Folder } from '../../api/types';
 import { entriesFromDrop, entriesFromFiles, type UploadEntry } from '../upload/uploadEntries';
-import { isCairnDrag, isDesktopDrag } from './dragPayload';
+import { isPopcornDrag, isDesktopDrag } from './dragPayload';
 
 export interface FolderTileHandlers {
   onOpen: (folder: Folder) => void;
-  /** A Cairn file or folder was dropped onto `folderPath`. */
+  /** A Popcorn file or folder was dropped onto `folderPath`. */
   onDropFile?: ((event: React.DragEvent, folderPath: string) => void) | undefined;
   /** Desktop files were dropped onto a folder: upload them into it. */
   onUploadInto?: ((folder: Folder, entries: UploadEntry[]) => void) | undefined;
@@ -35,7 +35,7 @@ export function folderDropProps(
   setOver: (path: string | null) => void,
 ) {
   const accepts = (event: React.DragEvent) =>
-    (onDropFile && isCairnDrag(event)) || (onUploadInto && isDesktopDrag(event));
+    (onDropFile && isPopcornDrag(event)) || (onUploadInto && isDesktopDrag(event));
   return {
     onDragOver: (event: React.DragEvent) => {
       if (!accepts(event)) return;
@@ -61,7 +61,7 @@ export function folderDropProps(
         });
         return;
       }
-      if (onDropFile && isCairnDrag(event)) {
+      if (onDropFile && isPopcornDrag(event)) {
         event.stopPropagation();
         onDropFile(event, folder.rel_path);
       }

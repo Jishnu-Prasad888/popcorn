@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/indexer"
+	"github.com/Jishnu-Prasad888/popcorn/internal/indexer"
 )
 
 func TestNormalizeIgnoreRules(t *testing.T) {
@@ -39,7 +39,7 @@ func TestNormalizeIgnoreRules(t *testing.T) {
 		{Kind: "path", Pattern: "/etc/passwd"},
 		{Kind: "path", Pattern: "/srv/photos"},
 		{Kind: "path", Pattern: "../elsewhere"},
-		{Kind: "path", Pattern: ".cairn"},
+		{Kind: "path", Pattern: ".popcorn"},
 		{Kind: "extension", Pattern: "a/b"},
 		{Kind: "name", Pattern: "dir/name"},
 		{Kind: "name", Pattern: "[unclosed"},

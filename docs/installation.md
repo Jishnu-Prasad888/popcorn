@@ -1,6 +1,6 @@
 # Installation
 
-Cairn ships as a single self-contained binary with the web frontend embedded.
+Popcorn ships as a single self-contained binary with the web frontend embedded.
 There are no runtime dependencies: the binary is statically linked, uses the
 pure-Go SQLite driver, and needs only a writable data directory. SQLite is
 embedded — no external database server is required.
@@ -19,8 +19,8 @@ A 64-bit CPU is assumed. The binary needs no shared libraries
 ## Option 1: Download a release binary
 
 1. Download the archive for your platform from the [Releases] page
-   (`cairn-linux-amd64`, `cairn-linux-arm64`, `cairn-darwin-amd64`,
-   `cairn-darwin-arm64`, `cairn-windows-amd64.exe`).
+   (`popcorn-linux-amd64`, `popcorn-linux-arm64`, `popcorn-darwin-amd64`,
+   `popcorn-darwin-arm64`, `popcorn-windows-amd64.exe`).
 2. Verify the SHA-256 checksum against the `SHA256SUMS` file shipped with the
    release:
 
@@ -31,14 +31,14 @@ A 64-bit CPU is assumed. The binary needs no shared libraries
 3. Make it executable and place it somewhere on `PATH`:
 
    ```sh
-   chmod +x cairn-linux-amd64
-   sudo mv cairn-linux-amd64 /usr/local/bin/cairn
+   chmod +x popcorn-linux-amd64
+   sudo mv popcorn-linux-amd64 /usr/local/bin/popcorn
    ```
 
 4. Run it:
 
    ```sh
-   cairn
+   popcorn
    ```
 
    The server listens on `127.0.0.1:8715` by default. Open
@@ -51,7 +51,7 @@ Requires Go 1.26+ and Node 22+ (the frontend is built once and embedded).
 
 ```sh
 make build          # builds the web frontend, then the single binary
-./bin/cairn
+./bin/popcorn
 ```
 
 Use `make release` to produce binaries for every supported platform in `dist/`
@@ -59,8 +59,8 @@ Use `make release` to produce binaries for every supported platform in `dist/`
 
 ## First run
 
-1. Start the server. By default data is stored in `~/.cairn`; override with
-   `CAIRN_DATA_DIR` (e.g. `/var/lib/cairn`).
+1. Start the server. By default data is stored in `~/.popcorn`; override with
+   `POPCORN_DATA_DIR` (e.g. `/var/lib/popcorn`).
 2. Visit `http://127.0.0.1:8715`. If no admin account exists, the app shows the
    bootstrap screen: create the first account (username + password, minimum 8
    characters, argon2id-hashed). This only works while no users exist — for
@@ -71,20 +71,20 @@ Use `make release` to produce binaries for every supported platform in `dist/`
 
 ## Running as a service (systemd, Linux)
 
-Create `/etc/systemd/system/cairn.service`:
+Create `/etc/systemd/system/popcorn.service`:
 
 ```ini
 [Unit]
-Description=Cairn media server
+Description=Popcorn media server
 After=network.target
 
 [Service]
 Type=simple
-User=cairn
-Group=cairn
-Environment=CAIRN_DATA_DIR=/var/lib/cairn
-Environment=CAIRN_HTTP_ADDR=127.0.0.1:8715
-ExecStart=/usr/local/bin/cairn
+User=popcorn
+Group=popcorn
+Environment=POPCORN_DATA_DIR=/var/lib/popcorn
+Environment=POPCORN_HTTP_ADDR=127.0.0.1:8715
+ExecStart=/usr/local/bin/popcorn
 Restart=on-failure
 RestartSec=5
 # Hardening
@@ -98,7 +98,7 @@ WantedBy=multi-user.target
 
 ```sh
 sudo systemctl daemon-reload
-sudo systemctl enable --now cairn
+sudo systemctl enable --now popcorn
 ```
 
 For access beyond localhost, put a TLS-terminating reverse proxy in front (see
@@ -106,27 +106,27 @@ For access beyond localhost, put a TLS-terminating reverse proxy in front (see
 
 ## Configuration
 
-Cairn is configured through environment variables (prefixed `CAIRN_`); there is
+Popcorn is configured through environment variables (prefixed `POPCORN_`); there is
 no config file. The most common ones:
 
 | Variable                    | Default          | Purpose                                        |
 | --------------------------- | ---------------- | ---------------------------------------------- |
-| `CAIRN_DATA_DIR`            | `~/.cairn`       | Server data directory (database lives here)    |
-| `CAIRN_HTTP_ADDR`           | `127.0.0.1:8715` | Listen address                                 |
-| `CAIRN_LOG_LEVEL`           | `info`           | `debug`, `info`, `warn`, or `error`            |
-| `CAIRN_COOKIE_SECURE`       | `false`          | Always send the session cookie over HTTPS only |
-| `CAIRN_MAX_UPLOAD_BYTES`    | `2 GiB`          | Upload size cap                                |
-| `CAIRN_WEB_DIST`            | (embedded)       | Override the frontend with on-disk assets      |
+| `POPCORN_DATA_DIR`            | `~/.popcorn`       | Server data directory (database lives here)    |
+| `POPCORN_HTTP_ADDR`           | `127.0.0.1:8715` | Listen address                                 |
+| `POPCORN_LOG_LEVEL`           | `info`           | `debug`, `info`, `warn`, or `error`            |
+| `POPCORN_COOKIE_SECURE`       | `false`          | Always send the session cookie over HTTPS only |
+| `POPCORN_MAX_UPLOAD_BYTES`    | `2 GiB`          | Upload size cap                                |
+| `POPCORN_WEB_DIST`            | (embedded)       | Override the frontend with on-disk assets      |
 
 ## Upgrades
 
-1. Stop the service: `sudo systemctl stop cairn`.
+1. Stop the service: `sudo systemctl stop popcorn`.
 2. Replace the binary (download the new release, verify the checksum, move it
    into place).
-3. Start the service again: `sudo systemctl start cairn`.
+3. Start the service again: `sudo systemctl start popcorn`.
 
 Schema migrations run automatically on startup, in both the server database and
-each library database. Preserve `CAIRN_DATA_DIR` and your library directories —
+each library database. Preserve `POPCORN_DATA_DIR` and your library directories —
 they hold all of your data. Downgrades are not supported: if you need to roll
 back, restore from your [backups](backups.md).
 
@@ -148,7 +148,7 @@ Point Prometheus (or Grafana Agent) at `/api/v1/metrics` with e.g.:
 
 ```yaml
 scrape_configs:
-  - job_name: cairn
+  - job_name: popcorn
     static_configs:
       - targets: ["127.0.0.1:8715"]
     metrics_path: /api/v1/metrics
@@ -163,9 +163,9 @@ network if you prefer not to expose it.
 
 - **"permission denied" opening the database** — the data directory must be
   writable by the user running the server.
-- **500 on startup** — check `CAIRN_DATA_DIR` is on a filesystem supporting
+- **500 on startup** — check `POPCORN_DATA_DIR` is on a filesystem supporting
   proper file locking and that only one server instance points at it.
 - See [troubleshooting.md](troubleshooting.md) and
   [raspberry-pi.md](raspberry-pi.md) for more.
 
-[Releases]: https://github.com/Jishnu-Prasad888/Cairn/releases
+[Releases]: https://github.com/Jishnu-Prasad888/popcorn/releases

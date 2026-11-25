@@ -11,7 +11,7 @@ import (
 // referenced image. They are presentation data: the original file is never
 // touched. Clients render them directly (CSS transforms and filters on the
 // web), and when a user enables "create edited copies" the server renders the
-// same pipeline into a derived JPEG under .cairn/memory-media/.
+// same pipeline into a derived JPEG under .popcorn/memory-media/.
 //
 // The pipeline order is fixed and shared by every renderer:
 //

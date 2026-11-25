@@ -21,14 +21,14 @@ make web-install   # npm install in web/
 ### Run the backend with a locally built frontend
 
 ```sh
-make build        # compiles web/ and embeds it into bin/cairn
-./bin/cairn
+make build        # compiles web/ and embeds it into bin/popcorn
+./bin/popcorn
 ```
 
 ### Backend-only iteration
 
 ```sh
-make dev          # go run with CAIRN_WEB_DIST=web/dist
+make dev          # go run with POPCORN_WEB_DIST=web/dist
 ```
 
 `make dev` serves whatever is currently in `web/dist`. Rebuild the frontend with
@@ -53,7 +53,7 @@ Open http://127.0.0.1:5173.
 ## Build system
 
 ```text
-make build          production single binary (bin/cairn)
+make build          production single binary (bin/popcorn)
 make test           all tests
 make test-go        Go tests
 make test-web       frontend tests
@@ -61,7 +61,7 @@ make lint           all linters
 make fmt            format Go + frontend
 make fmt-check      verify formatting (CI)
 make docker-build   build the container image
-make docker-buildx  multi-arch build (needs CAIRN_PLATFORMS)
+make docker-buildx  multi-arch build (needs POPCORN_PLATFORMS)
 ```
 
 The embedded frontend: `make build` copies `web/dist` into `internal/webui/dist`
@@ -90,15 +90,15 @@ they are gitignored; if your working tree shows them modified, restore with
 ## Configuration
 
 See the [README](../README.md) table. All settings are environment variables
-under `CAIRN_`.
+under `POPCORN_`.
 
 ## Development data
 
-Dev runs create state at `./cairn-data` (from `make dev`). Remove it whenever
+Dev runs create state at `./popcorn-data` (from `make dev`). Remove it whenever
 experiments leave it in a state you no longer care about:
 
 ```sh
-rm -rf cairn-data
+rm -rf popcorn-data
 ```
 
 ## Making a change

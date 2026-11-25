@@ -1,4 +1,4 @@
-// Package markdown contains helpers for Cairn's memory Markdown format.
+// Package markdown contains helpers for Popcorn's memory Markdown format.
 //
 // The format is plain Markdown with the addition of internal reference links
 // written as [[type:id]] or [[type:id|label]]. These links make it possible

@@ -5,7 +5,7 @@
 
 ## Context
 
-Cairn needs browser-based sessions for its embedded web UI and cookie/cookie-jar
+Popcorn needs browser-based sessions for its embedded web UI and cookie/cookie-jar
 support for future native clients ([mobile-development.md](../mobile-development.md)).
 The alternatives are opaque tokens with server-side state, self-contained tokens
 (e.g. JWT), or a third-party identity provider.
@@ -20,7 +20,7 @@ self-hosted product.
 Sessions are **opaque random tokens with server-side state**:
 
 - A token is 32 bytes from `crypto/rand`, base64url-encoded, delivered as the
-  `cairn_session` cookie (`HttpOnly`, `SameSite=Lax`, `Secure` when TLS is
+  `popcorn_session` cookie (`HttpOnly`, `SameSite=Lax`, `Secure` when TLS is
   observed or configured).
 - Only the **SHA-256 digest** of the token is persisted in `sessions`; the
   plaintext token exists only in the client's cookie jar.
@@ -33,7 +33,7 @@ Sessions are **opaque random tokens with server-side state**:
 - A database leak exposes digests, not usable tokens.
 - No signing keys or external identity providers to manage or rotate.
 - Stateless verification (JWT-style) is impossible; each request performs an
-  indexed `sessions` lookup. This cost is negligible at Cairn's scale.
+  indexed `sessions` lookup. This cost is negligible at Popcorn's scale.
 - Bearer tokens for server-to-server clients are deferred; the digest-based
   model supports them later without schema change.
 

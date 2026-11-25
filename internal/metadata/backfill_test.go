@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/jobs"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
-	"github.com/Jishnu-Prasad888/Cairn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/jobs"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
 )
 
 // A library processed before small thumbnails existed catches up in the
@@ -20,12 +20,12 @@ import (
 // whose thumbnail is gone is marked so it is not retried forever.
 func TestHandleRenditionsBackfill(t *testing.T) {
 	dir := t.TempDir()
-	cairnDir := filepath.Join(dir, ".cairn")
+	popcornDir := filepath.Join(dir, ".popcorn")
 	keys := crypto.NewKeys("")
-	if err := os.MkdirAll(cairnDir, 0o755); err != nil {
+	if err := os.MkdirAll(popcornDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	db, err := librarydb.Open(cairnDir)
+	db, err := librarydb.Open(popcornDir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,7 +45,7 @@ func TestHandleRenditionsBackfill(t *testing.T) {
 	}
 	src := filepath.Join(dir, "has-thumb.jpg")
 	makeJPEG(t, src, 640, 480)
-	if ok, err := metadata.GenerateThumbnail(src, cairnDir, "has-thumb", keys); err != nil || !ok {
+	if ok, err := metadata.GenerateThumbnail(src, popcornDir, "has-thumb", keys); err != nil || !ok {
 		t.Fatalf("GenerateThumbnail = %v, %v", ok, err)
 	}
 
@@ -54,7 +54,7 @@ func TestHandleRenditionsBackfill(t *testing.T) {
 		t.Fatalf("PendingRenditions = %v, %v; want true", pending, err)
 	}
 	p := metadata.NewProcessor(slog.New(slog.NewTextHandler(io.Discard, nil)), keys)
-	job := &jobs.Job{ID: "j1", Payload: map[string]any{"cairn_dir": cairnDir}}
+	job := &jobs.Job{ID: "j1", Payload: map[string]any{"popcorn_dir": popcornDir}}
 	more, err := p.HandleRenditions(metadata.WithDB(ctx, db), job)
 	if err != nil || more {
 		t.Fatalf("HandleRenditions = %v, %v; want done", more, err)
@@ -79,7 +79,7 @@ func TestHandleRenditionsBackfill(t *testing.T) {
 	if colors["lost-thumb"] != "" {
 		t.Errorf("lost-thumb colour = %q, want empty (not retried)", colors["lost-thumb"])
 	}
-	if _, err := metadata.SmallThumbModTime(cairnDir, "has-thumb"); err != nil {
+	if _, err := metadata.SmallThumbModTime(popcornDir, "has-thumb"); err != nil {
 		t.Errorf("small thumbnail not made: %v", err)
 	}
 	if pending, _ := metadata.PendingRenditions(ctx, db); pending {

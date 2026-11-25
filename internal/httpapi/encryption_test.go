@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
 )
 
 // TestEncryptedThumbnailServesDecryptedJPEG is the end-to-end Phase 13 proof
@@ -60,7 +60,7 @@ func TestEncryptedThumbnailServesDecryptedJPEG(t *testing.T) {
 	}
 
 	// The artifact on disk is sealed; it must not decode as plaintext.
-	thumbPath := filepath.Join(libRoot, ".cairn", "thumbs", fileID+".jpg")
+	thumbPath := filepath.Join(libRoot, ".popcorn", "thumbs", fileID+".jpg")
 	raw, err := os.ReadFile(thumbPath)
 	if err != nil {
 		t.Fatalf("read on-disk thumbnail: %v", err)

@@ -1,7 +1,7 @@
 -- 0005_media_schema: extend the per-library database with media metadata and
 -- folder tracking.
 --
--- This SQL is applied to each library's <root>/.cairn/library.db by the
+-- This SQL is applied to each library's <root>/.popcorn/library.db by the
 -- librarydb migration runner (CREATE TABLE IF NOT EXISTS is idempotent).
 
 -- folders tracks every directory under the library root that contains at

@@ -14,11 +14,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/audit"
-	"github.com/Jishnu-Prasad888/Cairn/internal/crypto"
-	"github.com/Jishnu-Prasad888/Cairn/internal/db"
-	"github.com/Jishnu-Prasad888/Cairn/internal/library"
-	"github.com/Jishnu-Prasad888/Cairn/internal/librarydb"
+	"github.com/Jishnu-Prasad888/popcorn/internal/audit"
+	"github.com/Jishnu-Prasad888/popcorn/internal/crypto"
+	"github.com/Jishnu-Prasad888/popcorn/internal/db"
+	"github.com/Jishnu-Prasad888/popcorn/internal/library"
+	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 )
 
 func testLogger() *slog.Logger { return slog.New(slog.NewTextHandler(os.Stderr, nil)) }
@@ -26,7 +26,7 @@ func testLogger() *slog.Logger { return slog.New(slog.NewTextHandler(os.Stderr, 
 // tempServerDB builds a migrated server-level database under tmp.
 func tempServerDB(t *testing.T) (*sql.DB, string) {
 	t.Helper()
-	path := filepath.Join(t.TempDir(), "cairn.db")
+	path := filepath.Join(t.TempDir(), "popcorn.db")
 	pool, err := db.Open(path)
 	if err != nil {
 		t.Fatalf("open server db: %v", err)
@@ -56,7 +56,7 @@ func registerLibrary(t *testing.T, lm *library.Manager, root string) library.Lib
 	if err := os.WriteFile(media, []byte("jpeg-bytes-that-are-descriptive-enough"), 0o644); err != nil {
 		t.Fatalf("write media: %v", err)
 	}
-	if _, err := librarydb.Open(filepath.Join(root, ".cairn")); err != nil {
+	if _, err := librarydb.Open(filepath.Join(root, ".popcorn")); err != nil {
 		t.Fatalf("open library db: %v", err)
 	}
 	got, err := lm.Get(context.Background(), lib.ID)
@@ -133,7 +133,7 @@ func TestRunBackupLifecycle(t *testing.T) {
 	for _, want := range []string{
 		"header.json",
 		manifestFilename,
-		filepath.Join("server", "cairn.db"),
+		filepath.Join("server", "popcorn.db"),
 		filepath.Join("libraries", lib.ID, "library.db"),
 		filepath.Join("libraries", lib.ID, "library.json"),
 		filepath.Join("libraries", lib.ID, "files", "holiday", "beach.jpg"),
@@ -501,7 +501,7 @@ func TestBackupPlainRestore(t *testing.T) {
 	if !bytes.Equal(got, orig) {
 		t.Fatal("restored plain media differs from source")
 	}
-	if _, err := os.Stat(filepath.Join(dst, "server", "cairn.db")); err != nil {
+	if _, err := os.Stat(filepath.Join(dst, "server", "popcorn.db")); err != nil {
 		t.Fatalf("restored server db missing: %v", err)
 	}
 }
@@ -621,7 +621,7 @@ func TestBackupJobFailure(t *testing.T) {
 	m := newManager(t, pool, serverPath, backupDir, "", 4)
 	_ = registerLibrary(t, library.NewManager(pool, testLogger(), audit.New(pool, testLogger()), crypto.NewKeys("")), filepath.Join(t.TempDir(), "golf"))
 
-	// Break the server snapshot by pointing at a non-existent cairn.db.
+	// Break the server snapshot by pointing at a non-existent popcorn.db.
 	broken := newManager(t, pool, filepath.Join(t.TempDir(), "missing.db"), backupDir, "", 4)
 	rec, err := broken.Run(context.Background())
 	if err != nil {

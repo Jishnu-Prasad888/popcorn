@@ -5,7 +5,7 @@
 
 ## Context
 
-Cairn stores metadata (files, media, albums, tags, memories, users, permissions,
+Popcorn stores metadata (files, media, albums, tags, memories, users, permissions,
 indexing state). The requirement is single-process, self-hosted, portable
 metadata that travels with a library, and low-resource operation. FTS5 full-text
 search is required for search.

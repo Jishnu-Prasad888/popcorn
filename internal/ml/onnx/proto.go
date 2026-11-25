@@ -1,5 +1,5 @@
 // Package onnx is a small pure-Go inference engine for convolutional ONNX
-// models (the face-embedding networks Cairn uses). It implements only the
+// models (the face-embedding networks Popcorn uses). It implements only the
 // operators those networks need and rejects anything else when the model is
 // loaded, so an unsupported file fails early instead of producing garbage.
 package onnx

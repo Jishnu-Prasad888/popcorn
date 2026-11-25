@@ -1,6 +1,6 @@
 -- 0007_memories: long-form Markdown memories with edit history and FTS search.
 --
--- Applied to each library's <root>/.cairn/library.db. These statements mirror
+-- Applied to each library's <root>/.popcorn/library.db. These statements mirror
 -- the canonical schema embedded in internal/librarydb/librarydb.go and are
 -- idempotent (CREATE TABLE/TRIGGER/VIRTUAL TABLE IF NOT EXISTS) so they can be
 -- applied on top of an existing database.

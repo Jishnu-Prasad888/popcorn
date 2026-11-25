@@ -1,7 +1,7 @@
 # Backups
 
 Backups preserve the server database and every registered library's metadata and
-media, so a restored Cairn knows everything it knew. Design: ADR-0008.
+media, so a restored Popcorn knows everything it knew. Design: ADR-0008.
 
 Backups go to a **destination**: a folder on the server (an internal disk or a
 mounted USB/network drive), or an **SFTP**, **FTP/FTPS** or **SMB** server.
@@ -12,8 +12,8 @@ They run on demand, on a **schedule** that survives restarts, and when enough
 
 A backup always includes:
 
-- the **server database** (`cairn.db`, WAL-checkpointed so it is self-contained),
-- each library's **`.cairn/` metadata directory**: `library.json` (identity) and
+- the **server database** (`popcorn.db`, WAL-checkpointed so it is self-contained),
+- each library's **`.popcorn/` metadata directory**: `library.json` (identity) and
   `library.db` (indexed files, albums, tags, memories, ...),
 - each library's **media files**, stored by their relative path.
 
@@ -56,7 +56,7 @@ second disks, NFS/CIFS mounts) with free space, for the Backups page to offer
 as destinations; the system disk is listed but not offered.
 
 When a local destination is saved, the mount it lives on is remembered
-(`mount_point`). Before every run Cairn checks that mount is still present. An
+(`mount_point`). Before every run Popcorn checks that mount is still present. An
 unplugged USB drive leaves an empty mountpoint directory behind on the system
 disk; without this check a backup would quietly fill the system disk instead.
 While the drive is missing, a due backup **waits** — no failed record, no
@@ -88,10 +88,10 @@ any destination.
 
 ```text
 <backup-dir>/
-  cairn-backup-<timestamp>/          # one directory per run
+  popcorn-backup-<timestamp>/          # one directory per run
     header.json                      # plaintext; format, salt when encrypted
     manifest.json                    # payload-encoded (encrypted when configured)
-    server/cairn.db
+    server/popcorn.db
     libraries/<lib-id>/
       library.db
       library.json
@@ -111,12 +111,12 @@ Two files describe the backup:
 
 Every entry is written with the same streaming codec (`internal/backups`):
 
-- a fixed 57-byte header: magic `CAIRNBK\x01`, flags byte, SHA-256 of the
+- a fixed 57-byte header: magic `POPCNBK\x01`, flags byte, SHA-256 of the
   plaintext, plaintext size, stored size,
 - optional gzip so already-compressed (media) data is stored raw,
 - optional encryption via the **shared AEAD kernel** (Phase 14): when a backup
   is passphrase-encrypted the body is a sequence of independent AES-256-GCM
-  sealed blobs (`internal/crypto`, same format used for `.cairn` identities and
+  sealed blobs (`internal/crypto`, same format used for `.popcorn` identities and
   thumbnails). Each `64 KiB` chunk is authenticated, so a tampered, truncated,
   or wrong-passphrase payload fails fast with the kernel's typed errors
   (`crypto.ErrInvalidPassphrase` / `crypto.ErrCorrupt`) instead of silently
@@ -140,7 +140,7 @@ bytes across runs — which is what enables incremental backups.
 
 ### Encryption
 
-When `CAIRN_BACKUP_PASSPHRASE` is set, every payload (including the manifest)
+When `POPCORN_BACKUP_PASSPHRASE` is set, every payload (including the manifest)
 is encrypted. The key is derived with argon2id from the passphrase and a fresh
 random 16-byte salt per backup; the salt is stored in `header.json`. The
 passphrase is never stored anywhere. Restoring or verifying an encrypted backup
@@ -148,7 +148,7 @@ requires the same passphrase to be configured.
 
 ## Retention
 
-`CAIRN_BACKUP_KEEP` (default `4`) keeps the newest completed backups. After each
+`POPCORN_BACKUP_KEEP` (default `4`) keeps the newest completed backups. After each
 successful run, older backups on the same destination are deleted and their
 records marked `pruned` (see Incremental backups for folders still referenced by
 newer backups). Records are never hard-deleted, so an audit trail of all runs remains.
@@ -188,7 +188,7 @@ A run that cannot reach its destination waits and retries every 10 minutes
 backup left `running` by a server that stopped mid-run is marked failed
 ("interrupted") on the next start; the schedule then runs it again.
 
-`CAIRN_BACKUP_INTERVAL_MIN` is the starting value only: a schedule saved on
+`POPCORN_BACKUP_INTERVAL_MIN` is the starting value only: a schedule saved on
 the Backups page wins over it.
 
 ## Size triggers
@@ -211,7 +211,7 @@ minutes; one waiting on its destination retries every 10. `GET
 `POST /api/v1/backups/{id}/restore` with `{"destination": "<abs-path>"}` streams
 every entry back to plaintext under the destination (a folder on the server,
 whichever destination the backup is on), mirroring the stored layout
-(`server/cairn.db`, `libraries/<id>/...`) and restoring original mtimes. An
+(`server/popcorn.db`, `libraries/<id>/...`) and restoring original mtimes. An
 encrypted backup restores with the configured passphrase; decrypted content must
 be verified by the caller afterward. A backup on a remote destination can be
 verified and restored while that destination is the configured one (that is
@@ -246,12 +246,12 @@ Records carry `reason` (`manual`, `schedule`, `size`) and `remote`.
 `PUT /api/v1/backups/settings` examples:
 
 ```json
-{"destination": {"kind": "sftp", "host": "nas.local", "username": "cairn",
-                 "password": "…", "path": "/volume1/backups/cairn"}}
+{"destination": {"kind": "sftp", "host": "nas.local", "username": "popcorn",
+                 "password": "…", "path": "/volume1/backups/popcorn"}}
 {"destination": {"kind": "smb", "host": "nas", "share": "backups",
-                 "username": "cairn", "password": "…", "path": "cairn"}}
+                 "username": "popcorn", "password": "…", "path": "popcorn"}}
 {"destination": {"kind": "ftp", "host": "ftp.example", "security": "explicit",
-                 "username": "cairn", "password": "…", "path": "cairn"}}
+                 "username": "popcorn", "password": "…", "path": "popcorn"}}
 {"schedule": {"mode": "weekly", "weekday": 0, "time_of_day": "03:30"}}
 {"triggers": {"single_file_bytes": 2147483648, "total_bytes": 10737418240}}
 ```
@@ -271,10 +271,10 @@ if missing.
 
 | Variable                        | Default | Meaning                                   |
 | ------------------------------- | ------- | ----------------------------------------- |
-| `CAIRN_BACKUP_DIR`              | *(empty)* | Starting local destination; empty disables |
-| `CAIRN_BACKUP_KEEP`             | `4`     | Completed backups to retain               |
-| `CAIRN_BACKUP_INTERVAL_MIN`     | `0`     | Starting interval schedule (`0` = manual) |
-| `CAIRN_BACKUP_PASSPHRASE`       | *(empty)* | Encrypts payloads; needed to restore     |
+| `POPCORN_BACKUP_DIR`              | *(empty)* | Starting local destination; empty disables |
+| `POPCORN_BACKUP_KEEP`             | `4`     | Completed backups to retain               |
+| `POPCORN_BACKUP_INTERVAL_MIN`     | `0`     | Starting interval schedule (`0` = manual) |
+| `POPCORN_BACKUP_PASSPHRASE`       | *(empty)* | Encrypts payloads; needed to restore     |
 
 ## Limitations
 
@@ -291,5 +291,5 @@ if missing.
   is counted after the next scan.
 - Restore is "everything into one directory" today; selective restore of
   metadata-only (skip media) is a future refinement.
-- The backup archive is not portable to non-Cairn consumers; it is a
+- The backup archive is not portable to non-Popcorn consumers; it is a
   restore-oriented format, not an interchange format.

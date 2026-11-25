@@ -115,7 +115,7 @@ const SORTS: Array<{ value: SortValue; label: string }> = [
   { value: 'media_type:asc', label: 'Type' },
 ];
 
-const VIEW_KEY = 'cairn.files.view';
+const VIEW_KEY = 'popcorn.files.view';
 
 function readView(): 'grid' | 'list' {
   try {

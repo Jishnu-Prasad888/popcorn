@@ -5,8 +5,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/authz"
-	"github.com/Jishnu-Prasad888/Cairn/internal/memories"
+	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/memories"
 )
 
 // handlePublicShareGetMemory — GET /api/v1/shares/{token}/memory

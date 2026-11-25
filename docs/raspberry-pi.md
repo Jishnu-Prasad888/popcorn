@@ -1,6 +1,6 @@
 # Raspberry Pi
 
-Cairn targets low-resource ARM64 hardware (Raspberry Pi 4/5, NAS boxes).
+Popcorn targets low-resource ARM64 hardware (Raspberry Pi 4/5, NAS boxes).
 
 ## Constraints honored
 
@@ -12,12 +12,12 @@ Cairn targets low-resource ARM64 hardware (Raspberry Pi 4/5, NAS boxes).
 ## Recommended OS
 
 Raspberry Pi OS Lite or any 64-bit Linux (arm64). Avoid running the server as
-root; use the `cairn` service user.
+root; use the `popcorn` service user.
 
 ## Build for arm64 (from any machine)
 
 ```sh
-GOOS=linux GOARCH=arm64 go build -o bin/cairn ./cmd/cairn
+GOOS=linux GOARCH=arm64 go build -o bin/popcorn ./cmd/popcorn
 ```
 
 Or use the cross-build convenience:
@@ -30,15 +30,15 @@ make docker-buildx
 
 ```ini
 [Unit]
-Description=Cairn
+Description=Popcorn
 After=network.target
 
 [Service]
-User=cairn
-Group=cairn
-ExecStart=/usr/local/bin/cairn
-Environment=CAIRN_HTTP_ADDR=:8715
-Environment=CAIRN_DATA_DIR=/var/lib/cairn
+User=popcorn
+Group=popcorn
+ExecStart=/usr/local/bin/popcorn
+Environment=POPCORN_HTTP_ADDR=:8715
+Environment=POPCORN_DATA_DIR=/var/lib/popcorn
 Restart=on-failure
 
 [Install]

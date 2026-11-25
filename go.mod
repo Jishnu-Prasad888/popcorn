@@ -1,4 +1,4 @@
-module github.com/Jishnu-Prasad888/Cairn
+module github.com/Jishnu-Prasad888/popcorn
 
 go 1.26.4
 

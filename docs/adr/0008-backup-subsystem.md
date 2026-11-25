@@ -5,8 +5,8 @@
 
 ## Context
 
-Cairn is a single-process self-hosted server whose authoritative state is the
-server database and each library's `.cairn/` metadata directory. Losing a disk
+Popcorn is a single-process self-hosted server whose authoritative state is the
+server database and each library's `.popcorn/` metadata directory. Losing a disk
 means losing both media and the entire index (albums, tags, memories, search),
 which would be far harder to rebuild than the media itself. Backups must be
 simple to operate (no external tools), restoreable into a fresh install, and
@@ -28,7 +28,7 @@ A self-contained, restore-oriented backup format owned by a dedicated
   entry (logical path, size, mtime, SHA-256, flags). The manifest is encrypted
   when the backup is, so an encrypted archive leaks nothing.
 - **One directory per run** under a configured destination, with server db
-  checkpointed before copy, `.cairn` metadata and media mirrored by relative
+  checkpointed before copy, `.popcorn` metadata and media mirrored by relative
   path.
 - **Encryption key** derived with argon2id from the configured passphrase and a
   fresh per-backup salt stored in `header.json`. The passphrase is never stored.
@@ -63,7 +63,7 @@ API surface is minimal and admin-only: run, list, get, verify, restore.
   attempts.
 - Incremental hard links trade extra inodes for skipped recompression; a future
   refinement could re-encode only changed files.
-- The format is intentionally Cairn-specific; interop with generic archivers is
+- The format is intentionally Popcorn-specific; interop with generic archivers is
   out of scope.
 - Encrypted backups sacrifice incrementality and add per-entry salt overhead;
   documented in docs/backups.md.

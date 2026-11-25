@@ -13,7 +13,7 @@ import (
 )
 
 // server_settings rows owned by backups. Each value is JSON. A stored row
-// wins over the CAIRN_BACKUP_* environment defaults.
+// wins over the POPCORN_BACKUP_* environment defaults.
 const (
 	dirKey         = "backup.dir" // legacy: a local directory only
 	destinationKey = "backup.destination"
@@ -256,7 +256,7 @@ func (m *Manager) checkLocalDir(ctx context.Context, dir string) error {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return fmt.Errorf("create backup directory: %w", err)
 	}
-	probe, err := os.CreateTemp(dir, ".cairn-write-test-*")
+	probe, err := os.CreateTemp(dir, ".popcorn-write-test-*")
 	if err != nil {
 		return fmt.Errorf("backup directory is not writable: %w", err)
 	}
@@ -280,8 +280,8 @@ func (m *Manager) probe(ctx context.Context, d *Destination) error {
 			return fmt.Errorf("create %s: %w", d.Path, err)
 		}
 	}
-	name := fmt.Sprintf(".cairn-write-test-%d", time.Now().UnixNano())
-	want := []byte("cairn")
+	name := fmt.Sprintf(".popcorn-write-test-%d", time.Now().UnixNano())
+	want := []byte("popcorn")
 	if err := writeTargetFile(tgt, name, want); err != nil {
 		return fmt.Errorf("destination is not writable: %w", err)
 	}

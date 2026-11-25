@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/sanitize"
+	"github.com/Jishnu-Prasad888/popcorn/internal/sanitize"
 )
 
 // Kinds of ignore rule.

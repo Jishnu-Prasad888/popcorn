@@ -5,14 +5,14 @@
 
 ## Context
 
-Cairn wants optional, local-only ML capabilities (similarity, later faces and
+Popcorn wants optional, local-only ML capabilities (similarity, later faces and
 embeddings) with a hard constraint: **no heavyweight model or runtime may be a
 build-time requirement** (see docs/ml.md). Every ML capability must be
 individually configurable, off by default, fully local, and removable (derived
 data can be deleted and regenerated without touching originals).
 
 Bundling, say, an ONNX runtime or a face model would violate the build-time
-constraint and would tax the Raspberry Pi-class hardware Cairn targets. But
+constraint and would tax the Raspberry Pi-class hardware Popcorn targets. But
 hard-coding one similarity algorithm with no seam would make later providers
 (learned embeddings, faces) an invasive rewrite.
 

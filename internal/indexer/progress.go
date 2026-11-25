@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Jishnu-Prasad888/Cairn/internal/jobs"
+	"github.com/Jishnu-Prasad888/popcorn/internal/jobs"
 )
 
 // Scan phases reported while a scan runs.
@@ -91,7 +91,7 @@ func (p *ScanProgress) count(ctx context.Context, root string, ignore *ignorer) 
 		}
 		rel = filepath.ToSlash(rel)
 		if d.IsDir() {
-			if d.Name() == cairnDirName {
+			if d.Name() == popcornDirName {
 				return filepath.SkipDir
 			}
 			if rel != "." && ignore.skip(rel, true) {

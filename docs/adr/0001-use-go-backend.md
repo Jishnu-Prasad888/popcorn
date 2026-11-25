@@ -5,7 +5,7 @@
 
 ## Context
 
-Cairn needs to run on low-resource hardware (Raspberry Pi ARM64), serve large
+Popcorn needs to run on low-resource hardware (Raspberry Pi ARM64), serve large
 libraries incrementally, stream media, and be packaged as a single small binary.
 The backend will eventually include local ML integration, background job
 processing, and filesystem access.

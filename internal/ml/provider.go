@@ -1,4 +1,4 @@
-// Package ml implements Cairn's optional local ML capabilities.
+// Package ml implements Popcorn's optional local ML capabilities.
 //
 // Phase 11 ships similarity only: a dependency-free perceptual signature per
 // image plus a provider abstraction so future capabilities (faces, learned

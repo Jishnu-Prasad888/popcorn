@@ -1,7 +1,7 @@
 package httpapi
 
 import (
-	"github.com/Jishnu-Prasad888/Cairn/internal/sanitize"
+	"github.com/Jishnu-Prasad888/popcorn/internal/sanitize"
 )
 
 // canonicalFolder normalizes a folder query parameter for use in both

@@ -1,5 +1,5 @@
 /**
- * MediaPicker — choose photos and videos from the Cairn library.
+ * MediaPicker — choose photos and videos from the Popcorn library.
  *
  * It looks and behaves like the library itself: a date-grouped thumbnail grid
  * with search and the same ways in — folders, albums, tags, people and
