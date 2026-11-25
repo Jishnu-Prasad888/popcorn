@@ -993,22 +993,22 @@ func (s *Store) Facets(ctx context.Context, itemType string) (*Facets, error) {
 
 // Stats summarises a library's catalog.
 type Stats struct {
-	Movies        int              `json:"movies"`
-	Shows         int              `json:"shows"`
-	Seasons       int              `json:"seasons"`
-	Episodes      int              `json:"episodes"`
-	VideoFiles    int              `json:"video_files"`
-	MissingFiles  int              `json:"missing_files"`
-	TotalBytes    int64            `json:"total_bytes"`
-	MovieBytes    int64            `json:"movie_bytes"`
-	EpisodeBytes  int64            `json:"episode_bytes"`
-	TotalSecs     float64          `json:"total_secs"`
-	Unmatched     int              `json:"unmatched"`
-	Unprobed      int              `json:"unprobed"`
-	Resolutions   map[string]int   `json:"resolutions"`
-	VideoCodecs   map[string]int   `json:"video_codecs"`
-	Containers    map[string]int   `json:"containers"`
-	Subtitles     int              `json:"subtitles"`
+	Movies       int            `json:"movies"`
+	Shows        int            `json:"shows"`
+	Seasons      int            `json:"seasons"`
+	Episodes     int            `json:"episodes"`
+	VideoFiles   int            `json:"video_files"`
+	MissingFiles int            `json:"missing_files"`
+	TotalBytes   int64          `json:"total_bytes"`
+	MovieBytes   int64          `json:"movie_bytes"`
+	EpisodeBytes int64          `json:"episode_bytes"`
+	TotalSecs    float64        `json:"total_secs"`
+	Unmatched    int            `json:"unmatched"`
+	Unprobed     int            `json:"unprobed"`
+	Resolutions  map[string]int `json:"resolutions"`
+	VideoCodecs  map[string]int `json:"video_codecs"`
+	Containers   map[string]int `json:"containers"`
+	Subtitles    int            `json:"subtitles"`
 }
 
 // Stats computes the library's catalog statistics.

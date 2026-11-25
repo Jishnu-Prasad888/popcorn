@@ -19,24 +19,24 @@ type SubtitleStyle struct {
 
 // Playback holds a person's playback preferences.
 type Playback struct {
-	AudioLanguages    []string      `json:"audio_languages"`
-	SubtitleLanguages []string      `json:"subtitle_languages"`
+	AudioLanguages    []string `json:"audio_languages"`
+	SubtitleLanguages []string `json:"subtitle_languages"`
 	// SubtitleMode: auto (show when the audio is not in a preferred
 	// language), always, forced (forced subtitles only), off.
-	SubtitleMode      string        `json:"subtitle_mode"`
-	PreferOriginal    bool          `json:"prefer_original_audio"`
-	PreferSDH         bool          `json:"prefer_sdh"`
-	AutoplayNext      bool          `json:"autoplay_next"`
-	NextCountdown     int           `json:"next_countdown"` // seconds
-	SkipIntro         string        `json:"skip_intro"`     // off, button, auto
-	SkipCredits       string        `json:"skip_credits"`   // off, button, auto
-	Quality           string        `json:"quality"`        // original, 2160p, 1080p, 720p, 480p
-	MaxBitrate        int           `json:"max_bitrate"`    // kbit/s, 0 = no cap
-	Speed             float64       `json:"speed"`
-	SkipForward       int           `json:"skip_forward"`  // seconds
-	SkipBackward      int           `json:"skip_backward"` // seconds
-	Passthrough       []string      `json:"passthrough"`   // ac3, eac3, dts, truehd
-	SubtitleStyle     SubtitleStyle `json:"subtitle_style"`
+	SubtitleMode   string        `json:"subtitle_mode"`
+	PreferOriginal bool          `json:"prefer_original_audio"`
+	PreferSDH      bool          `json:"prefer_sdh"`
+	AutoplayNext   bool          `json:"autoplay_next"`
+	NextCountdown  int           `json:"next_countdown"` // seconds
+	SkipIntro      string        `json:"skip_intro"`     // off, button, auto
+	SkipCredits    string        `json:"skip_credits"`   // off, button, auto
+	Quality        string        `json:"quality"`        // original, 2160p, 1080p, 720p, 480p
+	MaxBitrate     int           `json:"max_bitrate"`    // kbit/s, 0 = no cap
+	Speed          float64       `json:"speed"`
+	SkipForward    int           `json:"skip_forward"`  // seconds
+	SkipBackward   int           `json:"skip_backward"` // seconds
+	Passthrough    []string      `json:"passthrough"`   // ac3, eac3, dts, truehd
+	SubtitleStyle  SubtitleStyle `json:"subtitle_style"`
 }
 
 // DefaultPlayback is what a new account starts with.
@@ -51,11 +51,11 @@ func DefaultPlayback() Playback {
 
 // Interface holds a person's look-and-feel preferences.
 type Interface struct {
-	Density  string `json:"density"`   // compact, comfortable, spacious
-	CardSize string `json:"card_size"` // small, medium, large
-	View     string `json:"view"`      // grid, list
-	Motion   string `json:"motion"`    // full, reduced
-	Accent   string `json:"accent"`    // purple, pink, cyan, green
+	Density  string   `json:"density"`   // compact, comfortable, spacious
+	CardSize string   `json:"card_size"` // small, medium, large
+	View     string   `json:"view"`      // grid, list
+	Motion   string   `json:"motion"`    // full, reduced
+	Accent   string   `json:"accent"`    // purple, pink, cyan, green
 	HomeRows []string `json:"home_rows"`
 }
 

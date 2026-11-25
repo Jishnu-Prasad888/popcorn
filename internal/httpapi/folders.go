@@ -181,7 +181,6 @@ func (s *Server) handleDownloadFolder(w http.ResponseWriter, r *http.Request, u 
 	}
 }
 
-
 func (s *Server) writeFolderError(w http.ResponseWriter, r *http.Request, err error) {
 	reqID := requestIDOrEmpty(r)
 	switch {

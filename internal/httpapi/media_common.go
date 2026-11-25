@@ -117,9 +117,9 @@ func (s *Server) badRequest(w http.ResponseWriter, r *http.Request, msg string) 
 
 // userState is a person's state across items, loaded once per request.
 type userState struct {
-	states  map[string]*userdata.State
-	lists   map[string]map[string]bool
-	byShow  map[string][]*userdata.State // library/show id → episode states
+	states map[string]*userdata.State
+	lists  map[string]map[string]bool
+	byShow map[string][]*userdata.State // library/show id → episode states
 }
 
 func (s *Server) loadUserState(ctx context.Context, userID string) *userState {

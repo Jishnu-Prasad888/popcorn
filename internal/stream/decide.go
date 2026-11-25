@@ -123,12 +123,12 @@ func has(list []string, v string) bool {
 
 // Request is what the viewer asked for.
 type Request struct {
-	Audio      int  // audio type index
-	BurnSub    int  // subtitle type index to burn in, -1 for none
-	MaxHeight  int  // 0 = original
-	MaxBitrate int  // kbit/s, 0 = automatic
+	Audio      int    // audio type index
+	BurnSub    int    // subtitle type index to burn in, -1 for none
+	MaxHeight  int    // 0 = original
+	MaxBitrate int    // kbit/s, 0 = automatic
 	Force      string // "", remux, transcode
-	AudioDelay int  // milliseconds
+	AudioDelay int    // milliseconds
 }
 
 // Decision is how a file will be played and why.

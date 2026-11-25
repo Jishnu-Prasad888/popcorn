@@ -323,25 +323,25 @@ func isAnimation(genres []tmdbName) bool {
 // Movie implements Provider.
 func (t *TMDB) Movie(ctx context.Context, id string) (*Movie, error) {
 	var r struct {
-		ID                  int        `json:"id"`
-		IMDbID              string     `json:"imdb_id"`
-		Title               string     `json:"title"`
-		OriginalTitle       string     `json:"original_title"`
-		ReleaseDate         string     `json:"release_date"`
-		Overview            string     `json:"overview"`
-		Tagline             string     `json:"tagline"`
-		Runtime             int        `json:"runtime"`
-		VoteAverage         float64    `json:"vote_average"`
-		VoteCount           int        `json:"vote_count"`
-		Genres              []tmdbName `json:"genres"`
-		SpokenLanguages     []tmdbName `json:"spoken_languages"`
-		OriginalLanguage    string     `json:"original_language"`
-		ProductionCountries []tmdbName `json:"production_countries"`
-		ProductionCompanies []tmdbName `json:"production_companies"`
-		PosterPath          string     `json:"poster_path"`
-		BackdropPath        string     `json:"backdrop_path"`
+		ID                  int         `json:"id"`
+		IMDbID              string      `json:"imdb_id"`
+		Title               string      `json:"title"`
+		OriginalTitle       string      `json:"original_title"`
+		ReleaseDate         string      `json:"release_date"`
+		Overview            string      `json:"overview"`
+		Tagline             string      `json:"tagline"`
+		Runtime             int         `json:"runtime"`
+		VoteAverage         float64     `json:"vote_average"`
+		VoteCount           int         `json:"vote_count"`
+		Genres              []tmdbName  `json:"genres"`
+		SpokenLanguages     []tmdbName  `json:"spoken_languages"`
+		OriginalLanguage    string      `json:"original_language"`
+		ProductionCountries []tmdbName  `json:"production_countries"`
+		ProductionCompanies []tmdbName  `json:"production_companies"`
+		PosterPath          string      `json:"poster_path"`
+		BackdropPath        string      `json:"backdrop_path"`
 		Credits             tmdbCredits `json:"credits"`
-		Images              tmdbImages `json:"images"`
+		Images              tmdbImages  `json:"images"`
 		ReleaseDates        struct {
 			Results []struct {
 				ISO31661     string `json:"iso_3166_1"`

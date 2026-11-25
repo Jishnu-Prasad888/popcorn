@@ -14,8 +14,8 @@ import (
 // the video itself.
 func (s *Server) handleCapabilities(w http.ResponseWriter, _ *http.Request, _ *auth.User) {
 	writeJSON(w, s.logger, http.StatusOK, map[string]any{
-		"ffmpeg":     metadata.VideoFramesAvailable(),
-		"ffprobe":    probe.Available(),
-		"metadata":   s.metadataConfigured(),
+		"ffmpeg":   metadata.VideoFramesAvailable(),
+		"ffprobe":  probe.Available(),
+		"metadata": s.metadataConfigured(),
 	})
 }

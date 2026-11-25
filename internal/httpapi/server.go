@@ -223,7 +223,6 @@ func (s *Server) Handler() http.Handler {
 		mux.Handle("PUT /api/v1/libraries/{id}/files/{fileID}/thumbnail", s.withAuth(allowAny, s.handlePutThumbnail))
 		mux.Handle("GET /api/v1/libraries/{id}/files/{fileID}/preview", s.withAuth(allowAny, s.handleGetPreview))
 
-
 		// Folders and trash.
 		mux.Handle("GET /api/v1/libraries/{id}/folders", s.withAuth(allowAny, s.handleListFolders))
 		mux.Handle("POST /api/v1/libraries/{id}/folders", s.withAuth(allowAny, s.handleCreateFolder))

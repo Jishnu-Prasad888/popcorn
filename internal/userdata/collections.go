@@ -254,7 +254,7 @@ type Playlist struct {
 
 // PlaylistEntry is one entry of a playlist.
 type PlaylistEntry struct {
-	EntryID      string  `json:"entry_id"`
+	EntryID string `json:"entry_id"`
 	Ref
 	Position     int     `json:"position"`
 	PositionSecs float64 `json:"position_secs"`

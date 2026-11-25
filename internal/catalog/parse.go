@@ -135,7 +135,10 @@ var releaseTokens = map[string]bool{
 }
 
 // editionWords pick an edition label out of a file name.
-var editionWords = []struct{ re *regexp.Regexp; label string }{
+var editionWords = []struct {
+	re    *regexp.Regexp
+	label string
+}{
 	{regexp.MustCompile(`(?i)director'?s[ ._-]?cut`), "Director's Cut"},
 	{regexp.MustCompile(`(?i)extended([ ._-]?(cut|edition))?`), "Extended"},
 	{regexp.MustCompile(`(?i)theatrical([ ._-]?(cut|edition))?`), "Theatrical"},
@@ -472,7 +475,9 @@ func ParseSubtitleName(videoBase, subRel string) SubtitleInfo {
 	if strings.HasPrefix(strings.ToLower(base), strings.ToLower(videoBase)) {
 		rest = base[len(videoBase):]
 	}
-	parts := strings.FieldsFunc(rest, func(r rune) bool { return r == '.' || r == '_' || r == '-' || r == ' ' || r == '[' || r == ']' || r == '(' || r == ')' })
+	parts := strings.FieldsFunc(rest, func(r rune) bool {
+		return r == '.' || r == '_' || r == '-' || r == ' ' || r == '[' || r == ']' || r == '(' || r == ')'
+	})
 	var extra []string
 	for _, p := range parts {
 		lp := strings.ToLower(p)

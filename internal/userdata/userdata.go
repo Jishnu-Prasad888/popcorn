@@ -315,7 +315,7 @@ func (s *Store) RecentShows(ctx context.Context, userID string, limit int) ([]Re
 
 // HistoryEntry is one watch history row.
 type HistoryEntry struct {
-	EntryID     int64   `json:"entry_id"`
+	EntryID int64 `json:"entry_id"`
 	Ref
 	ShowID      string  `json:"show_id,omitempty"`
 	WatchedAt   string  `json:"watched_at"`

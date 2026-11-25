@@ -221,7 +221,7 @@ func TestIndexManagerWorkerExecutesScanJob(t *testing.T) {
 	mgr := indexer.NewIndexManager(discardLogger())
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	
+
 	if err := mgr.StartLibraryWorker(ctx, "lib1", root); err != nil {
 		t.Fatalf("start library worker: %v", err)
 	}

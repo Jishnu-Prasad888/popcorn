@@ -24,7 +24,7 @@ import (
 
 // subtitleTrack is a subtitle the player can show.
 type subtitleTrack struct {
-	ID                string `json:"id"` // e<N> embedded, x<id> external
+	ID                string `json:"id"`     // e<N> embedded, x<id> external
 	Source            string `json:"source"` // embedded, sidecar, upload
 	Language          string `json:"language,omitempty"`
 	LanguageName      string `json:"language_name"`

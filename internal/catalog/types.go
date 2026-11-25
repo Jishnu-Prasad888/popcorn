@@ -181,19 +181,19 @@ type Movie struct {
 
 // Season is a season of a show.
 type Season struct {
-	ID            string     `json:"id"`
-	ShowID        string     `json:"show_id"`
-	LibraryID     string     `json:"library_id"`
-	Number        int        `json:"season_number"`
-	Title         string     `json:"title"`
-	Overview      string     `json:"overview,omitempty"`
-	AirDate       string     `json:"air_date,omitempty"`
-	EpisodeCount  int        `json:"episode_count"`
-	EpisodeTotal  int        `json:"episode_total,omitempty"`
-	SortOrder     int        `json:"sort_order"`
-	Art           Art        `json:"art"`
-	LockedFields  []string   `json:"locked_fields"`
-	State         *UserState `json:"state,omitempty"`
+	ID           string     `json:"id"`
+	ShowID       string     `json:"show_id"`
+	LibraryID    string     `json:"library_id"`
+	Number       int        `json:"season_number"`
+	Title        string     `json:"title"`
+	Overview     string     `json:"overview,omitempty"`
+	AirDate      string     `json:"air_date,omitempty"`
+	EpisodeCount int        `json:"episode_count"`
+	EpisodeTotal int        `json:"episode_total,omitempty"`
+	SortOrder    int        `json:"sort_order"`
+	Art          Art        `json:"art"`
+	LockedFields []string   `json:"locked_fields"`
+	State        *UserState `json:"state,omitempty"`
 }
 
 // Show is a show's detail page.
@@ -231,12 +231,12 @@ type Episode struct {
 
 // Person is a cast or crew member and what they appear in.
 type Person struct {
-	ID         string `json:"id"`
-	LibraryID  string `json:"library_id"`
-	Name       string `json:"name"`
-	TMDbID     int    `json:"tmdb_id,omitempty"`
-	ProfileURL string `json:"profile_url,omitempty"`
-	Items      []Card `json:"items"`
+	ID         string              `json:"id"`
+	LibraryID  string              `json:"library_id"`
+	Name       string              `json:"name"`
+	TMDbID     int                 `json:"tmdb_id,omitempty"`
+	ProfileURL string              `json:"profile_url,omitempty"`
+	Items      []Card              `json:"items"`
 	Roles      map[string][]string `json:"roles"` // item id → roles/characters
 }
 

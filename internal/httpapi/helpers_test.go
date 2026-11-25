@@ -124,4 +124,3 @@ func (c *testClient) do(t *testing.T, method, path string, body any) *httptest.R
 	c.applySetCookies(rec.Result().Cookies())
 	return rec
 }
-

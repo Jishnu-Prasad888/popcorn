@@ -21,25 +21,25 @@ import (
 
 // Stream is one stream inside a media file.
 type Stream struct {
-	Index             int    `json:"index"`
-	Kind              string `json:"kind"` // video, audio, subtitle, attachment, data
-	TypeIndex         int    `json:"type_index"`
-	Codec             string `json:"codec"`
-	Profile           string `json:"profile,omitempty"`
-	Language          string `json:"language,omitempty"`
-	Title             string `json:"title,omitempty"`
-	Channels          int    `json:"channels,omitempty"`
-	ChannelLayout     string `json:"channel_layout,omitempty"`
-	SampleRate        int    `json:"sample_rate,omitempty"`
-	Bitrate           int64  `json:"bitrate,omitempty"`
-	Width             int    `json:"width,omitempty"`
-	Height            int    `json:"height,omitempty"`
-	PixFmt            string `json:"pix_fmt,omitempty"`
+	Index             int     `json:"index"`
+	Kind              string  `json:"kind"` // video, audio, subtitle, attachment, data
+	TypeIndex         int     `json:"type_index"`
+	Codec             string  `json:"codec"`
+	Profile           string  `json:"profile,omitempty"`
+	Language          string  `json:"language,omitempty"`
+	Title             string  `json:"title,omitempty"`
+	Channels          int     `json:"channels,omitempty"`
+	ChannelLayout     string  `json:"channel_layout,omitempty"`
+	SampleRate        int     `json:"sample_rate,omitempty"`
+	Bitrate           int64   `json:"bitrate,omitempty"`
+	Width             int     `json:"width,omitempty"`
+	Height            int     `json:"height,omitempty"`
+	PixFmt            string  `json:"pix_fmt,omitempty"`
 	FrameRate         float64 `json:"frame_rate,omitempty"`
-	ColorTransfer     string `json:"color_transfer,omitempty"`
-	IsDefault         bool   `json:"is_default"`
-	IsForced          bool   `json:"is_forced"`
-	IsHearingImpaired bool   `json:"is_hearing_impaired"`
+	ColorTransfer     string  `json:"color_transfer,omitempty"`
+	IsDefault         bool    `json:"is_default"`
+	IsForced          bool    `json:"is_forced"`
+	IsHearingImpaired bool    `json:"is_hearing_impaired"`
 }
 
 // Chapter is a chapter marker.
