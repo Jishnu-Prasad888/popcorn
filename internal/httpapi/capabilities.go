@@ -5,6 +5,7 @@ import (
 
 	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
 	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/probe"
 )
 
 // handleCapabilities — GET /api/v1/system/capabilities
@@ -14,6 +15,7 @@ import (
 func (s *Server) handleCapabilities(w http.ResponseWriter, _ *http.Request, _ *auth.User) {
 	writeJSON(w, s.logger, http.StatusOK, map[string]any{
 		"ffmpeg":     metadata.VideoFramesAvailable(),
-		"face_model": s.mlRuntime != nil && s.mlRuntime.UsesFaceModel(),
+		"ffprobe":    probe.Available(),
+		"metadata":   s.metadataConfigured(),
 	})
 }

@@ -320,9 +320,18 @@ func (sc *Scanner) loadExisting(ctx context.Context) (map[string]*IndexedFile, e
 // calls on big videos; the buffer is allocated once per scan.
 const hashBufSize = 256 * 1024
 
-// hashFile computes the SHA-256 of a file without loading it into memory,
-// reading through buf, so peak memory is constant regardless of file size.
-// This is safe to call on large video files.
+// sampleThreshold is the size above which a file is fingerprinted from
+// samples instead of read whole. Movies are tens of gigabytes; reading every
+// byte on each new file or move would make a scan take hours.
+const sampleThreshold = 64 << 20
+
+// sampleSize is the length of each of the three sampled regions.
+const sampleSize = 4 << 20
+
+// hashFile computes a SHA-256 content fingerprint without loading the file
+// into memory, reading through buf. Files up to sampleThreshold are hashed
+// whole; larger ones hash their size and three 4 MiB samples (start, middle,
+// end), which identifies a moved video reliably at a fraction of the cost.
 func hashFile(path string, buf []byte) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -330,11 +339,25 @@ func hashFile(path string, buf []byte) (string, error) {
 	}
 	defer func() { _ = f.Close() }()
 
-	h := sha256.New()
-	if _, err := io.CopyBuffer(h, f, buf); err != nil {
-		return "", fmt.Errorf("hash read: %w", err)
+	st, err := f.Stat()
+	if err != nil {
+		return "", fmt.Errorf("stat for hashing: %w", err)
 	}
-	return hex.EncodeToString(h.Sum(nil)), nil
+	h := sha256.New()
+	size := st.Size()
+	if size <= sampleThreshold {
+		if _, err := io.CopyBuffer(h, f, buf); err != nil {
+			return "", fmt.Errorf("hash read: %w", err)
+		}
+		return hex.EncodeToString(h.Sum(nil)), nil
+	}
+	_, _ = fmt.Fprintf(h, "popcorn-sampled-v1:%d:", size)
+	for _, off := range []int64{0, size/2 - sampleSize/2, size - sampleSize} {
+		if _, err := io.CopyBuffer(h, io.NewSectionReader(f, off, sampleSize), buf); err != nil {
+			return "", fmt.Errorf("hash read: %w", err)
+		}
+	}
+	return "s1:" + hex.EncodeToString(h.Sum(nil)), nil
 }
 
 // isContextErr returns true when the error is a context cancellation or

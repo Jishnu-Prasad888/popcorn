@@ -171,7 +171,7 @@ func (m *Manager) Adopt(ctx context.Context, root string) (*Library, error) {
 // List returns the registered libraries ordered by name.
 func (m *Manager) List(ctx context.Context) ([]Library, error) {
 	rows, err := m.db.QueryContext(ctx, `
-		SELECT id, name, root, status, volume_id, schema_version, created_at, updated_at
+		SELECT id, name, root, status, volume_id, schema_version, created_at, updated_at, kind
 		FROM libraries ORDER BY name COLLATE NOCASE, id`)
 	if err != nil {
 		return nil, fmt.Errorf("list libraries: %w", err)
@@ -195,7 +195,7 @@ func (m *Manager) List(ctx context.Context) ([]Library, error) {
 // Get returns the registered library with the given id, or ErrNotFound.
 func (m *Manager) Get(ctx context.Context, id string) (*Library, error) {
 	row := m.db.QueryRowContext(ctx, `
-		SELECT id, name, root, status, volume_id, schema_version, created_at, updated_at
+		SELECT id, name, root, status, volume_id, schema_version, created_at, updated_at, kind
 		FROM libraries WHERE id = ?`, id)
 	lib, err := scanLibrary(row)
 	if err != nil {
@@ -362,11 +362,14 @@ func (m *Manager) adopt(ctx context.Context, root, name string) (*Library, error
 
 func (m *Manager) insert(ctx context.Context, lib *Library) error {
 	const query = `
-		INSERT INTO libraries (id, name, root, status, volume_id, schema_version, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+		INSERT INTO libraries (id, name, root, status, volume_id, schema_version, created_at, updated_at, kind)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	if lib.Kind == "" {
+		lib.Kind = KindMixed
+	}
 	if _, err := m.db.ExecContext(ctx, query,
 		lib.ID, lib.Name, lib.Root, string(lib.Status), lib.VolumeID, lib.SchemaVersion,
-		rfc3339(lib.CreatedAt), rfc3339(lib.UpdatedAt)); err != nil {
+		rfc3339(lib.CreatedAt), rfc3339(lib.UpdatedAt), lib.Kind); err != nil {
 		return fmt.Errorf("insert library: %w", err)
 	}
 	return nil
@@ -511,7 +514,7 @@ func scanLibrary(row rowScanner) (*Library, error) {
 		updatedStr string
 	)
 	err := row.Scan(&lib.ID, &lib.Name, &lib.Root, &status, &volumeID,
-		&lib.SchemaVersion, &createdStr, &updatedStr)
+		&lib.SchemaVersion, &createdStr, &updatedStr, &lib.Kind)
 	if err != nil {
 		return nil, err
 	}
@@ -549,4 +552,47 @@ func isWritable(dir string) bool {
 	_ = f.Close()
 	_ = os.Remove(name)
 	return true
+}
+
+// Library kinds: what a library holds, which steers how its folders are read.
+const (
+	KindMovies = "movies"
+	KindShows  = "shows"
+	KindMixed  = "mixed"
+)
+
+// ValidKind reports whether k is a library kind.
+func ValidKind(k string) bool { return k == KindMovies || k == KindShows || k == KindMixed }
+
+// SetKind changes what a library holds.
+func (m *Manager) SetKind(ctx context.Context, id, kind string) error {
+	if !ValidKind(kind) {
+		return &ValidationError{Field: "kind", Reason: "must be movies, shows or mixed"}
+	}
+	res, err := m.db.ExecContext(ctx, `UPDATE libraries SET kind = ?, updated_at = ? WHERE id = ?`,
+		kind, rfc3339(time.Now()), id)
+	if err != nil {
+		return fmt.Errorf("set library kind: %w", err)
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
+// Rename changes a library's display name.
+func (m *Manager) Rename(ctx context.Context, id, name string) error {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return &ValidationError{Field: "name", Reason: "must not be empty"}
+	}
+	res, err := m.db.ExecContext(ctx, `UPDATE libraries SET name = ?, updated_at = ? WHERE id = ?`,
+		name, rfc3339(time.Now()), id)
+	if err != nil {
+		return fmt.Errorf("rename library: %w", err)
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return ErrNotFound
+	}
+	return nil
 }

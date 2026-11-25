@@ -85,62 +85,29 @@ type Config struct {
 	// never modified (see ADR-0004).
 	EncryptionPassphrase string
 
-	// MLEnabled is the master switch for local ML capabilities. All ML work
-	// is off and nothing is stored until this is true (default false).
-	MLEnabled bool
-
-	// MLSimilarity turns the perceptual similarity capability on. It is only
-	// consulted when MLEnabled is true.
-	MLSimilarity bool
-
 	// MediaWorkers caps how many files each library's background worker
-	// processes at once (metadata extraction and thumbnails). The default
-	// is half the CPUs, between 1 and 4, which leaves room to serve requests
-	// and keeps a Raspberry Pi to two full-size image decodes at a time.
+	// probes at once.
 	MediaWorkers int
 
-	// MLWorkers caps concurrent files processed per similarity pass.
-	MLWorkers int
+	// TMDbAPIKey and OMDbAPIKey are the default metadata provider keys
+	// (POPCORN_TMDB_API_KEY, POPCORN_OMDB_API_KEY). An administrator can set
+	// them on the Metadata settings page instead.
+	TMDbAPIKey string
+	OMDbAPIKey string
+	// MetadataLanguage is the TMDB language tag (en-US, hi-IN, ja-JP…).
+	MetadataLanguage string
+	// MetadataRegion picks the country for age ratings (US, IN, GB…).
+	MetadataRegion string
 
-	// MLDistanceThreshold is the maximum Hamming distance (0-64) at or below
-	// which files are reported as similar.
-	MLDistanceThreshold int
-
-	// MLFaces turns the local face capability on (detection, clustering, and
-	// people). It is only consulted when MLEnabled is true; default false.
-	MLFaces bool
-
-	// MLFaceWorkers caps concurrent files scanned per face pass.
-	MLFaceWorkers int
-
-	// MLFaceMinConfidence floors a detection's normalized score (0..1).
-	// pigo reports raw scores around 5..30 for real faces, so 0.05 maps to
-	// that same raw threshold.
-	MLFaceMinConfidence float64
-
-	// MLFaceMinSize is the smallest face (width and height, source pixels) kept.
-	MLFaceMinSize int
-
-	// MLFaceThreshold is the minimum cosine similarity (0..1) for an
-	// unassigned face to join an existing person during clustering.
-	MLFaceThreshold float64
-
-	// MLFaceModel is the path of the ONNX face-recognition (ArcFace) model. When the
-	// file exists, faces are matched with its embeddings; otherwise face
-	// recognition is unavailable until the model is downloaded.
-	MLFaceModel string
-
-	// MLFaceModelURL is where the ArcFace recognizer model is downloaded from on request.
-	MLFaceModelURL string
-
-	// MLFaceDetectorModel is the path of the SCRFD ONNX face-detector model.
-	// When both this and MLFaceModel are present, the SCRFD+ArcFace pipeline
-	// is used. When absent, face recognition is unavailable until the model
-	// is downloaded.
-	MLFaceDetectorModel string
-
-	// MLFaceDetectorURL is where the SCRFD detector model is downloaded from on request.
-	MLFaceDetectorURL string
+	// MaxTranscodes caps concurrent ffmpeg remux/transcode streams.
+	MaxTranscodes int
+	// VideoEncoder is the ffmpeg H.264 encoder: libx264 (default),
+	// h264_vaapi, h264_qsv, h264_nvenc or h264_videotoolbox.
+	VideoEncoder string
+	// TranscodePreset is the x264 preset (veryfast by default).
+	TranscodePreset string
+	// HWDevice is the hardware device for VAAPI/QSV (e.g. /dev/dri/renderD128).
+	HWDevice string
 }
 
 // Load builds a Config from the process environment and platform defaults.
@@ -162,20 +129,15 @@ func Load() Config {
 		BackupIntervalMinutes: envOrDefaultInt("BACKUP_INTERVAL_MIN", 0),
 		BackupPassphrase:      os.Getenv(EnvPrefix + "_BACKUP_PASSPHRASE"),
 		EncryptionPassphrase:  os.Getenv(EnvPrefix + "_ENCRYPTION_PASSPHRASE"),
-		MLEnabled:             envOrDefaultBool("ML_ENABLED", false),
-		MLSimilarity:          envOrDefaultBool("ML_SIMILARITY", true),
 		MediaWorkers:          envOrDefaultInt("MEDIA_WORKERS", defaultMediaWorkers()),
-		MLWorkers:             envOrDefaultInt("ML_WORKERS", 2),
-		MLDistanceThreshold:   envOrDefaultInt("ML_DISTANCE_THRESHOLD", 10),
-		MLFaces:               envOrDefaultBool("ML_FACES", false),
-		MLFaceWorkers:         envOrDefaultInt("ML_FACE_WORKERS", 2),
-		MLFaceMinConfidence:   envOrDefaultFloat("ML_FACE_MIN_CONFIDENCE", 0.05),
-		MLFaceMinSize:         envOrDefaultInt("ML_FACE_MIN_SIZE", 48),
-		MLFaceThreshold:       envOrDefaultFloat("ML_FACE_THRESHOLD", 0),
-		MLFaceModel:           envOrDefault("ML_FACE_MODEL", ""),
-		MLFaceModelURL:        envOrDefault("ML_FACE_MODEL_URL", ""),
-		MLFaceDetectorModel:   envOrDefault("ML_FACE_DETECTOR_MODEL", ""),
-		MLFaceDetectorURL:     envOrDefault("ML_FACE_DETECTOR_URL", ""),
+		TMDbAPIKey:            envOrDefaultTrim("TMDB_API_KEY", ""),
+		OMDbAPIKey:            envOrDefaultTrim("OMDB_API_KEY", ""),
+		MetadataLanguage:      envOrDefault("METADATA_LANGUAGE", "en-US"),
+		MetadataRegion:        envOrDefault("METADATA_REGION", "US"),
+		MaxTranscodes:         envOrDefaultInt("MAX_TRANSCODES", 3),
+		VideoEncoder:          envOrDefault("VIDEO_ENCODER", "libx264"),
+		TranscodePreset:       envOrDefault("TRANSCODE_PRESET", "veryfast"),
+		HWDevice:              envOrDefault("HW_DEVICE", ""),
 	}
 }
 

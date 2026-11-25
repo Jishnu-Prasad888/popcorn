@@ -40,9 +40,10 @@ type IndexManager struct {
 	// run in the background once indexing settles.
 	AfterScan func(libraryID, root string)
 
-	// mediaProcessor, when set, handles process_media jobs (metadata
-	// extraction and thumbnail generation) on every library worker.
-	mediaProcessor *metadata.Processor
+	// pipeline, when set, registers the media-server jobs (catalog sync,
+	// probes, metadata, thumbnails) on every library worker and is told when
+	// a scan finishes.
+	pipeline Pipeline
 
 	// mediaWorkers is how many jobs each library worker runs at once.
 	mediaWorkers int
@@ -85,11 +86,68 @@ func NewIndexManager(logger *slog.Logger) *IndexManager {
 	}
 }
 
-// SetMediaProcessor configures the handler for process_media jobs. When nil,
-// process_media jobs are executed anyway but metadata and thumbnails are not
-// produced (jobs fail with "no handler" only when the processor is required).
-func (m *IndexManager) SetMediaProcessor(p *metadata.Processor) {
-	m.mediaProcessor = p
+// Pipeline is the media-server work that follows a scan.
+type Pipeline interface {
+	Register(w *jobs.Worker, q *jobs.Queue, db *sql.DB, libraryID, root string)
+	AfterScan(ctx context.Context, q *jobs.Queue)
+}
+
+// SetPipeline configures the media pipeline run on every library worker.
+func (m *IndexManager) SetPipeline(p Pipeline) {
+	m.pipeline = p
+}
+
+// Enqueue queues a job of kind on a library's worker, starting the worker
+// if needed.
+func (m *IndexManager) Enqueue(ctx context.Context, libraryID, root, kind string, payload map[string]any) (string, error) {
+	if err := m.StartLibraryWorker(ctx, libraryID, root); err != nil {
+		m.logger.Warn("cannot ensure library worker", "library_id", libraryID, "error", err)
+	}
+	db, release, err := acquireLibraryDB(root)
+	if err != nil {
+		return "", err
+	}
+	defer release()
+	return jobs.NewQueue(db, m.logger).Enqueue(ctx, kind, payload)
+}
+
+// WithQueue runs fn with a library's job queue, starting its worker if
+// needed.
+func (m *IndexManager) WithQueue(ctx context.Context, libraryID, root string, fn func(q *jobs.Queue) error) error {
+	if err := m.StartLibraryWorker(ctx, libraryID, root); err != nil {
+		m.logger.Warn("cannot ensure library worker", "library_id", libraryID, "error", err)
+	}
+	db, release, err := acquireLibraryDB(root)
+	if err != nil {
+		return err
+	}
+	defer release()
+	return fn(jobs.NewQueue(db, m.logger))
+}
+
+// JobCounts reports how many jobs of each kind are queued or running in a
+// library.
+func (m *IndexManager) JobCounts(ctx context.Context, root string) (map[string]int, error) {
+	db, release, err := acquireLibraryDB(root)
+	if err != nil {
+		return nil, err
+	}
+	defer release()
+	rows, err := db.QueryContext(ctx, `SELECT kind, COUNT(*) FROM index_jobs WHERE status IN ('queued', 'running') GROUP BY kind`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+	out := map[string]int{}
+	for rows.Next() {
+		var k string
+		var n int
+		if err := rows.Scan(&k, &n); err != nil {
+			return nil, err
+		}
+		out[k] = n
+	}
+	return out, rows.Err()
 }
 
 // SetMediaWorkers sets how many jobs each library worker started afterwards
@@ -124,21 +182,12 @@ func (m *IndexManager) StartLibraryWorker(ctx context.Context, libraryID, root s
 	w := jobs.NewWorker(q, m.logger)
 	w.SetConcurrency(m.mediaWorkers)
 	w.Register(jobs.KindIndex, m.RunScanJob)
-	if p := m.mediaProcessor; p != nil {
-		db := ldb.DB()
-		w.Register(jobs.KindProcessMedia, func(jctx context.Context, job *jobs.Job) error {
-			return p.Handle(metadata.WithDB(jctx, db), job)
-		})
-		w.Register(jobs.KindRenditions, func(jctx context.Context, job *jobs.Job) error {
-			more, err := p.HandleRenditions(metadata.WithDB(jctx, db), job)
-			if err == nil && more {
-				m.enqueueRenditions(jctx, q, db, job.Payload["popcorn_dir"], true)
-			}
-			return err
-		})
-		// A library processed by an older build catches up in the background,
-		// with nobody having to rescan it.
-		m.enqueueRenditions(wctx, q, db, filepath.Join(root, ".popcorn"), false)
+	// Jobs of kinds from older builds (photo processing) finish as no-ops.
+	for _, k := range []string{jobs.KindProcessMedia, jobs.KindRenditions} {
+		w.Register(k, func(context.Context, *jobs.Job) error { return nil })
+	}
+	if p := m.pipeline; p != nil {
+		p.Register(w, q, ldb.DB(), libraryID, root)
 	}
 	handle := &workerHandle{cancel: cancel, token: &struct{}{}}
 	m.workers[libraryID] = handle
@@ -298,72 +347,22 @@ func (m *IndexManager) RunScanJob(ctx context.Context, job *jobs.Job) error {
 		"missing", result.Missing,
 	)
 
-	// Enqueue media-processing jobs for new and modified files.
 	q := jobs.NewQueue(ldb.DB(), m.logger)
-	var payloads []map[string]any
 	for _, change := range result.Changes {
-		if change.Kind != ChangeNew && change.Kind != ChangeModified {
-			continue
-		}
 		if change.Kind == ChangeModified {
-			// The thumbnail (and preview) shows the old content. Browsers cache thumbnails
-			// by the file's mod time and size, so one left in place could be
-			// served under the new version for good; the next request (or
-			// the job below) makes a fresh one.
-			if err := os.Remove(metadata.ThumbPath(popcornDir, change.File.ID)); err != nil && !errors.Is(err, os.ErrNotExist) {
-				m.logger.Warn("remove outdated thumbnail", "file_id", change.File.ID, "error", err)
-			}
-			if err := metadata.RemoveSmallThumb(popcornDir, change.File.ID); err != nil {
-				m.logger.Warn("remove outdated small thumbnail", "file_id", change.File.ID, "error", err)
-			}
+			// Derived file renditions show the old content.
+			_ = os.Remove(metadata.ThumbPath(popcornDir, change.File.ID))
+			_ = metadata.RemoveSmallThumb(popcornDir, change.File.ID)
 			if err := os.Remove(metadata.PreviewPath(popcornDir, change.File.ID)); err != nil && !errors.Is(err, os.ErrNotExist) {
 				m.logger.Warn("remove outdated preview", "file_id", change.File.ID, "error", err)
 			}
 		}
-		payloads = append(payloads, map[string]any{
-			"library_id":  libraryID,
-			"file_id":     change.File.ID,
-			"rel_path":    change.File.RelPath,
-			"root":        root,
-			"popcorn_dir": popcornDir,
-		})
 	}
-	enqueued, err := q.EnqueueAll(ctx, jobs.KindProcessMedia, payloads)
-	if err != nil {
-		m.logger.Warn("enqueue process_media jobs", "library_id", libraryID,
-			"enqueued", enqueued, "of", len(payloads), "error", err)
-	}
-	if enqueued > 0 {
-		m.logger.Info("enqueued media processing jobs", "library_id", libraryID, "count", enqueued)
-	}
-	if m.mediaProcessor != nil {
-		m.enqueueRenditions(ctx, q, ldb.DB(), popcornDir, false)
+	if m.pipeline != nil {
+		m.pipeline.AfterScan(ctx, q)
 	}
 	if m.AfterScan != nil {
 		m.AfterScan(libraryID, root)
 	}
 	return nil
-}
-
-// enqueueRenditions queues a renditions job when files still lack their small
-// thumbnail and colour and none is queued already. next is set by a finishing
-// renditions job continuing its own work (it is still "running" itself, so
-// the active check would always see it).
-func (m *IndexManager) enqueueRenditions(ctx context.Context, q *jobs.Queue, db *sql.DB, popcornDir any, next bool) {
-	if !next {
-		if active, err := q.HasActive(ctx, jobs.KindRenditions); err != nil || active {
-			return
-		}
-		pending, err := metadata.PendingRenditions(ctx, db)
-		if err != nil {
-			m.logger.Warn("check pending renditions", "error", err)
-			return
-		}
-		if !pending {
-			return
-		}
-	}
-	if _, err := q.Enqueue(ctx, jobs.KindRenditions, map[string]any{"popcorn_dir": popcornDir}); err != nil {
-		m.logger.Warn("enqueue renditions job", "error", err)
-	}
 }

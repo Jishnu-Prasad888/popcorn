@@ -507,23 +507,19 @@ func (s *FileStore) CountsByType(ctx context.Context) (map[MediaType]int, error)
 	return out, rows.Err()
 }
 
-// CollectionCounts holds the sizes of the user-curated collections.
+// CollectionCounts holds the size of the library's catalog.
 type CollectionCounts struct {
-	Albums    int `json:"albums"`
-	Tags      int `json:"tags"`
-	Favorites int `json:"favorites"`
+	Movies   int `json:"movies"`
+	Shows    int `json:"shows"`
+	Episodes int `json:"episodes"`
 }
 
-// CountCollections returns album, tag and favorite totals in one round trip.
-// Favorites only count files that are still present, matching the favorites list.
+// CountCollections returns movie, show and episode totals in one round trip.
 func (s *FileStore) CountCollections(ctx context.Context) (CollectionCounts, error) {
 	var c CollectionCounts
 	err := s.db.QueryRowContext(ctx,
-		`SELECT (SELECT COUNT(*) FROM albums),
-		        (SELECT COUNT(*) FROM tags),
-		        (SELECT COUNT(*) FROM favorites fav
-		           JOIN indexed_files f ON f.id = fav.file_id WHERE f.status = 'present')`,
-	).Scan(&c.Albums, &c.Tags, &c.Favorites)
+		`SELECT (SELECT COUNT(*) FROM movies), (SELECT COUNT(*) FROM shows), (SELECT COUNT(*) FROM episodes)`,
+	).Scan(&c.Movies, &c.Shows, &c.Episodes)
 	return c, err
 }
 

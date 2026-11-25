@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 
@@ -25,9 +24,11 @@ import (
 	"github.com/Jishnu-Prasad888/popcorn/internal/library"
 	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 	"github.com/Jishnu-Prasad888/popcorn/internal/logging"
-	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
+	"github.com/Jishnu-Prasad888/popcorn/internal/mediajobs"
 	"github.com/Jishnu-Prasad888/popcorn/internal/metrics"
-	"github.com/Jishnu-Prasad888/popcorn/internal/ml"
+	"github.com/Jishnu-Prasad888/popcorn/internal/probe"
+	"github.com/Jishnu-Prasad888/popcorn/internal/stream"
+	"github.com/Jishnu-Prasad888/popcorn/internal/userdata"
 	"github.com/Jishnu-Prasad888/popcorn/internal/version"
 	"github.com/Jishnu-Prasad888/popcorn/internal/webui"
 )
@@ -107,9 +108,36 @@ func run() error {
 	// registered; workers for already-registered libraries are started below.
 	idxManager := indexer.NewIndexManager(logger)
 	idxManager.SetBaseContext(ctx)
-	mediaProc := metadata.NewProcessor(logger, keys)
-	idxManager.SetMediaProcessor(mediaProc)
 	idxManager.SetMediaWorkers(cfg.MediaWorkers)
+
+	// The media pipeline: after each scan, videos are sorted into movies and
+	// shows, probed with ffprobe, matched to TMDB/OMDb metadata and given
+	// artwork, all as persistent background jobs in the library.
+	mediaSettings := mediajobs.NewSettings(pool, mediajobs.MetadataSettings{
+		TMDbKey: cfg.TMDbAPIKey, OMDbKey: cfg.OMDbAPIKey,
+		Language: cfg.MetadataLanguage, Region: cfg.MetadataRegion,
+		Auto: true, GenerateThumbs: true,
+	})
+	idxManager.SetPipeline(&mediajobs.Pipeline{
+		Logger:   logger,
+		Settings: mediaSettings,
+		KindOf: func(c context.Context, id string) string {
+			if l, err := libraries.Get(c, id); err == nil {
+				return l.Kind
+			}
+			return library.KindMixed
+		},
+	})
+	if !probe.Available() {
+		logger.Warn("ffprobe not found: videos are catalogued without stream details; install ffmpeg")
+	}
+	if !stream.Available() {
+		logger.Warn("ffmpeg not found: only direct play is available; install ffmpeg to remux and transcode")
+	}
+	transcoder := stream.NewTranscoder(stream.Config{
+		MaxTranscodes: cfg.MaxTranscodes, VideoEncoder: cfg.VideoEncoder,
+		Preset: cfg.TranscodePreset, HWDevice: cfg.HWDevice,
+	}, logger)
 
 	// Recover persisted scan and media-processing jobs after a restart:
 	// start one job worker per registered library. Offline libraries are
@@ -129,140 +157,6 @@ func run() error {
 			return libraries.List(c)
 		})
 
-	// Local ML: optional similarity signatures. The manager is inert unless
-	// POPCORN_ML_ENABLED is set; similarity passes run after index scans and on
-	// explicit API calls.
-	mlManager := ml.NewManager(logger, ml.Config{
-		Enabled:           cfg.MLEnabled,
-		Workers:           cfg.MLWorkers,
-		DistanceThreshold: cfg.MLDistanceThreshold,
-	}, ml.PerceptualHashProvider{})
-
-	// Face recognition requires two models:
-	//   1. SCRFD detector  (face-detector.onnx  / POPCORN_ML_FACE_DETECTOR_MODEL)
-	//   2. ArcFace R50     (face-recognition.onnx / POPCORN_ML_FACE_MODEL)
-	// Both must be present for face recognition to work. If either is missing,
-	// the face manager is disabled and the app offers to download them.
-	detectorPath := cfg.MLFaceDetectorModel
-	if detectorPath == "" {
-		detectorPath = filepath.Join(cfg.DataDir, "models", "face-detector.onnx")
-	}
-	recognizerPath := cfg.MLFaceModel
-	if recognizerPath == "" {
-		recognizerPath = filepath.Join(cfg.DataDir, "models", "face-recognition.onnx")
-	}
-
-	var faceProvider ml.FaceProvider
-	detectorInstalled := fileExists(detectorPath)
-	recognizerInstalled := fileExists(recognizerPath)
-	switch {
-	case detectorInstalled && recognizerInstalled:
-		ep, err := ml.NewSCRFDEmbeddingFaceProvider(detectorPath, recognizerPath)
-		if err != nil {
-			logger.Error("face recognition models unusable; face recognition disabled — "+
-				"re-download models from the ML settings page", "error", err)
-		} else {
-			faceProvider = ep
-			logger.Info("SCRFD + ArcFace face recognition loaded",
-				"detector", detectorPath, "recognizer", recognizerPath)
-		}
-	case detectorInstalled && !recognizerInstalled:
-		logger.Warn("ArcFace recognizer not installed; face recognition disabled",
-			"expected", recognizerPath)
-	case !detectorInstalled && recognizerInstalled:
-		logger.Warn("SCRFD detector not installed; face recognition disabled",
-			"expected", detectorPath)
-	default:
-		logger.Warn("face recognition models not installed; the app offers to download them",
-			"detector", detectorPath, "recognizer", recognizerPath)
-	}
-
-	faces := ml.NewFaceManager(logger, ml.FaceConfig{
-		Enabled:       cfg.MLEnabled,
-		Workers:       cfg.MLFaceWorkers,
-		MinConfidence: cfg.MLFaceMinConfidence,
-		MinSize:       cfg.MLFaceMinSize,
-		Threshold:     cfg.MLFaceThreshold,
-	}, faceProvider)
-
-	// The master switch is an administrator setting stored in the server
-	// database (Machine learning page); POPCORN_ML_ENABLED is only its default.
-	var mlRuntime *ml.Runtime
-
-	// Detector downloader: when the detector arrives, attempt to load both
-	// models together (recognizer may also be present by then).
-	detectorURL := cfg.MLFaceDetectorURL
-	if detectorURL == "" {
-		detectorURL = ml.DefaultFaceDetectorURL
-	}
-	faceDetector := ml.NewModelDownloader(
-		logger, detectorPath, detectorURL,
-		func(part string) error {
-			_, err := ml.NewSCRFDDetector(part)
-			return err
-		},
-		func(path string) {
-			if !fileExists(recognizerPath) {
-				return
-			}
-			prov, err := ml.NewSCRFDEmbeddingFaceProvider(path, recognizerPath)
-			if err != nil {
-				logger.Error("face provider load after detector install", "error", err)
-				return
-			}
-			mlRuntime.ModelReady(prov)
-		},
-	)
-
-	// Recognizer downloader.
-	recognizerURL := cfg.MLFaceModelURL
-	if recognizerURL == "" {
-		recognizerURL = ml.DefaultFaceRecognizerURL
-	}
-	faceModel := ml.NewModelDownloader(
-		logger, recognizerPath, recognizerURL,
-		func(part string) error {
-			if !fileExists(detectorPath) {
-				return nil // detector not there yet; defer validation
-			}
-			_, err := ml.NewSCRFDEmbeddingFaceProvider(detectorPath, part)
-			return err
-		},
-		func(path string) {
-			if !fileExists(detectorPath) {
-				logger.Info("ArcFace recognizer installed; waiting for SCRFD detector")
-				return
-			}
-			prov, err := ml.NewSCRFDEmbeddingFaceProvider(detectorPath, path)
-			if err != nil {
-				logger.Error("face provider load after recognizer install", "error", err)
-				return
-			}
-			mlRuntime.ModelReady(prov)
-		},
-	)
-
-	mlRuntime = ml.NewRuntime(pool, logger, mlManager, faces, cfg.MLSimilarity,
-		func(ctx context.Context) ([]ml.Target, error) {
-			libs, err := libraries.List(ctx)
-			if err != nil {
-				return nil, err
-			}
-			out := make([]ml.Target, 0, len(libs))
-			for _, l := range libs {
-				out = append(out, ml.Target{ID: l.ID, Root: l.Root, Online: l.Status == library.StatusOnline})
-			}
-			return out, nil
-		})
-	if err := mlRuntime.Load(ctx, cfg.MLEnabled); err != nil {
-		return err
-	}
-	idxManager.AfterScan = mlRuntime.AfterScan
-	if mlRuntime.Enabled() {
-		// Catch up on anything added while the server was off.
-		mlRuntime.StartAll()
-	}
-
 	// Backups: one-shot, scheduled, size-triggered and restore operations
 	// over the server database and every registered library, to a local or
 	// mounted directory or an SFTP/FTP/SMB server. The destination and
@@ -279,13 +173,7 @@ func run() error {
 		return err
 	}
 	// Size triggers re-check as soon as a scan has indexed new files.
-	afterScanML := idxManager.AfterScan
-	idxManager.AfterScan = func(libraryID, root string) {
-		if afterScanML != nil {
-			afterScanML(libraryID, root)
-		}
-		backupMgr.AfterScan(libraryID, root)
-	}
+	idxManager.AfterScan = backupMgr.AfterScan
 	backupMgr.Start(ctx)
 
 	// Frontend: the embedded build by default, an on-disk build in development.
@@ -302,11 +190,6 @@ func run() error {
 		Authz:          authzSvc,
 		Libraries:      libraries,
 		Indexer:        idxManager,
-		ML:             mlManager,
-		Faces:          faces,
-		MLRuntime:      mlRuntime,
-		FaceModel:      faceModel,
-		FaceDetector:   faceDetector,
 		Backups:        backupMgr,
 		Keys:           keys,
 		SecureCookies:  cfg.CookieSecure,
@@ -315,6 +198,10 @@ func run() error {
 		ThumbnailWorkers: cfg.MediaWorkers,
 		WebUI:            webHandler,
 		Metrics:          metrics.New(),
+		UserData:         userdata.New(pool),
+		MediaSettings:    mediaSettings,
+		Transcoder:       transcoder,
+		DataDir:          cfg.DataDir,
 	})
 
 	srv := &http.Server{
@@ -322,9 +209,11 @@ func run() error {
 		Handler:           api.Handler(),
 		ReadHeaderTimeout: 10 * time.Second,
 		ReadTimeout:       60 * time.Second,
-		WriteTimeout:      120 * time.Second,
-		IdleTimeout:       90 * time.Second,
-		MaxHeaderBytes:    1 << 20,
+		// No write timeout: video streams last as long as the film. Slow
+		// clients are bounded by IdleTimeout and the transcoder's own limits.
+		WriteTimeout:   0,
+		IdleTimeout:    90 * time.Second,
+		MaxHeaderBytes: 1 << 20,
 	}
 
 	errCh := make(chan error, 1)
@@ -351,14 +240,8 @@ func run() error {
 	if err := srv.Shutdown(shutdownCtx); err != nil {
 		return fmt.Errorf("graceful shutdown: %w", err)
 	}
+	transcoder.StopAll()
 	librarydb.CloseShared()
 	logger.Info("server stopped")
 	return nil
-}
-
-// fileExists reports whether a file exists and is non-empty. Used to check
-// whether model files have been downloaded before loading them.
-func fileExists(path string) bool {
-	st, err := os.Stat(path)
-	return err == nil && st.Size() > 0
 }

@@ -37,13 +37,6 @@ func TestFolderParamsRejectNonCanonicalPaths(t *testing.T) {
 		if rec.Code != http.StatusBadRequest {
 			t.Errorf("folders?parent=%q status = %d, want 400", folder, rec.Code)
 		}
-
-		// Search folder filter.
-		rec = client.roundTrip(t, http.MethodGet,
-			"/api/v1/libraries/"+libID+"/search?q=summer&folder="+folder, "")
-		if rec.Code != http.StatusBadRequest {
-			t.Errorf("search?folder=%q status = %d, want 400", folder, rec.Code)
-		}
 	}
 }
 

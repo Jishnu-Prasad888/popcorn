@@ -156,10 +156,10 @@ func (s *Server) handleFileCounts(w http.ResponseWriter, r *http.Request, u *aut
 		return
 	}
 	writeJSON(w, s.logger, http.StatusOK, map[string]any{
-		"counts":    counts,
-		"albums":    coll.Albums,
-		"tags":      coll.Tags,
-		"favorites": coll.Favorites,
+		"counts":   counts,
+		"movies":   coll.Movies,
+		"shows":    coll.Shows,
+		"episodes": coll.Episodes,
 	})
 }
 

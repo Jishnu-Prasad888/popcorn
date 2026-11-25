@@ -48,6 +48,17 @@ const KindProcessMedia = "process_media"
 // placeholder colour.
 const KindRenditions = "renditions"
 
+// Media-server job kinds. A catalog sync turns indexed files into movies,
+// shows and episodes; probes read streams with ffprobe; metadata jobs fetch
+// provider metadata and artwork; thumbnail jobs grab frames for items that
+// have no artwork.
+const (
+	KindCatalog    = "catalog_sync"
+	KindProbe      = "probe"
+	KindMetadata   = "metadata"
+	KindThumbnails = "thumbnails"
+)
+
 // DefaultMaxAttempts is the default number of times a job is retried before
 // being marked permanently failed.
 const DefaultMaxAttempts = 3
@@ -271,6 +282,11 @@ func (w *Worker) SetConcurrency(n int) {
 		n = 1
 	}
 	w.concurrency = n
+}
+
+// SetExclusive makes jobs of kind run one at a time on this worker.
+func (w *Worker) SetExclusive(kind string) {
+	w.exclusive[kind] = true
 }
 
 // Register registers a handler for a job kind.

@@ -14,6 +14,8 @@ import (
 type libraryRequest struct {
 	Path string `json:"path"`
 	Name string `json:"name,omitempty"`
+	// Kind is movies, shows or mixed (the default).
+	Kind string `json:"kind,omitempty"`
 }
 
 // probeRequest is the accepted probe payload.
@@ -33,6 +35,7 @@ type libraryResponse struct {
 	Name          string `json:"name"`
 	Root          string `json:"root"`
 	Status        string `json:"status"`
+	Kind          string `json:"kind"`
 	VolumeID      string `json:"volume_id,omitempty"`
 	SchemaVersion int    `json:"schema_version"`
 	CreatedAt     string `json:"created_at"`
@@ -45,6 +48,7 @@ func toLibraryResponse(l *library.Library) libraryResponse {
 		Name:          l.Name,
 		Root:          l.Root,
 		Status:        string(l.Status),
+		Kind:          l.Kind,
 		VolumeID:      l.VolumeID,
 		SchemaVersion: l.SchemaVersion,
 		CreatedAt:     l.CreatedAt.UTC().Format(time.RFC3339Nano),
@@ -92,10 +96,19 @@ func (s *Server) handleCreateLibrary(w http.ResponseWriter, r *http.Request, u *
 		writeDomainError(w, s.logger, requestIDOrEmpty(r), err)
 		return
 	}
+	if body.Kind != "" && !library.ValidKind(body.Kind) {
+		s.badRequest(w, r, "Library kind must be movies, shows or mixed.")
+		return
+	}
 	lib, mode, err := s.libraries.Register(actorCtx(r, u).Context(), body.Path, body.Name)
 	if err != nil {
 		s.writeLibraryError(w, r, err)
 		return
+	}
+	if body.Kind != "" && body.Kind != lib.Kind {
+		if err := s.libraries.SetKind(r.Context(), lib.ID, body.Kind); err == nil {
+			lib.Kind = body.Kind
+		}
 	}
 
 	indexing := false

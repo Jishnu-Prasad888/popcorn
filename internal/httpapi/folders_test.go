@@ -68,16 +68,13 @@ func TestFolderListingCarriesSizeAndDate(t *testing.T) {
 	}
 }
 
-func TestMoveFolderRewritesIndexAndFavorites(t *testing.T) {
+func TestMoveFolderRewritesIndex(t *testing.T) {
 	_, client, libID, libRoot := newSearchTestServer(t)
 	seedDiskFile(t, libRoot, "a", "Trips/a.jpg", "a")
 	seedDiskFile(t, libRoot, "b", "Trips/2024/b.jpg", "b")
 	seedDiskFile(t, libRoot, "c", "Trips2/c.jpg", "c") // shares a prefix, must not move
 	base := "/api/v1/libraries/" + libID
 
-	if rec := client.do(t, http.MethodPut, base+"/folders/favorite?path=Trips/2024", nil); rec.Code != http.StatusNoContent {
-		t.Fatalf("favorite status = %d (%s)", rec.Code, rec.Body.String())
-	}
 	rec := client.do(t, http.MethodPost, base+"/folders/move",
 		map[string]string{"path": "Trips", "new_path": "Archive/Holidays"})
 	if rec.Code != http.StatusOK {
@@ -93,10 +90,6 @@ func TestMoveFolderRewritesIndexAndFavorites(t *testing.T) {
 	rec = client.do(t, http.MethodGet, base+"/files/c", nil)
 	if !bytes.Contains(rec.Body.Bytes(), []byte(`"rel_path":"Trips2/c.jpg"`)) {
 		t.Fatalf("sibling with a shared prefix moved: %s", rec.Body.String())
-	}
-	rec = client.do(t, http.MethodGet, base+"/favorites/folders", nil)
-	if got := folderNames(t, rec.Body); len(got) != 1 || got[0] != "Archive/Holidays/2024" {
-		t.Fatalf("favourite folders = %v, want the moved path", got)
 	}
 
 	// Into itself, and onto something that exists, are refused.

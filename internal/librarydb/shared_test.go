@@ -75,7 +75,7 @@ func TestAcquireReopensReplacedDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := db.Exec(`INSERT INTO tags (id, name, created_at) VALUES ('t1', 'old', 'x')`); err != nil {
+	if _, err := db.Exec(`INSERT INTO people (id, name, updated_at) VALUES ('p1', 'old', 'x')`); err != nil {
 		t.Fatal(err)
 	}
 	release()
@@ -101,10 +101,10 @@ func TestAcquireReopensReplacedDatabase(t *testing.T) {
 	}
 	defer release2()
 	var n int
-	if err := db2.QueryRow(`SELECT COUNT(*) FROM tags`).Scan(&n); err != nil {
+	if err := db2.QueryRow(`SELECT COUNT(*) FROM people`).Scan(&n); err != nil {
 		t.Fatal(err)
 	}
 	if n != 0 {
-		t.Fatalf("read %d tags from the replaced database; want the new, empty one", n)
+		t.Fatalf("read %d people from the replaced database; want the new, empty one", n)
 	}
 }

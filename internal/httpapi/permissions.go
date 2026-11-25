@@ -3,6 +3,7 @@ package httpapi
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
@@ -337,4 +338,13 @@ func capNames(c authz.CapSet) []string {
 		out[i] = string(cap)
 	}
 	return out
+}
+
+// coversKey reports whether ancestor is key or one of its ancestors in the
+// path-like resource key hierarchy.
+func coversKey(ancestor, key string) bool {
+	if ancestor == key {
+		return true
+	}
+	return strings.HasPrefix(key, ancestor+"/")
 }

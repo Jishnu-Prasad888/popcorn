@@ -47,8 +47,10 @@ type Library struct {
 	Status        Status
 	VolumeID      string
 	SchemaVersion int
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	// Kind is movies, shows or mixed.
+	Kind      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // ProbeResult reports what Popcorn can learn about a candidate root without
