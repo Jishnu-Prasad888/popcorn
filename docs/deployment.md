@@ -11,7 +11,7 @@ make build          # or download a release binary — see installation.md
 ./bin/popcorn
 ```
 
-The server binds to `127.0.0.1:8715` by default. For access beyond localhost,
+The server binds to `127.0.0.1:8045` by default. For access beyond localhost,
 expose it through a reverse proxy; the server is designed to be deployed
 **behind a TLS reverse proxy** (Caddy, nginx, Traefik, or a cloud load balancer)
 rather than terminating TLS itself.
@@ -20,7 +20,7 @@ rather than terminating TLS itself.
 
 ```text
 popcorn.example.com {
-    reverse_proxy 127.0.0.1:8715
+    reverse_proxy 127.0.0.1:8045
 }
 ```
 
@@ -39,7 +39,7 @@ server {
     client_max_body_size 100M;
 
     location / {
-        proxy_pass http://127.0.0.1:8715;
+        proxy_pass http://127.0.0.1:8045;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

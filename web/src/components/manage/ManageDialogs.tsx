@@ -168,7 +168,7 @@ function fromText(s: string, kind: FieldKind): unknown {
   }
 }
 
-function EditDialog({ item, onClose, onSaved }: { item: Manageable; onClose: () => void; onSaved: () => void }) {
+export function EditDialog({ item, onClose, onSaved }: { item: Manageable; onClose: () => void; onSaved: () => void }) {
   const toast = useToast();
   const fields = FIELDS[item.type];
   const [values, setValues] = useState<Record<string, string>>(() =>
@@ -258,7 +258,7 @@ function EditDialog({ item, onClose, onSaved }: { item: Manageable; onClose: () 
   );
 }
 
-function MatchDialog({ item, onClose, onSaved }: { item: Manageable; onClose: () => void; onSaved: () => void }) {
+export function MatchDialog({ item, onClose, onSaved }: { item: Manageable; onClose: () => void; onSaved: () => void }) {
   const toast = useToast();
   const kind = item.type === 'show' ? 'show' : 'movie';
   const [q, setQ] = useState(item.title);
@@ -370,7 +370,7 @@ const ART_KINDS: Record<ItemType, [string, string][]> = {
   episode: [['thumb', 'Still']],
 };
 
-function ArtworkDialog({ item, onClose, onSaved }: { item: Manageable; onClose: () => void; onSaved: () => void }) {
+export function ArtworkDialog({ item, onClose, onSaved }: { item: Manageable; onClose: () => void; onSaved: () => void }) {
   const toast = useToast();
   const [art, setArt] = useState(item.art);
   const bump = (kind: string, has: boolean) => setArt({ ...art, [kind]: has, version: art.version + 1 });

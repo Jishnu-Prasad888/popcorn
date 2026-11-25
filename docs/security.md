@@ -9,7 +9,7 @@ Popcorn is personal software with a browser frontend. It must be:
 
 ## Binding
 
-- Default bind is `127.0.0.1:8715` (loopback only).
+- Default bind is `127.0.0.1:8045` (loopback only).
 - Terminate TLS at a reverse proxy (Caddy, nginx, Traefik).
 
 ## Authentication and sessions

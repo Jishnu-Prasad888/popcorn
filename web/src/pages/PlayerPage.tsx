@@ -32,9 +32,7 @@ import {
   formatTimecode,
   getPlayInfo,
   getPlaylist,
-  getSeasonEpisodes,
   keyframeAt,
-  getShow,
   landscapeOf,
   playPath,
   reportProgress,
@@ -67,8 +65,8 @@ interface QueueEntry extends Ref {
 }
 
 /** Resolves the play queue named by ?queue= into references, in order. */
-async function loadQueue(queue: string, lib: string): Promise<{ items: QueueEntry[]; shuffle?: boolean; repeat?: string } | null> {
-  const [kind, id, mode] = queue.split(':');
+async function loadQueue(queue: string): Promise<{ items: QueueEntry[]; repeat?: string } | null> {
+  const [kind, id] = queue.split(':');
   if (kind === 'collection' && id) {
     return { items: (await collectionQueue(id)).queue };
   }
@@ -76,14 +74,8 @@ async function loadQueue(queue: string, lib: string): Promise<{ items: QueueEntr
     const p = await getPlaylist(id);
     return {
       items: p.entries.map((e) => ({ library_id: e.library_id, type: e.type, id: e.id, entry: e.entry_id, position_secs: e.position_secs })),
-      shuffle: p.playlist.shuffle,
       repeat: p.playlist.repeat,
     };
-  }
-  if (kind === 'show' && id && mode === 'shuffle') {
-    const show = await getShow(lib, id);
-    const lists = await Promise.all(show.show.seasons.filter((s) => s.season_number > 0).map((s) => getSeasonEpisodes(lib, s.id)));
-    return { items: lists.flatMap((l) => l.episodes.map((e) => ({ library_id: lib, type: 'episode' as const, id: e.id }))), shuffle: true };
   }
   return null;
 }
@@ -151,7 +143,7 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [countdownDismissed, setCountdownDismissed] = useState(false);
   const [toast, setToast] = useState('');
-  const [queue, setQueue] = useState<{ items: QueueEntry[]; shuffle?: boolean; repeat?: string } | null>(null);
+  const [queue, setQueue] = useState<{ items: QueueEntry[]; repeat?: string } | null>(null);
   const introSkipped = useRef(false);
   const creditsSkipped = useRef(false);
   const startAt = useRef(0);
@@ -187,13 +179,13 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
   useEffect(() => {
     if (!queueName) return;
     let cancelled = false;
-    loadQueue(queueName, lib)
+    loadQueue(queueName)
       .then((q) => !cancelled && setQueue(q))
       .catch(() => undefined);
     return () => {
       cancelled = true;
     };
-  }, [queueName, lib]);
+  }, [queueName]);
 
   // A playlist entry resumes where it was left in the playlist.
   useEffect(() => {
@@ -375,10 +367,7 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
     if (queue && queue.items.length) {
       const idx = queue.items.findIndex((x) => (entryParam ? x.entry === entryParam : x.type === type && x.id === id));
       let n: QueueEntry | undefined;
-      if (queue.shuffle) {
-        const others = queue.items.filter((_, i) => i !== idx);
-        n = others[Math.floor(Math.random() * others.length)];
-      } else if (queue.repeat === 'one' && idx >= 0) {
+      if (queue.repeat === 'one' && idx >= 0) {
         n = queue.items[idx];
       } else {
         n = queue.items[idx + 1] ?? (queue.repeat === 'all' ? queue.items[0] : undefined);

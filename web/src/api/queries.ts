@@ -632,6 +632,10 @@ export const listUsers = () => apiGet<UserListResponse>('/users');
 export const createUser = (input: { username: string; password: string; role?: string }) =>
   apiPost<{ user: User }>('/users', input);
 
+/** Change a role or password, or disable/enable an account. Admin only. */
+export const updateUser = (userId: string, patch: { role?: string; password?: string; enabled?: boolean }) =>
+  apiPatch<{ user: User }>(`/users/${userId}`, patch);
+
 export const revokeUserSessions = (userId: string) =>
   apiPost<void>(`/users/${userId}/sessions/revoke`);
 

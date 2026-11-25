@@ -1,5 +1,5 @@
 import { type FormEvent, useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 import { ApiError } from '../api/client';
 import AuthSplash from '../auth/AuthSplash';
@@ -16,10 +16,9 @@ const MAX_PASSWORD_LENGTH = 1024;
 /**
  * First-run account creation. Popcorn has no accounts until somebody creates
  * one, and the first account is always the administrator. The form is only
- * offered while the server reports `bootstrap_required`; on a server that
- * already has accounts, the same page explains that an administrator creates
- * accounts instead — so the "Create an account" button on the sign-in page
- * always leads somewhere useful and never bypasses that rule.
+ * offered while the server reports `bootstrap_required`; once an account
+ * exists this page sends people to sign in, since only an administrator can
+ * add accounts.
  */
 export default function SetupPage() {
   const { loading, bootstrapRequired, user, bootstrap, refresh } = useAuth();
@@ -34,31 +33,9 @@ export default function SetupPage() {
   if (loading) return <AuthSplash />;
   // Someone is already signed in — nothing to set up.
   if (user) return <Navigate to="/" replace />;
-  // An account already exists: bootstrap is closed and only an administrator
-  // can add accounts, so say that rather than showing a form that would fail.
-  if (!bootstrapRequired) {
-    return (
-      <main className="auth-page" data-testid="setup-page">
-        <section className="auth-card" aria-labelledby="setup-title">
-          <header className="auth-header">
-            <h1 className="auth-brand">
-              <Brand>Popcorn</Brand>
-            </h1>
-            <h2 id="setup-title" className="auth-title">
-              This server is already set up
-            </h2>
-            <p className="auth-subtitle">
-              Accounts on this server are created by its administrator. Ask them to add you, then
-              come back and sign in.
-            </p>
-          </header>
-          <Link className="auth-secondary" to="/login">
-            Back to sign in
-          </Link>
-        </section>
-      </main>
-    );
-  }
+  // An account already exists: sign-up is closed and only an administrator
+  // adds accounts (Settings → Users), so there is nothing to do here.
+  if (!bootstrapRequired) return <Navigate to="/login" replace />;
 
   const validate = (): string | null => {
     const name = username.trim();

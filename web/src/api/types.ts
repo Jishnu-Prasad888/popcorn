@@ -11,6 +11,8 @@ export interface User {
   id: string;
   username: string;
   role: UserRole;
+  /** False when an administrator has disabled the account. */
+  enabled?: boolean;
   created_at: string;
 }
 

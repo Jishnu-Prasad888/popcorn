@@ -14,6 +14,7 @@ import {
   ratingOf,
 } from '../../api/media';
 import type { Card } from '../../api/media';
+import { useCardMenu } from './CardMenu';
 import './media.css';
 
 /** A thin purple-to-pink bar showing how far into an item someone is. */
@@ -75,11 +76,13 @@ function Badge({ c }: { c: Card }) {
 }
 
 /** A 2:3 poster card for a movie or show (or an episode, by its show). */
-export function PosterCard({ c, sub }: { c: Card; sub?: string }) {
+export function PosterCard({ c: item, sub }: { c: Card; sub?: string }) {
+  const { card: c, onContextMenu, element } = useCardMenu(item);
   const title = c.type === 'episode' ? (c.show_title ?? c.title) : c.title;
   const rating = ratingOf(c);
   return (
-    <article className="poster-card">
+    <article className="poster-card" onContextMenu={onContextMenu}>
+      {element}
       <div className="poster-wrap">
       <Link to={itemPath(c)} className="poster-frame" aria-label={title}>
         <Img src={posterOf(c)} alt="" fallback={<Placeholder c={c} />} />
@@ -112,12 +115,14 @@ export function PosterCard({ c, sub }: { c: Card; sub?: string }) {
 }
 
 /** A 16:9 card: Continue Watching, Next Up and episode lists. */
-export function LandscapeCard({ c, playable = true }: { c: Card; playable?: boolean }) {
+export function LandscapeCard({ c: item, playable = true }: { c: Card; playable?: boolean }) {
+  const { card: c, onContextMenu, element } = useCardMenu(item, { landscape: true });
   const title = c.type === 'episode' ? (c.show_title ?? c.title) : c.title;
   const sub = c.type === 'episode' ? subtitleFor(c) : [c.year, formatRuntime(c.runtime_mins, c.duration_secs)].filter(Boolean).join(', ');
   const to = playable && c.available ? playPath(c) : itemPath(c);
   return (
-    <article className="landscape-card">
+    <article className="landscape-card" onContextMenu={onContextMenu}>
+      {element}
       <Link to={to} className="landscape-frame" aria-label={`${playable ? 'Play' : 'Open'} ${title}${c.type === 'episode' ? `, ${sub}` : ''}`}>
         <Img src={landscapeOf(c)} alt="" fallback={<Placeholder c={c} />} />
         {playable && (
@@ -197,10 +202,12 @@ export function CardGrid({ items, view = 'grid' }: { items: Card[]; view?: strin
   );
 }
 
-function ListRow({ c }: { c: Card }) {
+function ListRow({ c: item }: { c: Card }) {
+  const { card: c, onContextMenu, element } = useCardMenu(item);
   const rating = ratingOf(c);
   return (
-    <div className="list-row">
+    <div className="list-row" onContextMenu={onContextMenu}>
+      {element}
       <Link to={itemPath(c)} className="list-thumb" aria-hidden="true" tabIndex={-1}>
         <Img src={posterOf(c)} alt="" fallback={<Placeholder c={c} />} />
       </Link>

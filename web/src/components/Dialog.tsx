@@ -11,6 +11,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 
 import { FOCUSABLE, trapTab } from '../lib/focusTrap';
 import { Icon } from './ui/Icon';
@@ -75,7 +76,10 @@ export function Dialog({
 
   if (!open) return null;
 
-  return (
+  // Rendered at the document root: inside a page, any ancestor that makes a
+  // stacking context (a hero, a sticky toolbar) would trap the dialog under
+  // the app's sticky header and sidebar.
+  return createPortal(
     <div
       className="dialog-backdrop"
       onMouseDown={(event) => {
@@ -110,7 +114,8 @@ export function Dialog({
         <div className="dialog-body">{children}</div>
         {footer && <div className="dialog-footer">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

@@ -134,28 +134,27 @@ describe('LoginPage', () => {
     expect(await screen.findByRole('heading', { name: 'Sign in to Popcorn' })).toBeInTheDocument();
     expect(screen.getByText(/no accounts yet/)).toBeInTheDocument();
     expect(screen.getByText('First time on this server?')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Create an account' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Create the admin account' })).toBeInTheDocument();
   });
 
   it('sends the visitor to first-run setup from the signup button', async () => {
     mockFetch({ bootstrapRequired: true });
     setup();
 
-    const signup = await screen.findByRole('link', { name: 'Create an account' });
+    const signup = await screen.findByRole('link', { name: 'Create the admin account' });
     fireEvent.click(signup);
 
     expect(await screen.findByText('first run setup')).toBeInTheDocument();
   });
 
-  it('keeps the signup button available once an account exists', async () => {
+  it('offers no sign-up once an account exists', async () => {
     const fn = mockFetch();
     setup();
 
     await screen.findByRole('heading', { name: 'Sign in to Popcorn' });
-    // The button stays, so the route is discoverable: /setup explains that an
-    // administrator creates accounts. Only the first-run wording changes.
-    expect(screen.getByText('Need an account?')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Create an account' })).toBeInTheDocument();
+    // Only the administrator adds accounts after the first one.
+    expect(screen.getByText("No account? Ask this server's administrator to add you.")).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /create/i })).not.toBeInTheDocument();
     expect(screen.queryByText('First time on this server?')).not.toBeInTheDocument();
     expect(
       screen.queryByText('Your movies and shows, streamed from your own server.'),

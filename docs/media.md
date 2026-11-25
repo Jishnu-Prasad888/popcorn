@@ -244,7 +244,7 @@ resolution. Example curl download:
 ```text
 curl -o beach.jpg \
   -b cookies.txt \
-  http://host:8715/api/v1/libraries/{libraryID}/files/{fileID}/download
+  http://host:8045/api/v1/libraries/{libraryID}/files/{fileID}/download
 ```
 
 A `path` query parameter (`?path=vacation/beach.jpg`) is also accepted as an

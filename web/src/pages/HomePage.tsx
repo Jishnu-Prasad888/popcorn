@@ -66,7 +66,7 @@ export default function HomePage() {
       {data.collections.length > 0 && !hidden.has('collections') && (
         <Row title="Your collections" link="/collections" landscape>
           {data.collections.map((col) => (
-            <CollectionTile key={col.id} collection={col} />
+            <CollectionTile key={col.id} collection={col} onChanged={home.reload} />
           ))}
         </Row>
       )}

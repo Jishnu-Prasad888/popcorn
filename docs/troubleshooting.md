@@ -22,7 +22,7 @@ build) with the real frontend output.
 
 Rebuild: `make build` (or `make web-build` for the dev flow, then restart the
 Go server). During frontend development use the Vite dev server (`make web-dev`)
-which hot-reloads and proxies `/api` to the Go backend on :8715.
+which hot-reloads and proxies `/api` to the Go backend on :8045.
 
 ## Health endpoint times out
 
@@ -45,16 +45,16 @@ rather than serving the SPA. This is intentional; see [api.md](api.md).
 ## Port already in use
 
 ```sh
-lsof -i :8715          # find the process
+lsof -i :8045          # find the process
 # or
-sudo ss -ltnp | grep 8715
+sudo ss -ltnp | grep 8045
 ```
 
 ## Docker: container exits immediately
 
 - Ensure `-v popcorn-data:/data` persists data; the image expects `/data` to be
   writable by the `popcorn` user.
-- Ensure `POPCORN_HTTP_ADDR=:8715` is set if you expose the port as written in
+- Ensure `POPCORN_HTTP_ADDR=:8045` is set if you expose the port as written in
   [docker.md](docker.md); the default listens on `127.0.0.1` inside the
   container which a mapped `-p` port cannot reach.
 - `docker logs popcorn` shows startup errors with request IDs.

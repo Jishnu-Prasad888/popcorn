@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowDown, ArrowUp, Check, ListOrdered, Play, Shuffle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowDown, ArrowUp, Check, ListOrdered, Play } from 'lucide-react';
 
 import {
   episodeCode,
@@ -24,6 +23,7 @@ import { ItemActions } from '../components/media/ItemActions';
 import { ManageMenu } from '../components/manage/ManageDialogs';
 import { Dialog } from '../components/Dialog';
 import { ErrorState, LoadingState } from '../components/States';
+import { useCardMenu } from '../components/media/CardMenu';
 import { useToast } from '../components/ui/Toast';
 
 function seasonLabel(s: Season) {
@@ -34,7 +34,6 @@ function seasonLabel(s: Season) {
 export default function ShowDetailPage() {
   const { lib = '', id = '' } = useParams();
   const [params, setParams] = useSearchParams();
-  const navigate = useNavigate();
   const toast = useToast();
   const res = useResource(() => getShow(lib, id), [lib, id]);
   const [ordering, setOrdering] = useState(false);
@@ -70,15 +69,11 @@ export default function ShowDetailPage() {
     }
   };
 
-  const shuffle = () => {
-    const eps = episodes.data?.episodes.filter((e) => e.available) ?? [];
-    if (eps.length) navigate(playPath(eps[Math.floor(Math.random() * eps.length)]!, { queue: `show:${show.id}:shuffle` }));
-  };
-
   return (
     <div className="detail">
       <DetailHeader
         item={show}
+        onChanged={reloadAll}
         eyebrow={
           <>
             {show.status && <span>{show.status}</span>}
@@ -98,9 +93,6 @@ export default function ShowDetailPage() {
                 <Check size={14} strokeWidth={3} /> You've watched every episode
               </span>
             )}
-            <button type="button" className="btn-ghost" onClick={shuffle}>
-              <Shuffle size={17} /> Shuffle
-            </button>
             <ItemActions item={show} onChange={reloadAll} />
             {canEdit && (
               <ManageMenu
@@ -178,7 +170,7 @@ export default function ShowDetailPage() {
           {episodes.data && (
             <ol className="episode-list">
               {episodes.data.episodes.map((e) => (
-                <EpisodeRow key={e.id} e={e} showId={show.id} onToggle={() => void toggleEpisode(e)} />
+                <EpisodeRow key={e.id} e={e} showId={show.id} onToggle={() => void toggleEpisode(e)} onChanged={reloadAll} />
               ))}
             </ol>
           )}
@@ -197,11 +189,13 @@ export default function ShowDetailPage() {
   );
 }
 
-function EpisodeRow({ e, showId, onToggle }: { e: Card; showId: string; onToggle: () => void }) {
+function EpisodeRow({ e: item, showId, onToggle, onChanged }: { e: Card; showId: string; onToggle: () => void; onChanged: () => void }) {
+  const { card: e, onContextMenu, element } = useCardMenu(item, { landscape: true, onChanged });
   const still = landscapeOf(e);
   const meta = [e.air_date, formatRuntime(e.runtime_mins, e.duration_secs), e.resolution].filter(Boolean).join('  /  ');
   return (
-    <li className="episode-row">
+    <li className="episode-row" onContextMenu={onContextMenu}>
+      {element}
       <Link to={e.available ? playPath(e, { queue: `show:${showId}` }) : `/episode/${e.library_id}/${e.id}`} className="episode-still" aria-label={`Play ${episodeCode(e)} ${e.title}`}>
         {still ? <img src={still} alt="" loading="lazy" /> : <span className="card-fallback" />}
         <span className="landscape-play" aria-hidden="true">

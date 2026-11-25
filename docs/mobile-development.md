@@ -12,10 +12,10 @@ contract), and the per-area docs ([media.md](media.md), [libraries.md](libraries
 ## API base URL
 
 ```
-http://<host>:8715/api/v1
+http://<host>:8045/api/v1
 ```
 
-- The port is configurable (`POPCORN_PORT`); `8715` is the default.
+- The port is configurable (`POPCORN_PORT`); `8045` is the default.
 - Production deployments should front the API with a TLS reverse proxy, in
   which case the base URL is `https://<host>/api/v1`. See
   [deployment.md](deployment.md).

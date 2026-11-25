@@ -13,12 +13,12 @@ import {
   Layers,
   ListVideo,
   LogOut,
-  Menu as MenuIcon,
+  PanelLeftClose,
+  PanelLeftOpen,
   Search,
   ShieldCheck,
   Bookmark,
   Tv,
-  X,
   Archive,
   Activity,
 } from 'lucide-react';
@@ -57,6 +57,27 @@ const ADMIN: NavItem[] = [
   { to: '/permissions', label: 'Users & access', icon: ShieldCheck },
   { to: '/backups', label: 'Backups', icon: Archive },
 ];
+
+/** Matches the stylesheet's breakpoint for the drawer layout. */
+const NARROW = '(max-width: 899px)';
+const COLLAPSED_KEY = 'popcorn.sidebar.collapsed';
+
+function readCollapsed(): boolean {
+  try {
+    return localStorage.getItem(COLLAPSED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function storeCollapsed(v: boolean) {
+  try {
+    if (v) localStorage.setItem(COLLAPSED_KEY, '1');
+    else localStorage.removeItem(COLLAPSED_KEY);
+  } catch {
+    // Only means the choice isn't remembered.
+  }
+}
 
 function NavGroup({ title, items, onNavigate }: { title?: string; items: NavItem[]; onNavigate?: () => void }) {
   return (
@@ -141,6 +162,9 @@ export default function AppShell() {
   const { user, logout } = useAuth();
   const isAdmin = user?.role === 'admin';
   const [drawer, setDrawer] = useState(false);
+  // On wide screens the sidebar is part of the layout and can be collapsed;
+  // on narrow ones it is a drawer over the page. One pair of buttons drives both.
+  const [collapsed, setCollapsed] = useState(() => readCollapsed());
   const location = useLocation();
   usePreferences(); // applies interface preferences once signed in
 
@@ -152,9 +176,19 @@ export default function AppShell() {
   }
 
   const close = () => setDrawer(false);
+  const narrow = () => window.matchMedia(NARROW).matches;
+  const setSidebar = (open: boolean) => {
+    if (narrow()) {
+      setDrawer(open);
+      return;
+    }
+    setCollapsed(!open);
+    storeCollapsed(!open);
+  };
+  const sidebarOpen = drawer || !collapsed;
 
   return (
-    <div className="shell" data-testid="app-shell" data-drawer={drawer ? 'open' : 'closed'}>
+    <div className="shell" data-testid="app-shell" data-drawer={drawer ? 'open' : 'closed'} data-collapsed={collapsed}>
       <a className="skip-link" href="#main">
         Skip to content
       </a>
@@ -163,8 +197,8 @@ export default function AppShell() {
           <NavLink to="/" className="shell-brand-link" aria-label="Popcorn home">
             <Wordmark />
           </NavLink>
-          <button type="button" className="icon-button shell-drawer-close" onClick={close} aria-label="Close menu">
-            <X size={20} />
+          <button type="button" className="icon-button shell-drawer-close" onClick={() => setSidebar(false)} aria-label="Hide sidebar" title="Hide sidebar">
+            <PanelLeftClose size={20} />
           </button>
         </div>
         <nav className="shell-nav">
@@ -191,8 +225,15 @@ export default function AppShell() {
       <div className="shell-scrim" onClick={close} aria-hidden="true" />
       <div className="shell-main">
         <header className="shell-topbar">
-          <button type="button" className="icon-button shell-menu" onClick={() => setDrawer(true)} aria-label="Open menu">
-            <MenuIcon size={22} />
+          <button
+            type="button"
+            className="icon-button shell-menu"
+            onClick={() => setSidebar(true)}
+            aria-label="Show sidebar"
+            title="Show sidebar"
+            aria-expanded={sidebarOpen}
+          >
+            <PanelLeftOpen size={22} />
           </button>
           <span className="shell-topbar-brand">
             <Wordmark />

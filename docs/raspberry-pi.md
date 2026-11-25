@@ -37,7 +37,7 @@ After=network.target
 User=popcorn
 Group=popcorn
 ExecStart=/usr/local/bin/popcorn
-Environment=POPCORN_HTTP_ADDR=:8715
+Environment=POPCORN_HTTP_ADDR=:8045
 Environment=POPCORN_DATA_DIR=/var/lib/popcorn
 Restart=on-failure
 

@@ -20,7 +20,7 @@ const (
 	EnvPrefix = "POPCORN"
 
 	// DefaultHTTPAddr is the default listen address.
-	DefaultHTTPAddr = "127.0.0.1:8715"
+	DefaultHTTPAddr = "127.0.0.1:8045"
 
 	// DefaultLogLevel is the default log verbosity.
 	DefaultLogLevel = "info"

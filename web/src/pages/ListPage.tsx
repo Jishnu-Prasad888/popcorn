@@ -4,6 +4,7 @@ import { Trash2 } from 'lucide-react';
 import { deleteHistory, errorMessage, getHistory, getList, itemPath, episodeCode } from '../api/media';
 import type { ListName } from '../api/media';
 import { useResource } from '../api/resources';
+import { CardMenuArea } from '../components/media/CardMenuArea';
 import { CardGrid, GridSkeleton } from '../components/media/Cards';
 import { ErrorState, LoadingState } from '../components/States';
 import { useToast } from '../components/ui/Toast';
@@ -81,6 +82,7 @@ export function HistoryPage() {
         <ol className="history-list">
           {res.data.entries.map((h) => (
             <li key={h.entry_id}>
+              <CardMenuArea item={h.item} onChanged={res.reload}>
               <time dateTime={h.watched_at}>{formatDateTime(h.watched_at)}</time>
               <Link to={itemPath(h.item)} className="history-title">
                 {h.item.type === 'episode' ? (
@@ -96,6 +98,7 @@ export function HistoryPage() {
               <button type="button" className="icon-button" onClick={() => void remove(h.entry_id)} aria-label="Remove from history" title="Remove from history">
                 <Trash2 size={16} />
               </button>
+              </CardMenuArea>
             </li>
           ))}
         </ol>

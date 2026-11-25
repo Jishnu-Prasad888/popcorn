@@ -3,7 +3,9 @@ import type { ReactNode } from 'react';
 import { ArrowDown, ArrowUp, Plus, X } from 'lucide-react';
 
 import type { PlaybackPrefs } from '../api/media';
+import { UsersPanel } from '../components/admin/UsersPanel';
 import { useToast } from '../components/ui/Toast';
+import { useAuth } from '../auth/authContext';
 import { LoadingState } from '../components/States';
 import { Toggle } from '../components/ui/Toggle';
 import { ACCENTS } from '../lib/theme';
@@ -137,6 +139,7 @@ const HOME_ROWS: [string, string][] = [
 
 export default function SettingsPage() {
   const { playback, iface, loaded } = usePreferences();
+  const { user } = useAuth();
   const toast = useToast();
 
   if (!loaded || !playback) return <div className="page"><LoadingState /></div>;
@@ -297,6 +300,7 @@ export default function SettingsPage() {
           </SettingRow>
         ))}
       </Section>
+      {user?.role === 'admin' && <UsersPanel />}
     </div>
   );
 }

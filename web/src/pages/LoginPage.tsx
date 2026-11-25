@@ -113,16 +113,16 @@ export default function LoginPage() {
             {busy ? 'Please wait…' : 'Sign in'}
           </button>
 
-          {/* Always shown: on a configured server /setup explains that an
-              administrator creates accounts, so the link is never a dead end. */}
-          <div className="auth-switch">
-            <span className="auth-switch-note">
-              {bootstrapRequired ? 'First time on this server?' : 'Need an account?'}
-            </span>
-            <Link className="auth-secondary" to="/setup">
-              Create an account
-            </Link>
-          </div>
+          {bootstrapRequired ? (
+            <div className="auth-switch">
+              <span className="auth-switch-note">First time on this server?</span>
+              <Link className="auth-secondary" to="/setup">
+                Create the admin account
+              </Link>
+            </div>
+          ) : (
+            <p className="auth-switch-note">No account? Ask this server's administrator to add you.</p>
+          )}
         </form>
       </section>
     </main>

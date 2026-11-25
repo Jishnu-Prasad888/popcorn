@@ -41,8 +41,8 @@ A 64-bit CPU is assumed. The binary needs no shared libraries
    popcorn
    ```
 
-   The server listens on `127.0.0.1:8715` by default. Open
-   `http://127.0.0.1:8715` — on first run you are guided through creating the
+   The server listens on `127.0.0.1:8045` by default. Open
+   `http://127.0.0.1:8045` — on first run you are guided through creating the
    initial admin account (bootstrapping).
 
 ## Option 2: Build from source
@@ -61,7 +61,7 @@ Use `make release` to produce binaries for every supported platform in `dist/`
 
 1. Start the server. By default data is stored in `~/.popcorn`; override with
    `POPCORN_DATA_DIR` (e.g. `/var/lib/popcorn`).
-2. Visit `http://127.0.0.1:8715`. If no admin account exists, the app shows the
+2. Visit `http://127.0.0.1:8045`. If no admin account exists, the app shows the
    bootstrap screen: create the first account (username + password, minimum 8
    characters, argon2id-hashed). This only works while no users exist — for
    security it cannot be re-run.
@@ -83,7 +83,7 @@ Type=simple
 User=popcorn
 Group=popcorn
 Environment=POPCORN_DATA_DIR=/var/lib/popcorn
-Environment=POPCORN_HTTP_ADDR=127.0.0.1:8715
+Environment=POPCORN_HTTP_ADDR=127.0.0.1:8045
 ExecStart=/usr/local/bin/popcorn
 Restart=on-failure
 RestartSec=5
@@ -112,7 +112,7 @@ no config file. The most common ones:
 | Variable                    | Default          | Purpose                                        |
 | --------------------------- | ---------------- | ---------------------------------------------- |
 | `POPCORN_DATA_DIR`            | `~/.popcorn`       | Server data directory (database lives here)    |
-| `POPCORN_HTTP_ADDR`           | `127.0.0.1:8715` | Listen address                                 |
+| `POPCORN_HTTP_ADDR`           | `127.0.0.1:8045` | Listen address                                 |
 | `POPCORN_LOG_LEVEL`           | `info`           | `debug`, `info`, `warn`, or `error`            |
 | `POPCORN_COOKIE_SECURE`       | `false`          | Always send the session cookie over HTTPS only |
 | `POPCORN_MAX_UPLOAD_BYTES`    | `2 GiB`          | Upload size cap                                |
@@ -150,7 +150,7 @@ Point Prometheus (or Grafana Agent) at `/api/v1/metrics` with e.g.:
 scrape_configs:
   - job_name: popcorn
     static_configs:
-      - targets: ["127.0.0.1:8715"]
+      - targets: ["127.0.0.1:8045"]
     metrics_path: /api/v1/metrics
 ```
 

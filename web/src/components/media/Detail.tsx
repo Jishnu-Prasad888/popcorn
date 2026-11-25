@@ -7,6 +7,7 @@ import type { Card, Credit, FileInfo } from '../../api/media';
 import { audioLabel, codecName } from '../../lib/mediaFormat';
 import { formatBytes } from '../../api/types';
 import { Facts } from './Hero';
+import { useCardMenu, usePersonMenu } from './CardMenu';
 import './detail.css';
 
 /** The top of a detail page: backdrop, poster, title, facts and actions. */
@@ -15,17 +16,22 @@ export function DetailHeader({
   eyebrow,
   actions,
   children,
+  onChanged,
 }: {
   item: Card;
   eyebrow?: ReactNode;
   actions?: ReactNode;
   children?: ReactNode;
+  /** Called after the right-click menu changes the item, to reload the page. */
+  onChanged?: () => void;
 }) {
+  const { onContextMenu, element } = useCardMenu(item, { onChanged });
   const backdrop = backdropOf(item);
   const poster = posterOf(item);
   const logo = logoOf(item);
   return (
-    <section className="detail-head">
+    <section className="detail-head" onContextMenu={onContextMenu}>
+      {element}
       <div className="detail-backdrop" aria-hidden="true">
         {backdrop && <img src={backdrop} alt="" />}
       </div>
@@ -86,13 +92,15 @@ export function Crew({ credits, libraryId }: { credits: Credit[]; libraryId: str
 /** The cast as a row of photos. */
 export function CastRow({ credits, libraryId }: { credits: Credit[]; libraryId: string }) {
   const cast = credits.filter((c) => c.role === 'cast').slice(0, 30);
+  const { openPerson, element } = usePersonMenu(libraryId);
   if (!cast.length) return null;
   return (
     <section className="detail-section">
+      {element}
       <h2 className="section-title">Cast</h2>
       <ul className="cast-row">
         {cast.map((c) => (
-          <li key={c.person_id + (c.character ?? '')}>
+          <li key={c.person_id + (c.character ?? '')} onContextMenu={(e) => openPerson(e, c)}>
             <Link to={`/person/${libraryId}/${c.person_id}`} className="cast-card">
               <span className="cast-photo">
                 {c.profile_url ? <img src={personImageUrl(libraryId, c.person_id)} alt="" loading="lazy" /> : <User size={26} strokeWidth={1.5} />}

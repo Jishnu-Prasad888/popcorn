@@ -16,7 +16,7 @@ info:
     name: Popcorn
     url: https://github.com/Jishnu-Prasad888/popcorn
 servers:
-  - url: http://127.0.0.1:8715/api/v1
+  - url: http://127.0.0.1:8045/api/v1
     description: Local default
 tags:
   - name: System

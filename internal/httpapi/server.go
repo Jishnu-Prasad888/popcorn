@@ -169,6 +169,7 @@ func (s *Server) Handler() http.Handler {
 	// Admin surface.
 	mux.Handle("GET /api/v1/users", s.withAuth(allowAdmin, s.handleListUsers))
 	mux.Handle("POST /api/v1/users", s.withAuth(allowAdmin, s.handleCreateUser))
+	mux.Handle("PATCH /api/v1/users/{id}", s.withAuth(allowAdmin, s.handleUpdateUser))
 	mux.Handle("POST /api/v1/users/{id}/sessions/revoke", s.withAuth(allowAdmin, s.handleRevokeUserSessions))
 
 	// Library surface. Listing is open to any session and filtered by the

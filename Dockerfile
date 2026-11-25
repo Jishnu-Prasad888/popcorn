@@ -44,9 +44,9 @@ RUN addgroup -S popcorn && adduser -S popcorn -G popcorn \
 COPY --from=build /out/popcorn /usr/local/bin/popcorn
 USER popcorn
 ENV POPCORN_DATA_DIR=/data
-ENV POPCORN_HTTP_ADDR=:8715
+ENV POPCORN_HTTP_ADDR=:8045
 VOLUME /data
-EXPOSE 8715
+EXPOSE 8045
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget -q -O /dev/null http://127.0.0.1:8715/api/v1/ready || exit 1
+  CMD wget -q -O /dev/null http://127.0.0.1:8045/api/v1/ready || exit 1
 ENTRYPOINT ["/usr/local/bin/popcorn"]

@@ -13,7 +13,7 @@ cd "$(dirname "$0")/.."
 
 IMAGE="popcorn:dev"
 CONTAINER="popcorn-dev"
-PORT="${POPCORN_PORT:-8715}"
+PORT="${POPCORN_PORT:-8045}"
 DATA_DIR="$(pwd)/popcorn-data"
 
 rm -rf "$DATA_DIR"
@@ -30,7 +30,7 @@ fi
 echo "==> Starting $CONTAINER on port $PORT"
 docker run -d \
   --name "$CONTAINER" \
-  -p "$PORT:8715" \
+  -p "$PORT:8045" \
   -v "$DATA_DIR:/data" \
   "$IMAGE" >/dev/null
 

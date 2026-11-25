@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowDown, ArrowUp, Copy, GripVertical, ImagePlus, Pencil, Play, Plus, Repeat, Repeat1, Shuffle, Trash2, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, Copy, GripVertical, ImagePlus, Pencil, Play, Plus, Repeat, Repeat1, Trash2, X } from 'lucide-react';
 
 import {
   collectionPosterUrl,
@@ -27,13 +27,13 @@ import {
   removeUserPoster,
   reorderCollection,
   reorderPlaylist,
-  shufflePlaylist,
   updateCollection,
   updatePlaylist,
   uploadUserPoster,
 } from '../api/media';
 import type { Card, PlaylistEntry } from '../api/media';
 import { useResource } from '../api/resources';
+import { CardMenuArea } from '../components/media/CardMenuArea';
 import { CardGrid, SignalBar } from '../components/media/Cards';
 import { CollectionTile } from '../components/media/CollectionTile';
 import { ConfirmDialog, Dialog } from '../components/Dialog';
@@ -164,6 +164,7 @@ function ReorderList<T>({ items, keyOf, render, onReorder }: { items: T[]; keyOf
 function ItemLine({ c, extra }: { c: Card; extra?: ReactNode }) {
   const img = c.type === 'episode' ? landscapeOf(c) : posterOf(c);
   return (
+    <CardMenuArea item={c}>
     <span className="item-line">
       <span className={`item-line-thumb ${c.type === 'episode' ? 'is-wide' : ''}`}>{img && <img src={img} alt="" loading="lazy" />}</span>
       <span className="item-line-text">
@@ -172,6 +173,7 @@ function ItemLine({ c, extra }: { c: Card; extra?: ReactNode }) {
         {extra}
       </span>
     </span>
+    </CardMenuArea>
   );
 }
 
@@ -239,7 +241,7 @@ export function CollectionsPage() {
           {res.data.collections.length > 0 ? (
             <div className="collection-grid">
               {res.data.collections.map((c) => (
-                <CollectionTile key={c.id} collection={c} />
+                <CollectionTile key={c.id} collection={c} onChanged={res.reload} />
               ))}
             </div>
           ) : (
@@ -253,7 +255,7 @@ export function CollectionsPage() {
           </h2>
           <div className="collection-grid">
             {res.data.smart.map((s) => (
-              <CollectionTile key={s.id} smart={s} />
+              <CollectionTile key={s.id} smart={s} onChanged={res.reload} />
             ))}
           </div>
         </>
@@ -288,14 +290,14 @@ export function CollectionDetailPage() {
   const smart = Boolean(col.smart);
   const poster = smart ? null : collectionPosterUrl(col);
 
-  const play = async (shuffle: boolean) => {
+  const play = async () => {
     try {
       const q = await collectionQueue(id);
       if (!q.queue.length) {
         toast({ message: 'Nothing in this collection can be played.' });
         return;
       }
-      const first = (shuffle ? q.queue[Math.floor(Math.random() * q.queue.length)] : q.queue[0])!;
+      const first = q.queue[0]!;
       navigate(`/play/${first.library_id}/${first.type}/${first.id}?queue=collection:${id}`);
     } catch (err) {
       toast({ message: errorMessage(err), tone: 'error' });
@@ -315,7 +317,7 @@ export function CollectionDetailPage() {
     <div className="page">
       <header className="list-hero">
         <div className="list-hero-art">
-          {poster ? <img src={poster} alt="" /> : <CollectionTile collection={{ ...col, covers: items.slice(0, 4) }} covers={items.slice(0, 4)} />}
+          {poster ? <img src={poster} alt="" /> : <CollectionTile collection={{ ...col, covers: items.slice(0, 4) }} covers={items.slice(0, 4)} onChanged={() => navigate('/collections')} />}
         </div>
         <div>
           <p className="detail-eyebrow">{smart ? 'Automatic collection' : 'Collection'}</p>
@@ -325,11 +327,8 @@ export function CollectionDetailPage() {
             {items.length} item{items.length === 1 ? '' : 's'}
           </p>
           <div className="detail-actions">
-            <button type="button" className="btn-play" onClick={() => void play(false)} disabled={!items.length}>
+            <button type="button" className="btn-play" onClick={() => void play()} disabled={!items.length}>
               <Play size={20} fill="currentColor" /> Play all
-            </button>
-            <button type="button" className="btn-ghost" onClick={() => void play(true)} disabled={!items.length}>
-              <Shuffle size={17} /> Shuffle
             </button>
             {!smart && (
               <>
@@ -452,7 +451,7 @@ export function PlaylistsPage() {
       {res.data && res.data.playlists.length > 0 && (
         <div className="collection-grid">
           {res.data.playlists.map((p) => (
-            <CollectionTile key={p.id} playlist={p} />
+            <CollectionTile key={p.id} playlist={p} onChanged={res.reload} />
           ))}
         </div>
       )}
@@ -506,7 +505,7 @@ export function PlaylistDetailPage() {
   return (
     <div className="page">
       <header className="list-hero">
-        <div className="list-hero-art">{poster ? <img src={poster} alt="" /> : <CollectionTile playlist={{ ...pl, covers: entries.map((e) => e.item).filter((c): c is Card => Boolean(c)).slice(0, 4) }} />}</div>
+        <div className="list-hero-art">{poster ? <img src={poster} alt="" /> : <CollectionTile playlist={{ ...pl, covers: entries.map((e) => e.item).filter((c): c is Card => Boolean(c)).slice(0, 4) }} onChanged={() => navigate('/playlists')} />}</div>
         <div>
           <p className="detail-eyebrow">Playlist</p>
           <h1 className="page-title">{pl.name}</h1>
@@ -518,21 +517,8 @@ export function PlaylistDetailPage() {
             <button type="button" className="btn-play" disabled={!resumeEntry} onClick={() => resumeEntry && playEntry(resumeEntry)}>
               <Play size={20} fill="currentColor" /> {pl.current_entry && resumeEntry?.entry_id === pl.current_entry ? 'Continue' : 'Play'}
             </button>
-            <button type="button" className="btn-round" aria-pressed={pl.shuffle} onClick={() => void patch({ shuffle: !pl.shuffle })} title={pl.shuffle ? 'Shuffle on' : 'Shuffle off'} aria-label="Shuffle">
-              <Shuffle size={18} />
-            </button>
             <button type="button" className="btn-round" aria-pressed={pl.repeat !== 'off'} onClick={() => void patch({ repeat: nextRepeat })} title={`Repeat: ${pl.repeat}`} aria-label={`Repeat ${pl.repeat}; switch to ${nextRepeat}`}>
               <RepeatIcon size={18} />
-            </button>
-            <button
-              type="button"
-              className="btn-ghost"
-              onClick={async () => {
-                await shufflePlaylist(id).catch(() => undefined);
-                res.reload();
-              }}
-            >
-              Shuffle order
             </button>
             <button type="button" className="btn-round" onClick={() => setEditing(true)} title="Rename" aria-label="Rename">
               <Pencil size={18} />

@@ -6,6 +6,7 @@ import { Info, Play, RotateCcw } from 'lucide-react';
 import { backdropOf, formatRuntime, itemPath, logoOf, playPath, progressOf, ratingOf } from '../../api/media';
 import type { Card } from '../../api/media';
 import { SignalBar } from './Cards';
+import { useCardMenu } from './CardMenu';
 
 /** The facts line under a title: year, runtime, rating, age rating, genres. */
 export function Facts({ c }: { c: Card }) {
@@ -58,6 +59,23 @@ export function Hero({ items }: { items: Card[] }) {
   }, [items.length, paused]);
 
   if (!c) return null;
+  return <HeroSlide c={c} items={items} index={index} setIndex={setIndex} setPaused={setPaused} />;
+}
+
+function HeroSlide({
+  c: item,
+  items,
+  index,
+  setIndex,
+  setPaused,
+}: {
+  c: Card;
+  items: Card[];
+  index: number;
+  setIndex: (i: number) => void;
+  setPaused: (p: boolean) => void;
+}) {
+  const { card: c, onContextMenu, element } = useCardMenu(item, { landscape: true });
   const backdrop = backdropOf(c);
   const logo = logoOf(c);
   const progress = progressOf(c);
@@ -65,6 +83,7 @@ export function Hero({ items }: { items: Card[] }) {
 
   return (
     <section
+      onContextMenu={onContextMenu}
       className="hero"
       aria-roledescription="carousel"
       aria-label="Featured"
@@ -73,6 +92,7 @@ export function Hero({ items }: { items: Card[] }) {
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
+      {element}
       <div className="hero-backdrop" key={c.library_id + c.id}>
         {backdrop && <img src={backdrop} alt="" />}
       </div>

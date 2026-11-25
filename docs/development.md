@@ -39,13 +39,13 @@ make dev          # go run with POPCORN_WEB_DIST=web/dist
 Terminal 1:
 
 ```sh
-make dev          # Go backend on :8715
+make dev          # Go backend on :8045
 ```
 
 Terminal 2:
 
 ```sh
-make web-dev      # Vite dev server on :5173, proxies /api to :8715
+make web-dev      # Vite dev server on :5173, proxies /api to :8045
 ```
 
 Open http://127.0.0.1:5173.

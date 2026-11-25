@@ -69,7 +69,7 @@ release-cross: ## Build release binaries without rebuilding the frontend (uses w
 dev: reset-data web-build ## Rebuild the frontend, wipe local dev data, and run the backend
 	@mkdir -p $(CURDIR)/web/dist
 	POPCORN_DATA_DIR=$(CURDIR)/popcorn-data \
-	POPCORN_HTTP_ADDR=127.0.0.1:8715 \
+	POPCORN_HTTP_ADDR=127.0.0.1:8045 \
 	POPCORN_WEB_DIST=$(CURDIR)/web/dist \
 	go run ./cmd/popcorn
 
@@ -79,7 +79,7 @@ web-install: ## Install frontend dependencies
 web-build: ## Build the frontend into web/dist
 	cd web && npm run build
 
-web-dev: ## Run the Vite dev server (proxies /api to :8715)
+web-dev: ## Run the Vite dev server (proxies /api to :8045)
 	cd web && npm run dev
 
 test: test-go test-web ## Run all tests

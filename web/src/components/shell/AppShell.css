@@ -59,8 +59,9 @@
   color: var(--dracula-pink);
 }
 
-.shell-drawer-close {
-  display: none;
+/* .shell prefix: outranks the global .icon-button display. */
+.shell .shell-drawer-close {
+  display: inline-grid;
 }
 
 .shell-nav {
@@ -186,9 +187,29 @@
   backdrop-filter: blur(14px);
 }
 
-.shell-menu,
+.shell .shell-menu,
 .shell-topbar-brand {
   display: none;
+}
+
+/* Wide screens: the sidebar collapses out of the layout. The show button
+   and the brand move into the top bar while it is hidden. */
+@media (min-width: 900px) {
+  .shell[data-collapsed='true'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .shell[data-collapsed='true'] .shell-sidebar {
+    display: none;
+  }
+
+  .shell[data-collapsed='true'] .shell-menu {
+    display: inline-grid;
+  }
+
+  .shell[data-collapsed='true'] .shell-topbar-brand {
+    display: inline-flex;
+  }
 }
 
 .shell-search {
@@ -271,9 +292,12 @@
     z-index: calc(var(--z-drawer) - 1);
   }
 
-  .shell-drawer-close,
-  .shell-menu {
+  .shell .shell-menu {
     display: inline-grid;
+  }
+
+  .shell[data-drawer='open'] .shell-menu {
+    visibility: hidden;
   }
 
   .shell-topbar-brand {

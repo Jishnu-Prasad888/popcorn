@@ -29,6 +29,7 @@ type userResponse struct {
 	ID        string    `json:"id"`
 	Username  string    `json:"username"`
 	Role      string    `json:"role"`
+	Enabled   bool      `json:"enabled"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -37,6 +38,7 @@ func toUserResponse(u *auth.User) userResponse {
 		ID:        u.ID,
 		Username:  u.Username,
 		Role:      string(u.Role),
+		Enabled:   u.Enabled,
 		CreatedAt: u.CreatedAt.UTC(),
 	}
 }
@@ -259,6 +261,37 @@ func (s *Server) handleCreateUser(w http.ResponseWriter, r *http.Request, _ *aut
 		return
 	}
 	writeJSON(w, s.logger, http.StatusCreated, map[string]any{"user": toUserResponse(user)})
+}
+
+// handleUpdateUser changes an account's role, password or whether it can
+// sign in. Admin only; an admin cannot disable or demote themselves, and the
+// last enabled admin cannot be disabled or demoted.
+func (s *Server) handleUpdateUser(w http.ResponseWriter, r *http.Request, actor *auth.User) {
+	var body struct {
+		Role     *string `json:"role"`
+		Password *string `json:"password"`
+		Enabled  *bool   `json:"enabled"`
+	}
+	if err := readJSON(w, r, &body); err != nil {
+		writeDomainError(w, s.logger, requestIDOrEmpty(r), err)
+		return
+	}
+	id := r.PathValue("id")
+	if id == actor.ID && ((body.Enabled != nil && !*body.Enabled) || (body.Role != nil && *body.Role != string(auth.RoleAdmin))) {
+		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusBadRequest, CodeBadRequest,
+			"You can't disable your own account or remove your own admin role. Ask another administrator.")
+		return
+	}
+	user, err := s.auth.UpdateUser(r.Context(), id, auth.UserPatch{Role: body.Role, Password: body.Password, Enabled: body.Enabled}, metaFrom(r))
+	if errors.Is(err, auth.ErrLastAdmin) {
+		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusConflict, CodeConflict, "Popcorn needs at least one enabled administrator.")
+		return
+	}
+	if err != nil {
+		s.writeAuthError(w, r, err)
+		return
+	}
+	writeJSON(w, s.logger, http.StatusOK, map[string]any{"user": toUserResponse(user)})
 }
 
 // handleRevokeUserSessions invalidates every session for a user. Admin only.

@@ -115,7 +115,9 @@ export function Menu({
     left = Math.min(Math.max(MARGIN, left), Math.max(MARGIN, vw - width - MARGIN));
     top = Math.min(Math.max(MARGIN, top), Math.max(MARGIN, vh - height - MARGIN));
     setPosition({ top, left });
-  }, [anchor, align]);
+    // Items can arrive after opening (a card's editor actions load on
+    // demand), so the panel is placed again when their number changes.
+  }, [anchor, align, items.length]);
 
   // Focus follows the active item.
   useEffect(() => {

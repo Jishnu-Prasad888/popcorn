@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ArrowDownWideNarrow, ArrowUpNarrowWide, LayoutGrid, List, Shuffle, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowDownWideNarrow, ArrowUpNarrowWide, LayoutGrid, List, X } from 'lucide-react';
 
-import { getFacets, listMovies, listShows, playPath } from '../api/media';
-import type { Card, Listing } from '../api/media';
+import { getFacets, listMovies, listShows } from '../api/media';
+import type { Listing } from '../api/media';
 import { useLibraries } from '../api/libraries';
 import { useResource } from '../api/resources';
 import { CardGrid, GridSkeleton } from '../components/media/Cards';
@@ -78,7 +77,6 @@ const FILTER_KEYS = ['genre', 'decade', 'year', 'min_rating', 'language', 'resol
 
 export default function BrowsePage({ type }: { type: 'movie' | 'show' }) {
   const [params, setParams] = useSearchParams();
-  const navigate = useNavigate();
   const { iface } = usePreferences();
   const { libraries } = useLibraries();
   const view = iface.view === 'list' ? 'list' : 'grid';
@@ -143,13 +141,6 @@ export default function BrowsePage({ type }: { type: 'movie' | 'show' }) {
     return [...new Set(ys.map((y) => Math.floor(y / 10) * 10))].sort((a, b) => b - a);
   }, [facets.data]);
 
-  const playRandom = () => {
-    const items = data?.items.filter((c: Card) => c.available) ?? [];
-    if (!items.length) return;
-    const pick = items[Math.floor(Math.random() * items.length)]!;
-    navigate(type === 'movie' ? playPath(pick) : `/show/${pick.library_id}/${pick.id}`);
-  };
-
   const sel = (key: string, label: string, options: [string, string][]) => (
     <select className="select" aria-label={label} value={params.get(key) ?? ''} onChange={(e) => set(key, e.target.value)} data-active={Boolean(params.get(key))}>
       {options.map(([v, l]) => (
@@ -174,9 +165,6 @@ export default function BrowsePage({ type }: { type: 'movie' | 'show' }) {
             {data ? `${data.total} ${type === 'movie' ? (data.total === 1 ? 'movie' : 'movies') : data.total === 1 ? 'show' : 'shows'}` : ' '}
           </p>
         </div>
-        <button type="button" className="btn-ghost" onClick={playRandom} disabled={!data?.total}>
-          <Shuffle size={17} /> {type === 'movie' ? 'Play something' : 'Pick a show'}
-        </button>
       </header>
 
       <div className="toolbar" role="toolbar" aria-label={`Filter and sort ${title.toLowerCase()}`}>

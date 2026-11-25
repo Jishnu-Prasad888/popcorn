@@ -156,29 +156,16 @@ describe('SetupPage', () => {
     expect(screen.queryByText('app home')).not.toBeInTheDocument();
   });
 
-  it('explains that an administrator creates accounts once one exists', async () => {
+  it('sends visitors to sign in once an account exists', async () => {
     mockFetch({});
     setup();
 
-    // The create-account button on the sign-in page must not dead-end here, so
-    // the page says who can create accounts instead of bouncing back.
-    expect(
-      await screen.findByRole('heading', { name: 'This server is already set up' }),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/created by its administrator/)).toBeInTheDocument();
+    // Sign-up is closed after the first account: only an administrator adds people.
+    expect(await screen.findByText('sign in page')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Create account' })).not.toBeInTheDocument();
   });
 
-  it('offers a way back to sign-in from the already-set-up notice', async () => {
-    mockFetch({});
-    setup();
-
-    fireEvent.click(await screen.findByRole('link', { name: 'Back to sign in' }));
-
-    expect(await screen.findByText('sign in page')).toBeInTheDocument();
-  });
-
-  it('hands over to the already-set-up notice when another browser created the first account', async () => {
+  it('sends people to sign in when another browser created the first account', async () => {
     mockFetch({
       bootstrapRequired: true,
       bootstrapError: { status: 409, message: 'The first account already exists.' },
@@ -189,9 +176,7 @@ describe('SetupPage', () => {
     fillForm('jishnu', 'correct-horse');
 
     // A 409 means bootstrap is closed, so the page must not sit on a dead form.
-    expect(
-      await screen.findByRole('heading', { name: 'This server is already set up' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('sign in page')).toBeInTheDocument();
   });
 
   it('sends an already signed-in visitor straight into the app', async () => {

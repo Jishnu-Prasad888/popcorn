@@ -10,7 +10,7 @@ statically linked binary.
 docker build -t popcorn .
 ```
 
-The image defaults to listening on `:8715` and stores data in `/data`. The
+The image defaults to listening on `:8045` and stores data in `/data`. The
 container runs as an unprivileged user (`popcorn`), and `/data` is writable by
 that user. Build metadata can be injected with build args:
 
@@ -28,22 +28,22 @@ docker build \
 docker run -d \
   --name popcorn \
   --restart unless-stopped \
-  -p 8715:8715 \
+  -p 8045:8045 \
   -v popcorn-data:/data \
-  -e POPCORN_HTTP_ADDR=:8715 \
+  -e POPCORN_HTTP_ADDR=:8045 \
   popcorn
 ```
 
 - `-v popcorn-data:/data` persists server data (the server database; schema
   migrations apply automatically on startup). The library metadata lives inside
   each library directory, not here.
-- `-e POPCORN_HTTP_ADDR=:8715` makes the container bind all interfaces inside the
+- `-e POPCORN_HTTP_ADDR=:8045` makes the container bind all interfaces inside the
   container's network namespace; the `-p` mapping controls exposure.
 - To reach a library on the host, mount it read-only into the container and
   register it by its in-container path at runtime:
 
   ```sh
-  docker run -d --name popcorn -p 8715:8715 \
+  docker run -d --name popcorn -p 8045:8045 \
     -v popcorn-data:/data \
     -v /mnt/photos:/libraries/photos:ro \
     popcorn

@@ -10,6 +10,7 @@ import { ItemActions } from '../components/media/ItemActions';
 import { ManageMenu } from '../components/manage/ManageDialogs';
 import { Dialog } from '../components/Dialog';
 import { ErrorState, LoadingState } from '../components/States';
+import { CardMenuArea } from '../components/media/CardMenuArea';
 import { useToast } from '../components/ui/Toast';
 import '../components/media/detail.css';
 
@@ -27,6 +28,7 @@ export default function EpisodeDetailPage() {
 
   return (
     <div className="detail">
+      <CardMenuArea item={e} onChanged={res.reload} landscape>
       <section className="detail-head">
         <div className="detail-backdrop" aria-hidden="true">
           {still && <img src={still} alt="" />}
@@ -91,6 +93,7 @@ export default function EpisodeDetailPage() {
           </nav>
         </div>
       </section>
+      </CardMenuArea>
       <div className="detail-body">
         <CastRow credits={e.credits ?? []} libraryId={e.library_id} />
         <TechInfo files={e.files} />

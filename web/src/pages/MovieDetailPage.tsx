@@ -32,6 +32,7 @@ export default function MovieDetailPage() {
     <div className="detail">
       <DetailHeader
         item={movie}
+        onChanged={res.reload}
         actions={
           <>
             {present.length === 0 ? (

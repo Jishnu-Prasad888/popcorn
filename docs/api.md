@@ -24,7 +24,7 @@ Area-specific references:
 ## Base URL
 
 ```
-http://<host>:8715/api/v1
+http://<host>:8045/api/v1
 ```
 
 Production deployments should put the API behind a TLS reverse proxy; see

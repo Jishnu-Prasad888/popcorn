@@ -46,7 +46,7 @@ TV/Dark/Season 01/Dark S01E01.mkv
 
 ```sh
 make build          # builds web/, embeds it, compiles bin/popcorn
-./bin/popcorn         # serves http://127.0.0.1:8715
+./bin/popcorn         # serves http://127.0.0.1:8045
 ```
 
 The server database and state live in `$XDG_DATA_HOME/popcorn`
@@ -71,7 +71,7 @@ The image already includes ffmpeg.
 docker build -t popcorn .
 docker run -d \
   --name popcorn \
-  -p 8715:8715 \
+  -p 8045:8045 \
   -v popcorn-data:/data \
   popcorn
 ```
@@ -99,7 +99,7 @@ All settings use the `POPCORN_` prefix.
 
 | Variable               | Default                            | Description                             |
 | ---------------------- | ---------------------------------- | --------------------------------------- |
-| `POPCORN_HTTP_ADDR`      | `127.0.0.1:8715`                   | HTTP listen address                     |
+| `POPCORN_HTTP_ADDR`      | `127.0.0.1:8045`                   | HTTP listen address                     |
 | `POPCORN_DATA_DIR`       | `$XDG_DATA_HOME/popcorn`             | Server-level data directory             |
 | `POPCORN_LOG_LEVEL`      | `info`                             | `debug`, `info`, `warn`, or `error`     |
 | `POPCORN_WEB_DIST`       | *(embedded frontend)*              | Serve an on-disk build instead (dev)    |
