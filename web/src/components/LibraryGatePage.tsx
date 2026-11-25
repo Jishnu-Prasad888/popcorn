@@ -12,7 +12,7 @@ import type { ReactNode } from 'react';
 import { useAuth } from '../auth/authContext';
 import { useLibraryGate } from '../api/libraries';
 import type { Library } from '../api/types';
-import { MediaGridSkeleton } from './media/MediaGrid';
+import { GridSkeleton } from './media/Cards';
 import { ErrorState, NoLibrariesState, PageHeader } from './States';
 
 export function LibraryGatePage({
@@ -36,7 +36,7 @@ export function LibraryGatePage({
     </main>
   );
 
-  if (gate.kind === 'loading') return frame(<MediaGridSkeleton />);
+  if (gate.kind === 'loading') return frame(<GridSkeleton />);
   if (gate.kind === 'error') {
     return frame(<ErrorState message={gate.message} title="Couldn't load your libraries" />);
   }

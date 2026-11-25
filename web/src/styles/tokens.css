@@ -1,442 +1,137 @@
 /**
- * Popcorn design tokens.
+ * Popcorn design tokens: Techno Dracula.
  *
- * Smooth pebbles, handmade clay, warm paper. Every color in the interface comes
- * from the palette below; components consume the semantic `--color-*` names and
- * never a raw hex value, so a theme is one block of declarations.
+ * The Dracula palette (purple, pink, cyan, green on a blue-grey night) with
+ * angular techno display type. Components use the semantic `--color-*` names,
+ * never raw hex values.
  *
- * Breakpoints cannot be custom properties (media queries do not read them), so
- * they are fixed here by convention and mirrored in `src/lib/breakpoints.ts`:
+ *   purple  primary actions, selection, the active route
+ *   pink    focus, playback progress, the live state
+ *   cyan    metadata, links, technical detail
+ *   green   watched, success, online
  *
- *   compact   < 600px   phones: bottom navigation, 3-column grid
- *   medium    < 900px   tablets: navigation drawer, fewer columns
- *   expanded  < 1200px  small laptops: persistent sidebar
- *   wide     >= 1200px  desktops
- *
- * Every media query in the app uses one of `max-width: 599px`, `899px`, or
- * `1199px` (or the matching `min-width` values) and nothing else.
+ * Breakpoints are fixed by convention and mirrored in `src/lib/breakpoints.ts`:
+ *   compact < 600px, medium < 900px, expanded < 1200px, wide >= 1200px.
  */
 
-:root,
-:root[data-theme='light'] {
-  color-scheme: light;
+:root {
+  color-scheme: dark;
 
-  /* ---------- palette (light) ---------- */
-  --color-background: #f7ede2;
-  --color-surface: #fff7ef;
-  --color-surface-elevated: #fffdfc;
+  /* ---------- Dracula ---------- */
+  --dracula-bg: #282a36;
+  --dracula-bg-deep: #21222c;
+  --dracula-bg-deeper: #191a21;
+  --dracula-line: #44475a;
+  --dracula-fg: #f8f8f2;
+  --dracula-comment: #6272a4;
+  --dracula-purple: #bd93f9;
+  --dracula-pink: #ff79c6;
+  --dracula-cyan: #8be9fd;
+  --dracula-green: #50fa7b;
+  --dracula-orange: #ffb86c;
+  --dracula-red: #ff5555;
+  --dracula-yellow: #f1fa8c;
 
-  --color-text-primary: #3d332d;
-  --color-text-secondary: #77675d;
-  --color-text-muted: #a59488;
+  /* ---------- semantic palette ---------- */
+  --color-background: var(--dracula-bg);
+  --color-surface: #2d2f3d;
+  --color-surface-elevated: #343746;
+  --color-shell: var(--dracula-bg-deep);
 
-  --color-border: #e8d5c5;
-  --color-border-subtle: #f0e4da;
+  --color-text-primary: var(--dracula-fg);
+  --color-text-secondary: #c7c9d9;
+  --color-text-muted: #8b95c1;
 
-  --color-primary: #c96f52;
-  --color-primary-hover: #b95f45;
+  --color-border: var(--dracula-line);
+  --color-border-subtle: #383a4a;
 
-  --color-accent: #e89a63;
-  --color-accent-soft: #f5c7a5;
+  --color-primary: var(--dracula-purple);
+  --color-primary-hover: #cba8fb;
+  --color-accent: var(--dracula-pink);
+  --color-accent-soft: color-mix(in srgb, var(--dracula-pink) 22%, var(--dracula-bg));
+  --color-info: var(--dracula-cyan);
 
-  --color-yellow: #e8be62;
-  --color-green: #8da878;
-  --color-blue: #82a9b8;
-  --color-pink: #d9908d;
+  --color-yellow: var(--dracula-yellow);
+  --color-green: var(--dracula-green);
+  --color-blue: var(--dracula-cyan);
+  --color-pink: var(--dracula-pink);
+  --color-orange: var(--dracula-orange);
 
-  --color-selection: #f3cdb4;
+  --color-selection: color-mix(in srgb, var(--dracula-purple) 35%, transparent);
 
-  --color-success: #7f9d72;
-  --color-warning: #d39a4e;
-  --color-danger: #c96a61;
+  --color-success: var(--dracula-green);
+  --color-warning: var(--dracula-orange);
+  --color-danger: var(--dracula-red);
 
   /* ---------- derived roles ---------- */
-  /* Text and icons drawn on a filled primary or danger surface. */
-  --color-on-primary: var(--color-surface-elevated);
-  /* Quiet fills for hover rows, inactive chips, and the search field. */
-  --color-fill-subtle: var(--color-border-subtle);
-  --color-fill-hover: color-mix(in srgb, var(--color-border) 55%, transparent);
-  /* The active navigation entry and selected chips. */
-  --color-fill-active: color-mix(in srgb, var(--color-accent-soft) 70%, var(--color-surface));
-  /* Dims the page behind dialogs and drawers. */
-  --color-scrim: color-mix(in srgb, var(--color-text-primary) 42%, transparent);
-  /* A soft highlight along the top edge of raised controls: the clay sheen. */
-  --color-sheen: color-mix(in srgb, var(--color-surface-elevated) 70%, transparent);
-  /* Status text on a tinted status background, legible in both themes. */
-  /* The brand terracotta as readable text: the palette's primary mixed toward
-     the text color until it reaches 4.5:1 on the warm backgrounds. */
-  /* Filled primary surfaces that carry text: the primary deepened just enough
-     for the light on-primary text to read at 4.5:1. */
-  --color-primary-strong: color-mix(in srgb, var(--color-primary) 78%, var(--color-text-primary));
-  --color-primary-strong-hover: color-mix(
-    in srgb,
-    var(--color-primary-hover) 78%,
-    var(--color-text-primary)
-  );
-  --color-primary-ink: color-mix(in srgb, var(--color-primary) 62%, var(--color-text-primary));
-  --color-primary-ink-hover: color-mix(
-    in srgb,
-    var(--color-primary-hover) 62%,
-    var(--color-text-primary)
-  );
-  --color-success-ink: color-mix(in srgb, var(--color-success) 38%, var(--color-text-primary));
-  --color-danger-ink: color-mix(in srgb, var(--color-danger) 80%, var(--color-text-primary));
-  --color-warning-ink: color-mix(in srgb, var(--color-warning) 70%, var(--color-text-primary));
+  --color-on-primary: var(--dracula-bg-deeper);
+  --color-fill-subtle: color-mix(in srgb, var(--dracula-line) 55%, transparent);
+  --color-fill-hover: color-mix(in srgb, var(--dracula-line) 80%, transparent);
+  --color-fill-active: color-mix(in srgb, var(--dracula-purple) 20%, var(--dracula-bg));
+  --color-scrim: color-mix(in srgb, var(--dracula-bg-deeper) 78%, transparent);
+  --color-sheen: transparent;
+  --color-primary-strong: var(--dracula-purple);
+  --color-primary-strong-hover: var(--color-primary-hover);
+  --color-primary-ink: var(--dracula-purple);
+  --color-primary-ink-hover: var(--color-primary-hover);
+  --color-success-ink: var(--dracula-green);
+  --color-danger-ink: #ff7b7b;
+  --color-warning-ink: var(--dracula-orange);
 
-  /* ---------- elevation ---------- */
-  --shadow-1: 0 1px 2px color-mix(in srgb, var(--color-text-primary) 8%, transparent);
-  --shadow-2:
-    0 1px 2px color-mix(in srgb, var(--color-text-primary) 6%, transparent),
-    0 4px 12px color-mix(in srgb, var(--color-text-primary) 9%, transparent);
+  /* Playback progress: the signal bar. */
+  --gradient-signal: linear-gradient(90deg, var(--dracula-purple), var(--dracula-pink));
+
+  /* ---------- elevation: glows, not shadows ---------- */
+  --shadow-1: 0 1px 0 var(--dracula-bg-deeper);
+  --shadow-2: 0 8px 24px color-mix(in srgb, var(--dracula-bg-deeper) 70%, transparent);
   --shadow-3:
-    0 2px 6px color-mix(in srgb, var(--color-text-primary) 8%, transparent),
-    0 12px 32px color-mix(in srgb, var(--color-text-primary) 16%, transparent);
-  /* Raised clay controls: a top highlight and a short contact shadow. */
-  --shadow-clay:
-    inset 0 1px 0 var(--color-sheen),
-    0 1px 2px color-mix(in srgb, var(--color-text-primary) 10%, transparent);
-}
+    0 0 0 1px var(--dracula-line),
+    0 24px 60px color-mix(in srgb, var(--dracula-bg-deeper) 85%, transparent);
+  --shadow-clay: none;
+  --shadow-popover: var(--shadow-3);
+  --glow-focus: 0 0 0 2px var(--dracula-bg), 0 0 0 4px var(--dracula-pink);
 
-/* Dark: deep clay and river stones at evening. Never pure black. */
-:root[data-theme='dark'] {
-  color-scheme: dark;
+  /* The player and other dark-stage surfaces. */
+  --viewer-background: #000;
+  --viewer-surface: color-mix(in srgb, var(--dracula-bg-deeper) 88%, transparent);
+  --viewer-ink: var(--dracula-fg);
+  --viewer-ink-muted: #c7c9d9;
+  --viewer-panel: var(--dracula-bg-deep);
+  --viewer-panel-raised: var(--dracula-bg);
+  --viewer-accent: var(--dracula-pink);
+  --viewer-accent-hover: #ff94d2;
+  --viewer-fill-active: color-mix(in srgb, var(--dracula-purple) 30%, transparent);
+  --viewer-danger: var(--dracula-red);
+  --viewer-line: color-mix(in srgb, var(--dracula-fg) 16%, transparent);
+  --viewer-fill: color-mix(in srgb, var(--dracula-fg) 10%, transparent);
+  --viewer-fill-hover: color-mix(in srgb, var(--dracula-fg) 20%, transparent);
 
-  --color-background: #29221f;
-  --color-surface: #352b27;
-  --color-surface-elevated: #40332e;
+  /* ---------- type ---------- */
+  --font-display: 'Chakra Petch', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-brand: var(--font-display);
+  --font-ui: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
 
-  --color-text-primary: #f5e8dc;
-  --color-text-secondary: #c5b3a5;
-  --color-text-muted: #907f74;
-
-  --color-border: #4c3d35;
-  --color-border-subtle: #40342f;
-
-  --color-primary: #e28a68;
-  --color-primary-hover: #ed9a76;
-
-  --color-accent: #f0aa70;
-  --color-accent-soft: #62443a;
-
-  --color-yellow: #e5bc68;
-  --color-green: #9caf86;
-  --color-blue: #88b0bc;
-  --color-pink: #d99792;
-
-  --color-selection: #5a4036;
-
-  --color-success: #91aa82;
-  --color-warning: #d6a45a;
-  --color-danger: #d77b70;
-
-  --color-on-primary: var(--color-background);
-  --color-fill-active: var(--color-accent-soft);
-  --color-scrim: color-mix(in srgb, #29221f 70%, transparent);
-  --color-sheen: color-mix(in srgb, var(--color-text-primary) 6%, transparent);
-  --color-primary-strong: var(--color-primary);
-  --color-primary-strong-hover: var(--color-primary-hover);
-  --color-primary-ink: var(--color-primary);
-  --color-primary-ink-hover: var(--color-primary-hover);
-  --color-success-ink: color-mix(in srgb, var(--color-success) 75%, var(--color-text-primary));
-  --color-danger-ink: color-mix(in srgb, var(--color-danger) 75%, var(--color-text-primary));
-  --color-warning-ink: var(--color-warning);
-
-  --shadow-1: 0 1px 2px color-mix(in srgb, #29221f 60%, transparent);
-  --shadow-2: 0 4px 12px color-mix(in srgb, #29221f 55%, transparent);
-  --shadow-3: 0 12px 32px color-mix(in srgb, #29221f 70%, transparent);
-  --shadow-clay:
-    inset 0 1px 0 var(--color-sheen), 0 1px 2px color-mix(in srgb, #29221f 60%, transparent);
-}
-
-/*
- * "System" removes the data-theme attribute, so the operating system decides.
- * This block repeats the dark declarations above for that case; keep the two
- * in step.
- */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    color-scheme: dark;
-
-    --color-background: #29221f;
-    --color-surface: #352b27;
-    --color-surface-elevated: #40332e;
-
-    --color-text-primary: #f5e8dc;
-    --color-text-secondary: #c5b3a5;
-    --color-text-muted: #907f74;
-
-    --color-border: #4c3d35;
-    --color-border-subtle: #40342f;
-
-    --color-primary: #e28a68;
-    --color-primary-hover: #ed9a76;
-
-    --color-accent: #f0aa70;
-    --color-accent-soft: #62443a;
-
-    --color-yellow: #e5bc68;
-    --color-green: #9caf86;
-    --color-blue: #88b0bc;
-    --color-pink: #d99792;
-
-    --color-selection: #5a4036;
-
-    --color-success: #91aa82;
-    --color-warning: #d6a45a;
-    --color-danger: #d77b70;
-
-    --color-on-primary: var(--color-background);
-    --color-fill-active: var(--color-accent-soft);
-    --color-scrim: color-mix(in srgb, #29221f 70%, transparent);
-    --color-sheen: color-mix(in srgb, var(--color-text-primary) 6%, transparent);
-    --color-primary-strong: var(--color-primary);
-    --color-primary-strong-hover: var(--color-primary-hover);
-    --color-primary-ink: var(--color-primary);
-    --color-primary-ink-hover: var(--color-primary-hover);
-    --color-success-ink: color-mix(in srgb, var(--color-success) 75%, var(--color-text-primary));
-    --color-danger-ink: color-mix(in srgb, var(--color-danger) 75%, var(--color-text-primary));
-    --color-warning-ink: var(--color-warning);
-
-    --shadow-1: 0 1px 2px color-mix(in srgb, #29221f 60%, transparent);
-    --shadow-2: 0 4px 12px color-mix(in srgb, #29221f 55%, transparent);
-    --shadow-3: 0 12px 32px color-mix(in srgb, #29221f 70%, transparent);
-    --shadow-clay:
-      inset 0 1px 0 var(--color-sheen), 0 1px 2px color-mix(in srgb, #29221f 60%, transparent);
-  }
-}
-
-/*
- * More themes. Each is only a palette: the derived roles above (ink, strong,
- * fills, shadows) are mixed from these same names, so they follow. A dark
- * theme also carries data-mode="dark", which swaps in the dark derivations.
- * The light/dark/system choice and these are one setting (lib/theme.ts).
- */
-:root[data-mode='dark'] {
-  color-scheme: dark;
-
-  --color-on-primary: var(--color-background);
-  --color-fill-active: var(--color-accent-soft);
-  --color-scrim: color-mix(in srgb, var(--color-background) 70%, transparent);
-  --color-sheen: color-mix(in srgb, var(--color-text-primary) 6%, transparent);
-  --color-primary-strong: var(--color-primary);
-  --color-primary-strong-hover: var(--color-primary-hover);
-  --color-primary-ink: var(--color-primary);
-  --color-primary-ink-hover: var(--color-primary-hover);
-  --color-success-ink: color-mix(in srgb, var(--color-success) 75%, var(--color-text-primary));
-  --color-danger-ink: color-mix(in srgb, var(--color-danger) 75%, var(--color-text-primary));
-  --color-warning-ink: var(--color-warning);
-
-  --shadow-1: 0 1px 2px color-mix(in srgb, var(--color-background) 60%, transparent);
-  --shadow-2: 0 4px 12px color-mix(in srgb, var(--color-background) 55%, transparent);
-  --shadow-3: 0 12px 32px color-mix(in srgb, var(--color-background) 70%, transparent);
-  --shadow-clay:
-    inset 0 1px 0 var(--color-sheen),
-    0 1px 2px color-mix(in srgb, var(--color-background) 60%, transparent);
-}
-
-/* Sage: moss, lichen and river-washed stone. */
-:root[data-theme='sage'] {
-  color-scheme: light;
-
-  --color-background: #eef1e8;
-  --color-surface: #f8faf3;
-  --color-surface-elevated: #fdfefb;
-  --color-text-primary: #2f3a2f;
-  --color-text-secondary: #5d6c5b;
-  --color-text-muted: #8f9c8b;
-  --color-border: #d6decd;
-  --color-border-subtle: #e4eadc;
-  --color-primary: #5f8a5a;
-  --color-primary-hover: #4f7a4b;
-  --color-accent: #8fb07a;
-  --color-accent-soft: #cfe0c0;
-  --color-yellow: #d9b85a;
-  --color-green: #7fa36d;
-  --color-blue: #7fa3b3;
-  --color-pink: #cf8f8a;
-  --color-selection: #d3e4c6;
-  --color-success: #6f9a62;
-  --color-warning: #c9944a;
-  --color-danger: #c0645a;
-}
-
-/* Slate: cool morning light on grey stone. */
-:root[data-theme='slate'] {
-  color-scheme: light;
-
-  --color-background: #eef1f5;
-  --color-surface: #f8fafc;
-  --color-surface-elevated: #ffffff;
-  --color-text-primary: #273142;
-  --color-text-secondary: #596476;
-  --color-text-muted: #8f99a9;
-  --color-border: #d5dbe5;
-  --color-border-subtle: #e3e8ef;
-  --color-primary: #4a72b0;
-  --color-primary-hover: #3d64a0;
-  --color-accent: #6f97cf;
-  --color-accent-soft: #c9d9f0;
-  --color-yellow: #d8b24f;
-  --color-green: #6f9e7f;
-  --color-blue: #5f93c2;
-  --color-pink: #cf8ba0;
-  --color-selection: #cddcf2;
-  --color-success: #5e9a72;
-  --color-warning: #c8903e;
-  --color-danger: #c25a5a;
-}
-
-/* Lavender: dusk-pale violet and soft heather. */
-:root[data-theme='lavender'] {
-  color-scheme: light;
-
-  --color-background: #f3eff7;
-  --color-surface: #fbf8fd;
-  --color-surface-elevated: #fffeff;
-  --color-text-primary: #352d42;
-  --color-text-secondary: #695e77;
-  --color-text-muted: #9f96ac;
-  --color-border: #e0d6ea;
-  --color-border-subtle: #ebe4f2;
-  --color-primary: #8a63b8;
-  --color-primary-hover: #7a53a8;
-  --color-accent: #b48fd8;
-  --color-accent-soft: #e2d1f2;
-  --color-yellow: #dcb85c;
-  --color-green: #84a682;
-  --color-blue: #7fa0c6;
-  --color-pink: #d38ba8;
-  --color-selection: #e4d4f4;
-  --color-success: #73a07a;
-  --color-warning: #cc9548;
-  --color-danger: #c45f6e;
-}
-
-/* Midnight: deep blue night, starlight text. */
-:root[data-theme='midnight'] {
-  --color-background: #161c2b;
-  --color-surface: #1f2738;
-  --color-surface-elevated: #283146;
-  --color-text-primary: #e6ecf7;
-  --color-text-secondary: #aab5c9;
-  --color-text-muted: #78849c;
-  --color-border: #334059;
-  --color-border-subtle: #2a3448;
-  --color-primary: #7aa2f7;
-  --color-primary-hover: #8fb2fa;
-  --color-accent: #9ab8f5;
-  --color-accent-soft: #2f4063;
-  --color-yellow: #e0c070;
-  --color-green: #8fc0a0;
-  --color-blue: #7fb0e0;
-  --color-pink: #e09ab5;
-  --color-selection: #33466b;
-  --color-success: #8fc29a;
-  --color-warning: #e0b060;
-  --color-danger: #e88388;
-}
-
-/* Forest: pine shade and fern under evening light. */
-:root[data-theme='forest'] {
-  --color-background: #18221c;
-  --color-surface: #202d25;
-  --color-surface-elevated: #29382f;
-  --color-text-primary: #e5efe6;
-  --color-text-secondary: #a9bdad;
-  --color-text-muted: #788f7e;
-  --color-border: #344a3c;
-  --color-border-subtle: #2b3d32;
-  --color-primary: #8cc08a;
-  --color-primary-hover: #9dcd9a;
-  --color-accent: #b0d28a;
-  --color-accent-soft: #34503b;
-  --color-yellow: #e0c46e;
-  --color-green: #8cc08a;
-  --color-blue: #86b4c0;
-  --color-pink: #dc9a98;
-  --color-selection: #3a5a42;
-  --color-success: #92c48f;
-  --color-warning: #dcae5e;
-  --color-danger: #e08478;
-}
-
-/* Graphite: neutral charcoal with a warm amber accent. */
-:root[data-theme='graphite'] {
-  --color-background: #1c1c1e;
-  --color-surface: #262628;
-  --color-surface-elevated: #303033;
-  --color-text-primary: #ececee;
-  --color-text-secondary: #b3b3b8;
-  --color-text-muted: #818188;
-  --color-border: #3a3a3e;
-  --color-border-subtle: #303034;
-  --color-primary: #d9a066;
-  --color-primary-hover: #e6b07a;
-  --color-accent: #e8b97f;
-  --color-accent-soft: #4a3d2e;
-  --color-yellow: #e3c46b;
-  --color-green: #9cbf8c;
-  --color-blue: #8db4d0;
-  --color-pink: #dc9aa0;
-  --color-selection: #4d4033;
-  --color-success: #98bf8a;
-  --color-warning: #dcae5e;
-  --color-danger: #e0807a;
-}
-
-/* Theme-independent tokens. */
-:root {
-  /* ---------- the viewer ----------
-   * Media is judged against a dark surround whatever the app theme, so the
-   * viewer always uses the dark palette. */
-  --viewer-background: #29221f;
-  --viewer-surface: color-mix(in srgb, #352b27 92%, transparent);
-  --viewer-ink: #f5e8dc;
-  --viewer-ink-muted: #c5b3a5;
-  --viewer-panel: #352b27;
-  --viewer-panel-raised: #40332e;
-  --viewer-accent: #e28a68;
-  --viewer-accent-hover: #ed9a76;
-  --viewer-fill-active: #62443a;
-  --viewer-danger: #d77b70;
-  --viewer-line: color-mix(in srgb, #f5e8dc 14%, transparent);
-  --viewer-fill: color-mix(in srgb, #f5e8dc 10%, transparent);
-  --viewer-fill-hover: color-mix(in srgb, #f5e8dc 20%, transparent);
-
-  /* Scrims laid over photos so light controls stay legible on any image. */
-  --media-scrim-top: linear-gradient(
-    to bottom,
-    color-mix(in srgb, #29221f 55%, transparent),
-    transparent
-  );
-  --media-scrim-bottom: linear-gradient(
-    to top,
-    color-mix(in srgb, #29221f 62%, transparent),
-    transparent
-  );
-  --media-ink: #fffdfc;
-
-  /* ---------- typography ---------- */
-  --font-brand: 'Handlee', cursive;
-  --font-ui: 'Fira Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-
+  /* A 1.25 modular scale from 14px. */
   --font-size-xs: 12px;
   --font-size-sm: 13px;
   --font-size-md: 14px;
   --font-size-lg: 16px;
   --font-size-xl: 20px;
-  --font-size-2xl: 24px;
-  --font-size-3xl: 30px;
+  --font-size-2xl: 25px;
+  --font-size-3xl: 31px;
+  --font-size-4xl: 44px;
+  --font-size-hero: clamp(40px, 6.4vw, 92px);
 
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 
-  --line-height-tight: 1.25;
-  --line-height-base: 1.5;
+  --line-height-tight: 1.15;
+  --line-height-base: 1.55;
 
-  /* ---------- spacing (4px grid) ---------- */
+  /* ---------- space ---------- */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -446,38 +141,34 @@
   --space-7: 48px;
   --space-8: 64px;
 
-  /* ---------- radii ----------
-   * Chosen by component type: media tiles `media`, chips and small controls
-   * `sm`, buttons and inputs `md`, panels and cards `lg`, dialogs and sheets
-   * `xl`. */
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  /* ---------- shape ---------- */
+  /* Small, crisp radii. Posters get a clipped corner instead (see media.css). */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
   --radius-pill: 999px;
-  --radius-media: var(--radius-xs);
+  --radius-media: var(--radius-sm);
+  --radius-1: var(--radius-sm);
+  --notch: 12px;
 
-  /* ---------- control sizes ---------- */
   --control-height-sm: 32px;
   --control-height-md: 40px;
   --control-height-lg: 48px;
   --icon-size-sm: 16px;
   --icon-size-md: 20px;
   --icon-size-lg: 24px;
-  /* The smallest comfortable touch target. */
   --touch-target: 44px;
 
   /* ---------- motion ---------- */
   --duration-fast: 120ms;
   --duration-base: 180ms;
-  --duration-slow: 220ms;
+  --duration-slow: 260ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
 
-  /* ---------- layering ----------
-   * Every z-index in the app is one of these. Dialogs sit above the viewer
-   * because the viewer opens them (rename, move, delete). */
+  /* ---------- layering ---------- */
   --z-base: 0;
   --z-raised: 1;
   --z-sticky: 100;
@@ -490,18 +181,45 @@
   --z-toast: 700;
 
   /* ---------- layout ---------- */
-  --sidebar-width: 256px;
-  --topbar-height: 64px;
+  --sidebar-width: 232px;
   --bottom-nav-height: 64px;
   --content-max-width: 1120px;
-  --content-gutter: var(--space-5);
-  /* The gap between media tiles. */
-  --media-gap: 4px;
+  --content-gutter: clamp(16px, 3.2vw, 48px);
+
+  /* Card sizing; the interface preferences scale it. */
+  --card-width: 168px;
+}
+
+:root[data-card-size='small'] {
+  --card-width: 132px;
+}
+
+:root[data-card-size='large'] {
+  --card-width: 208px;
+}
+
+:root[data-density='compact'] {
+  --space-5: 18px;
+  --space-6: 24px;
+  --space-7: 36px;
 }
 
 @media (max-width: 599px) {
   :root {
-    --content-gutter: var(--space-4);
-    --media-gap: 2px;
+    --card-width: 124px;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}
+
+:root[data-motion='reduced'] {
+  --duration-fast: 0ms;
+  --duration-base: 0ms;
+  --duration-slow: 0ms;
 }

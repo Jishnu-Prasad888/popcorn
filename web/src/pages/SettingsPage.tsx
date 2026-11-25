@@ -1,614 +1,302 @@
-/**
- * Settings — one page of quiet rows, grouped into sections.
- *
- * Every setting is a row: what it is, a sentence on what it does, and the
- * control. Sections are anchored (`/settings#appearance`) so a link can land
- * on one. Technical detail — versions, health, server tasks — lives at the end
- * under Advanced and About, available to the people who want it and out of
- * everyone else's way.
- */
+import { useState } from 'react';
+import type { ReactNode } from 'react';
+import { ArrowDown, ArrowUp, Plus, X } from 'lucide-react';
 
-import { type FormEvent, type ReactNode, useCallback, useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-
-import { useAuth } from '../auth/authContext';
-import { apiGet } from '../api/client';
-import { useResource } from '../api/resources';
-import { createUser, listUsers, revokeUserSessions } from '../api/queries';
-import type { HealthResponse, User, UserRole, VersionResponse } from '../api/types';
-import Brand from '../components/Brand';
-import { ConfirmDialog } from '../components/Dialog';
-import { useFfmpegAvailable } from '../api/ffmpeg';
-import { PageHeader } from '../components/States';
-import { Icon, type IconName } from '../components/ui/Icon';
+import type { PlaybackPrefs } from '../api/media';
+import { useToast } from '../components/ui/Toast';
+import { LoadingState } from '../components/States';
 import { Toggle } from '../components/ui/Toggle';
-import { formatDate } from '../lib/dates';
-import { MemorySettingsSection } from '../memories/MemorySettingsSection';
-import { THEMES, type ThemePreference, readStoredTheme, storeTheme } from '../lib/theme';
-import { type PhotoLayout, readPhotoLayout, storePhotoLayout } from '../lib/photoLayout';
-import { readTrashConfirm, storeTrashConfirm } from '../lib/trashConfirm';
+import { ACCENTS } from '../lib/theme';
+import { updateInterface, updatePlayback, usePreferences } from '../lib/preferences';
 import './SettingsPage.css';
 
-const THEME_OPTIONS: Array<{ value: ThemePreference; label: string; icon: IconName }> = [
-  { value: 'system', label: 'Match system', icon: 'monitor' },
-  { value: 'light', label: 'Light', icon: 'sun' },
-  { value: 'dark', label: 'Dark', icon: 'moon' },
+/** ISO 639-2 codes the server stores, with readable names. */
+const LANGUAGES: [string, string][] = [
+  ['eng', 'English'],
+  ['hin', 'Hindi'],
+  ['kan', 'Kannada'],
+  ['tam', 'Tamil'],
+  ['tel', 'Telugu'],
+  ['mal', 'Malayalam'],
+  ['mar', 'Marathi'],
+  ['ben', 'Bengali'],
+  ['jpn', 'Japanese'],
+  ['kor', 'Korean'],
+  ['chi', 'Chinese'],
+  ['spa', 'Spanish'],
+  ['fre', 'French'],
+  ['ger', 'German'],
+  ['ita', 'Italian'],
+  ['por', 'Portuguese'],
+  ['rus', 'Russian'],
+  ['ara', 'Arabic'],
+  ['tur', 'Turkish'],
+  ['tha', 'Thai'],
 ];
+const nameOf = (code: string) => LANGUAGES.find(([c]) => c === code)?.[1] ?? code;
 
-const PHOTO_LAYOUT_OPTIONS: Array<{ value: PhotoLayout; label: string; icon: IconName }> = [
-  { value: 'masonry', label: 'Masonry', icon: 'photo' },
-  { value: 'grid', label: 'Grid', icon: 'grid' },
-];
-
-function message(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
-
-function Section({
-  id,
-  title,
-  description,
-  children,
-}: {
-  id: string;
-  title: string;
-  description?: string;
-  children: ReactNode;
-}) {
+function Section({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
   return (
-    <section className="settings-section" id={id} aria-labelledby={`settings-${id}`}>
-      <div className="settings-section-head">
-        <h2 id={`settings-${id}`}>{title}</h2>
-        {description && <p className="settings-section-description">{description}</p>}
-      </div>
+    <section className="settings-section">
+      <header>
+        <h2>{title}</h2>
+        {hint && <p>{hint}</p>}
+      </header>
       <div className="settings-rows">{children}</div>
     </section>
   );
 }
 
-function Row({
-  title,
-  description,
-  children,
-}: {
-  title: ReactNode;
-  description?: ReactNode;
-  children?: ReactNode;
-}) {
+function SettingRow({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
-    <div className="settings-row">
-      <div className="settings-row-text">
-        <span className="settings-row-title">{title}</span>
-        {description && <span className="settings-row-description">{description}</span>}
+    <div className="setting-row">
+      <div className="setting-text">
+        <span className="setting-label">{label}</span>
+        {hint && <span className="setting-hint">{hint}</span>}
       </div>
-      {children && <div className="settings-row-control">{children}</div>}
+      <div className="setting-control">{children}</div>
     </div>
   );
 }
 
-/** A row that goes somewhere else: the whole row is the link. */
-function LinkRow({
-  to,
-  icon,
-  title,
-  description,
-}: {
-  to: string;
-  icon: IconName;
-  title: string;
-  description: string;
-}) {
+function Choice<T extends string>({ value, options, onChange, label }: { value: T; options: [T, string][]; onChange: (v: T) => void; label: string }) {
   return (
-    <Link to={to} className="settings-row settings-link-row">
-      <Icon name={icon} className="settings-row-icon" />
-      <div className="settings-row-text">
-        <span className="settings-row-title">{title}</span>
-        <span className="settings-row-description">{description}</span>
-      </div>
-      <Icon name="chevron-right" className="settings-row-chevron" />
-    </Link>
+    <span className="seg" role="radiogroup" aria-label={label}>
+      {options.map(([v, l]) => (
+        <button key={v} type="button" role="radio" aria-checked={value === v} aria-pressed={value === v} onClick={() => onChange(v)}>
+          {l}
+        </button>
+      ))}
+    </span>
   );
 }
 
+/** An ordered list of languages: first match wins. */
+function LanguageList({ value, onChange, label }: { value: string[]; onChange: (v: string[]) => void; label: string }) {
+  const [adding, setAdding] = useState('');
+  const move = (i: number, d: number) => {
+    const next = [...value];
+    const [x] = next.splice(i, 1);
+    next.splice(i + d, 0, x!);
+    onChange(next);
+  };
+  return (
+    <div className="lang-list">
+      <ol aria-label={label}>
+        {value.map((l, i) => (
+          <li key={l}>
+            <span className="lang-rank">{i + 1}</span>
+            <span className="lang-name">{nameOf(l)}</span>
+            <button type="button" className="icon-button" disabled={i === 0} onClick={() => move(i, -1)} aria-label={`Move ${nameOf(l)} up`}>
+              <ArrowUp size={15} />
+            </button>
+            <button type="button" className="icon-button" disabled={i === value.length - 1} onClick={() => move(i, 1)} aria-label={`Move ${nameOf(l)} down`}>
+              <ArrowDown size={15} />
+            </button>
+            <button type="button" className="icon-button" onClick={() => onChange(value.filter((x) => x !== l))} aria-label={`Remove ${nameOf(l)}`}>
+              <X size={15} />
+            </button>
+          </li>
+        ))}
+      </ol>
+      <div className="lang-add">
+        <select className="select" value={adding} onChange={(e) => setAdding(e.target.value)} aria-label={`Add a language to ${label.toLowerCase()}`}>
+          <option value="">Add a language…</option>
+          {LANGUAGES.filter(([c]) => !value.includes(c)).map(([c, n]) => (
+            <option key={c} value={c}>
+              {n}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          className="button button-sm"
+          disabled={!adding}
+          onClick={() => {
+            onChange([...value, adding]);
+            setAdding('');
+          }}
+        >
+          <Plus size={15} /> Add
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const HOME_ROWS: [string, string][] = [
+  ['continue', 'Continue Watching'],
+  ['next_up', 'Next Up'],
+  ['recent_movies', 'Recently added movies'],
+  ['recent_shows', 'New episodes'],
+  ['watchlist', 'Your watchlist'],
+  ['because', 'Because you watched'],
+  ['top_rated', 'Top rated'],
+  ['collections', 'Your collections'],
+];
+
 export default function SettingsPage() {
-  const ffmpeg = useFfmpegAvailable();
-  const { user, logout } = useAuth();
-  const isAdmin = user?.role === 'admin';
-  const { hash } = useLocation();
+  const { playback, iface, loaded } = usePreferences();
+  const toast = useToast();
 
-  // Arriving from the settings search (or a link) at /settings#section.
-  useEffect(() => {
-    if (!hash) return;
-    document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' });
-  }, [hash]);
+  if (!loaded || !playback) return <div className="page"><LoadingState /></div>;
 
-  const [theme, setTheme] = useState<ThemePreference>(() => readStoredTheme());
-  const [photoLayout, setPhotoLayout] = useState<PhotoLayout>(() => readPhotoLayout());
-  const [trashConfirm, setTrashConfirm] = useState(() => readTrashConfirm());
-
-  const users = useResource<User[]>(
-    useCallback(async () => (await listUsers()).users ?? [], []),
-    [],
-    isAdmin,
-  );
-
-  const server = useResource(
-    useCallback(async () => {
-      const [health, version] = await Promise.all([
-        apiGet<HealthResponse>('/health'),
-        apiGet<VersionResponse>('/version'),
-      ]);
-      return { health, version };
-    }, []),
-  );
-
-  const [revoking, setRevoking] = useState<User | null>(null);
-  const [revokeBusy, setRevokeBusy] = useState(false);
-  const [revokeError, setRevokeError] = useState<string | null>(null);
-
-  const [newUsername, setNewUsername] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [newRole, setNewRole] = useState<UserRole>('user');
-  const [createBusy, setCreateBusy] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
-  const [created, setCreated] = useState<string | null>(null);
-
-  const onThemeChange = (next: ThemePreference) => {
-    setTheme(next);
-    storeTheme(next);
+  const set = (patch: Partial<PlaybackPrefs>) => {
+    updatePlayback(patch).catch((err: unknown) => toast({ message: err instanceof Error ? err.message : 'Could not save.', tone: 'error' }));
   };
-
-  const onPhotoLayoutChange = (next: PhotoLayout) => {
-    setPhotoLayout(next);
-    storePhotoLayout(next);
+  const hidden = new Set(iface.home_rows.filter((r) => r.startsWith('-')).map((r) => r.slice(1)));
+  const toggleRow = (id: string, on: boolean) => {
+    const next = new Set(hidden);
+    if (on) next.delete(id);
+    else next.add(id);
+    void updateInterface({ home_rows: [...next].map((r) => `-${r}`) });
   };
-
-  const onTrashConfirmChange = (next: boolean) => {
-    setTrashConfirm(next);
-    storeTrashConfirm(next);
-  };
-
-  const confirmRevoke = () => {
-    if (!revoking) return;
-    setRevokeBusy(true);
-    setRevokeError(null);
-    revokeUserSessions(revoking.id)
-      .then(() => {
-        setRevoking(null);
-        users.reload();
-      })
-      .catch((e: unknown) => setRevokeError(message(e)))
-      .finally(() => setRevokeBusy(false));
-  };
-
-  const create = (event: FormEvent) => {
-    event.preventDefault();
-    const name = newUsername.trim();
-    if (name === '' || newPassword === '') {
-      setCreateError('Enter a username and a password.');
-      return;
-    }
-    setCreateBusy(true);
-    setCreateError(null);
-    setCreated(null);
-    createUser({ username: name, password: newPassword, role: newRole })
-      .then((resp) => {
-        setCreated(`Created ${resp.user.username}.`);
-        setNewUsername('');
-        setNewPassword('');
-        setNewRole('user');
-        users.reload();
-      })
-      .catch((e: unknown) => setCreateError(message(e)))
-      .finally(() => setCreateBusy(false));
-  };
-
-  const sections: Array<{ id: string; label: string }> = [
-    { id: 'account', label: 'Account' },
-    { id: 'appearance', label: 'Appearance' },
-    { id: 'library', label: 'Library' },
-    { id: 'memories', label: 'Memories' },
-    ...(isAdmin
-      ? [
-          { id: 'accounts', label: 'Accounts' },
-          { id: 'advanced', label: 'Advanced' },
-        ]
-      : [{ id: 'access', label: 'Access' }]),
-    { id: 'about', label: 'About' },
-  ];
 
   return (
-    <main className="page page-narrow settings-page">
-      <PageHeader title="Settings" />
-      {ffmpeg === false && (
-        <p className="settings-warning" role="alert" data-testid="ffmpeg-warning">
-          ffmpeg is not installed on the server, so some video thumbnails will not appear. Install
-          ffmpeg and restart Popcorn.
-        </p>
-      )}
-
-      <div className="settings-layout">
-        <nav className="settings-nav" aria-label="Settings sections">
-          {sections.map((s) => (
-            <a key={s.id} href={`#${s.id}`}>
-              {s.label}
-            </a>
-          ))}
-        </nav>
-
-        <div className="settings-content">
-          <Section id="account" title="Account">
-            <div className="settings-row settings-account">
-              <span className="settings-avatar" aria-hidden="true">
-                {(user?.username ?? '?').slice(0, 1).toUpperCase()}
-              </span>
-              <div className="settings-row-text">
-                <span className="settings-row-title">{user?.username}</span>
-                <span className="settings-row-description">
-                  <span className="settings-role" data-role={user?.role}>
-                    {user?.role === 'admin' ? 'Administrator' : 'Member'}
-                  </span>
-                  {user && <> · Joined {formatDate(user.created_at)}</>}
-                </span>
-              </div>
-              <div className="settings-row-control">
-                <button type="button" className="button" onClick={() => void logout()}>
-                  <Icon name="logout" />
-                  Sign out
-                </button>
-              </div>
-            </div>
-          </Section>
-
-          <Section id="appearance" title="Appearance">
-            <Row
-              title="Theme"
-              description="Match your device, or always use the light or dark look — or pick a colour theme below."
-            >
-              <div className="segmented settings-themes" role="radiogroup" aria-label="Theme">
-                {THEME_OPTIONS.map((option) => (
-                  <label
-                    key={option.value}
-                    className={theme === option.value ? 'segmented-item active' : 'segmented-item'}
-                  >
-                    <input
-                      type="radio"
-                      name="theme"
-                      className="visually-hidden"
-                      value={option.value}
-                      checked={theme === option.value}
-                      onChange={() => onThemeChange(option.value)}
-                    />
-                    <Icon name={option.icon} />
-                    <span>{option.label}</span>
-                  </label>
-                ))}
-              </div>
-            </Row>
-            <Row
-              title="Colour theme"
-              description="A different palette for the whole app. Photos are always viewed on a dark surround."
-            >
-              <div className="theme-swatches" role="radiogroup" aria-label="Colour theme">
-                {THEMES.filter((t) => t.id !== 'light' && t.id !== 'dark').map((t) => (
-                  <label
-                    key={t.id}
-                    className={theme === t.id ? 'theme-swatch active' : 'theme-swatch'}
-                    data-testid={`theme-${t.id}`}
-                  >
-                    <input
-                      type="radio"
-                      name="theme"
-                      className="visually-hidden"
-                      value={t.id}
-                      checked={theme === t.id}
-                      onChange={() => onThemeChange(t.id)}
-                    />
-                    <span
-                      className="theme-swatch-preview"
-                      aria-hidden="true"
-                      style={{ background: t.swatch[0] }}
-                    >
-                      <span style={{ background: t.swatch[1] }} />
-                      <span style={{ background: t.swatch[2] }} />
-                      <span style={{ background: t.swatch[3] }} />
-                    </span>
-                    <span className="theme-swatch-label">
-                      {t.label}
-                      <span className="theme-swatch-mode">
-                        {t.mode === 'dark' ? 'Dark' : 'Light'}
-                      </span>
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </Row>
-            <Row
-              title="Photos layout"
-              description="A waterfall of varied tile sizes, or the uniform square grid Videos and Files use."
-            >
-              <div
-                className="segmented settings-themes"
-                role="radiogroup"
-                aria-label="Photos layout"
-              >
-                {PHOTO_LAYOUT_OPTIONS.map((option) => (
-                  <label
-                    key={option.value}
-                    className={
-                      photoLayout === option.value ? 'segmented-item active' : 'segmented-item'
-                    }
-                  >
-                    <input
-                      type="radio"
-                      name="photo-layout"
-                      className="visually-hidden"
-                      value={option.value}
-                      checked={photoLayout === option.value}
-                      onChange={() => onPhotoLayoutChange(option.value)}
-                    />
-                    <Icon name={option.icon} />
-                    <span>{option.label}</span>
-                  </label>
-                ))}
-              </div>
-            </Row>
-          </Section>
-
-          <Section id="files" title="Files">
-            <Row
-              title="Confirm before moving to trash"
-              description="Ask before files go to the trash. Deleting forever always asks. Remembered on this device."
-            >
-              <Toggle
-                checked={trashConfirm}
-                onChange={onTrashConfirmChange}
-                label="Confirm before moving to trash"
-                hideLabel
-                testId="settings-trash-confirm"
-              />
-            </Row>
-          </Section>
-
-          <Section id="library" title="Library" description="These act on your current library.">
-            <LinkRow
-              to="/tags"
-              icon="tag"
-              title="Tags"
-              description="Labels you apply to media, and browsing by them."
-            />
-            <LinkRow
-              to="/shared"
-              icon="share"
-              title="Sharing"
-              description="Links you've shared, and who can open them."
-            />
-            <LinkRow
-              to="/duplicates"
-              icon="copy"
-              title="Duplicates"
-              description="Files with identical contents, and which to keep."
-            />
-            <LinkRow
-              to="/trash"
-              icon="trash"
-              title="Trash"
-              description="Removed files waiting to be restored or deleted."
-            />
-          </Section>
-
-          <MemorySettingsSection />
-
-          {isAdmin ? (
-            <>
-              <Section id="accounts" title="Accounts" description="Who can sign in to Popcorn.">
-                {users.error && (
-                  <p className="error-text" role="alert">
-                    {users.error}
-                  </p>
-                )}
-                {users.loading && !users.error && <p className="muted">Loading accounts…</p>}
-                {users.data !== null && users.data.length > 0 && (
-                  <ul className="settings-user-list" data-testid="settings-user-list">
-                    {users.data.map((row) => (
-                      <li key={row.id} className="settings-row">
-                        <span className="settings-avatar settings-avatar-sm" aria-hidden="true">
-                          {row.username.slice(0, 1).toUpperCase()}
-                        </span>
-                        <div className="settings-row-text">
-                          <span className="settings-row-title">
-                            {row.username}
-                            {row.id === user?.id && <span className="muted"> (you)</span>}
-                          </span>
-                          <span className="settings-row-description">
-                            <span className="settings-role" data-role={row.role}>
-                              {row.role === 'admin' ? 'Administrator' : 'Member'}
-                            </span>{' '}
-                            · Joined {formatDate(row.created_at)}
-                          </span>
-                        </div>
-                        <div className="settings-row-control">
-                          <button
-                            type="button"
-                            className="button ghost-button"
-                            onClick={() => {
-                              setRevokeError(null);
-                              setRevoking(row);
-                            }}
-                          >
-                            Revoke sessions
-                          </button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <form className="settings-create" onSubmit={(e) => void create(e)}>
-                  <h3>Add an account</h3>
-                  <div className="settings-create-fields">
-                    <label className="field">
-                      <span className="field-label">Username</span>
-                      <input
-                        type="text"
-                        aria-label="New username"
-                        value={newUsername}
-                        onChange={(e) => setNewUsername(e.target.value)}
-                        disabled={createBusy}
-                      />
-                    </label>
-                    <label className="field">
-                      <span className="field-label">Password</span>
-                      <input
-                        type="password"
-                        aria-label="New password"
-                        autoComplete="new-password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        disabled={createBusy}
-                      />
-                    </label>
-                    <label className="field">
-                      <span className="field-label">Role</span>
-                      <select
-                        aria-label="New account role"
-                        value={newRole}
-                        onChange={(e) => setNewRole(e.target.value as UserRole)}
-                        disabled={createBusy}
-                      >
-                        <option value="user">Member</option>
-                        <option value="admin">Administrator</option>
-                      </select>
-                    </label>
-                    <button type="submit" className="button primary-button" disabled={createBusy}>
-                      {createBusy ? 'Creating…' : 'Create account'}
-                    </button>
-                  </div>
-                  {createError && (
-                    <p className="error-text" role="alert">
-                      {createError}
-                    </p>
-                  )}
-                  {created && (
-                    <p className="settings-created" role="status">
-                      {created}
-                    </p>
-                  )}
-                </form>
-              </Section>
-
-              <Section
-                id="advanced"
-                title="Advanced"
-                description="Server-wide tasks for administrators."
-              >
-                <LinkRow
-                  to="/libraries"
-                  icon="drive"
-                  title="Libraries"
-                  description="Add, reconnect, re-index, and remove storage."
-                />
-                <LinkRow
-                  to="/permissions"
-                  icon="lock"
-                  title="Permissions"
-                  description="Who can see, change, and share each library."
-                />
-                <LinkRow
-                  to="/ml"
-                  icon="spark"
-                  title="Machine learning"
-                  description="Similar-photo search and face grouping."
-                />
-                <LinkRow
-                  to="/backups"
-                  icon="archive"
-                  title="Backups"
-                  description="Take, verify, and restore snapshots of Popcorn's data."
-                />
-              </Section>
-            </>
-          ) : (
-            <Section id="access" title="Access">
-              <Row
-                title="Your access"
-                description="You can browse and organize the libraries shared with you. Managing libraries is for administrators."
-              />
-            </Section>
-          )}
-
-          <Section id="about" title="About">
-            <Row title={<Brand>Popcorn</Brand>} description="Your personal media library." />
-            {server.loading && <Row title="Server" description="Checking…" />}
-            {server.error && (
-              <Row title="Server" description={<span className="error-text">{server.error}</span>}>
-                <button type="button" className="button" onClick={server.reload}>
-                  Retry
-                </button>
-              </Row>
-            )}
-            {server.data && (
-              <>
-                <Row
-                  title="Server"
-                  description={
-                    server.data.health.status === 'ok'
-                      ? 'Running normally'
-                      : 'Running, with problems'
-                  }
-                >
-                  <span
-                    className={
-                      server.data.health.status === 'ok'
-                        ? 'status-badge status-badge-online'
-                        : 'status-badge status-badge-warning'
-                    }
-                  >
-                    {server.data.health.status === 'ok' ? 'Healthy' : 'Degraded'}
-                  </span>
-                </Row>
-                <dl className="settings-facts">
-                  <div>
-                    <dt>Version</dt>
-                    <dd>{server.data.version.version}</dd>
-                  </div>
-                  <div>
-                    <dt>Commit</dt>
-                    <dd>{server.data.version.commit}</dd>
-                  </div>
-                  <div>
-                    <dt>Database</dt>
-                    <dd>{server.data.health.database}</dd>
-                  </div>
-                  {server.data.version.platform && (
-                    <div>
-                      <dt>Platform</dt>
-                      <dd>{server.data.version.platform}</dd>
-                    </div>
-                  )}
-                </dl>
-              </>
-            )}
-          </Section>
+    <div className="page settings-page">
+      <header className="page-head">
+        <div>
+          <h1 className="page-title">Settings</h1>
+          <p className="page-count">These are yours: other people on this server have their own. Changes save as you make them.</p>
         </div>
-      </div>
+      </header>
 
-      <ConfirmDialog
-        open={revoking !== null}
-        title="Sign this account out everywhere?"
-        confirmLabel="Revoke sessions"
-        busy={revokeBusy}
-        error={revokeError}
-        message={
-          <p>
-            <strong>{revoking?.username}</strong> will be signed out of every device and browser.
-            They will need to sign in again.
-          </p>
-        }
-        onCancel={() => setRevoking(null)}
-        onConfirm={confirmRevoke}
-        testId="revoke-sessions-dialog"
-      />
-    </main>
+      <Section title="Languages" hint="When a title has several audio or subtitle tracks, the first language in your list that the title has is chosen.">
+        <SettingRow label="Audio languages" hint="In order of preference.">
+          <LanguageList label="Audio languages" value={playback.audio_languages} onChange={(v) => set({ audio_languages: v })} />
+        </SettingRow>
+        <SettingRow label="Prefer the original language" hint="Play a film in its own language (Japanese anime, Korean drama) when the file has it, ahead of your list.">
+          <Toggle label="Prefer the original language" hideLabel checked={playback.prefer_original_audio} onChange={(v) => set({ prefer_original_audio: v })} />
+        </SettingRow>
+        <SettingRow label="Subtitle languages">
+          <LanguageList label="Subtitle languages" value={playback.subtitle_languages} onChange={(v) => set({ subtitle_languages: v })} />
+        </SettingRow>
+        <SettingRow label="When to show subtitles">
+          <select className="select" value={playback.subtitle_mode} onChange={(e) => set({ subtitle_mode: e.target.value })} aria-label="When to show subtitles">
+            <option value="auto">When the audio isn't in one of my languages</option>
+            <option value="always">Always</option>
+            <option value="forced">Only forced (signs and foreign lines)</option>
+            <option value="off">Never</option>
+          </select>
+        </SettingRow>
+        <SettingRow label="Prefer SDH subtitles" hint="Subtitles for the deaf and hard of hearing, which also describe sounds.">
+          <Toggle label="Prefer SDH subtitles" hideLabel checked={playback.prefer_sdh} onChange={(v) => set({ prefer_sdh: v })} />
+        </SettingRow>
+      </Section>
+
+      <Section title="Episodes">
+        <SettingRow label="Play the next episode automatically">
+          <Toggle label="Play the next episode automatically" hideLabel checked={playback.autoplay_next} onChange={(v) => set({ autoplay_next: v })} />
+        </SettingRow>
+        <SettingRow label="Countdown before the next episode">
+          <select className="select" value={playback.next_countdown} onChange={(e) => set({ next_countdown: Number(e.target.value) })} aria-label="Countdown before the next episode">
+            {[5, 10, 15, 20, 30].map((s) => (
+              <option key={s} value={s}>
+                {s} seconds
+              </option>
+            ))}
+          </select>
+        </SettingRow>
+        <SettingRow label="Skip intros" hint="Uses intro markers from chapters, or ones set on the episode.">
+          <Choice label="Skip intros" value={playback.skip_intro} options={[['button', 'Show a button'], ['auto', 'Automatically'], ['off', 'Never']]} onChange={(v) => set({ skip_intro: v })} />
+        </SettingRow>
+        <SettingRow label="Skip credits">
+          <Choice label="Skip credits" value={playback.skip_credits} options={[['button', 'Show a button'], ['auto', 'Automatically'], ['off', 'Never']]} onChange={(v) => set({ skip_credits: v })} />
+        </SettingRow>
+      </Section>
+
+      <Section title="Playback">
+        <SettingRow label="Quality" hint="Anything below Original is transcoded by the server.">
+          <select className="select" value={playback.quality} onChange={(e) => set({ quality: e.target.value })} aria-label="Quality">
+            <option value="original">Original</option>
+            <option value="2160p">4K</option>
+            <option value="1080p">1080p</option>
+            <option value="720p">720p</option>
+            <option value="480p">480p</option>
+          </select>
+        </SettingRow>
+        <SettingRow label="Bitrate limit" hint="For slow connections. Files above it are transcoded down.">
+          <select className="select" value={playback.max_bitrate} onChange={(e) => set({ max_bitrate: Number(e.target.value) })} aria-label="Bitrate limit">
+            <option value={0}>No limit</option>
+            <option value={40000}>40 Mb/s</option>
+            <option value={20000}>20 Mb/s</option>
+            <option value={8000}>8 Mb/s</option>
+            <option value={4000}>4 Mb/s</option>
+            <option value={2000}>2 Mb/s</option>
+          </select>
+        </SettingRow>
+        <SettingRow label="Default speed">
+          <select className="select" value={playback.speed} onChange={(e) => set({ speed: Number(e.target.value) })} aria-label="Default speed">
+            {[0.75, 1, 1.25, 1.5, 2].map((s) => (
+              <option key={s} value={s}>
+                {s === 1 ? 'Normal' : `${s}×`}
+              </option>
+            ))}
+          </select>
+        </SettingRow>
+        <SettingRow label="Skip back and forward">
+          <span className="inline-controls">
+            <select className="select" value={playback.skip_backward} onChange={(e) => set({ skip_backward: Number(e.target.value) })} aria-label="Skip back">
+              {[5, 10, 15, 30].map((s) => (
+                <option key={s} value={s}>
+                  Back {s} s
+                </option>
+              ))}
+            </select>
+            <select className="select" value={playback.skip_forward} onChange={(e) => set({ skip_forward: Number(e.target.value) })} aria-label="Skip forward">
+              {[10, 15, 30, 60].map((s) => (
+                <option key={s} value={s}>
+                  Forward {s} s
+                </option>
+              ))}
+            </select>
+          </span>
+        </SettingRow>
+        <SettingRow label="Surround pass-through" hint="Only if this device sends audio to a receiver that decodes these formats. Otherwise they are converted to AAC.">
+          <span className="inline-controls">
+            {['ac3', 'eac3', 'dts', 'truehd'].map((c) => (
+              <label key={c} className="check">
+                <input
+                  type="checkbox"
+                  checked={playback.passthrough.includes(c)}
+                  onChange={(e) => set({ passthrough: e.target.checked ? [...playback.passthrough, c] : playback.passthrough.filter((x) => x !== c) })}
+                />
+                {{ ac3: 'Dolby Digital', eac3: 'Dolby Digital+', dts: 'DTS', truehd: 'TrueHD' }[c]}
+              </label>
+            ))}
+          </span>
+        </SettingRow>
+      </Section>
+
+      <Section title="Appearance">
+        <SettingRow label="Accent">
+          <span className="accent-swatches" role="radiogroup" aria-label="Accent">
+            {Object.entries(ACCENTS).map(([name, hex]) => (
+              <button key={name} type="button" role="radio" aria-checked={iface.accent === name} aria-label={name} style={{ background: hex }} onClick={() => void updateInterface({ accent: name })} />
+            ))}
+          </span>
+        </SettingRow>
+        <SettingRow label="Card size">
+          <Choice label="Card size" value={iface.card_size} options={[['small', 'Small'], ['medium', 'Medium'], ['large', 'Large']]} onChange={(v) => void updateInterface({ card_size: v })} />
+        </SettingRow>
+        <SettingRow label="Density">
+          <Choice label="Density" value={iface.density} options={[['compact', 'Compact'], ['comfortable', 'Comfortable']]} onChange={(v) => void updateInterface({ density: v })} />
+        </SettingRow>
+        <SettingRow label="Library view">
+          <Choice label="Library view" value={iface.view} options={[['grid', 'Grid'], ['list', 'List']]} onChange={(v) => void updateInterface({ view: v })} />
+        </SettingRow>
+        <SettingRow label="Reduce motion" hint="Turns off zooms, fades and the rotating home banner.">
+          <Toggle label="Reduce motion" hideLabel checked={iface.motion === 'reduced'} onChange={(v) => void updateInterface({ motion: v ? 'reduced' : 'full' })} />
+        </SettingRow>
+      </Section>
+
+      <Section title="Home page" hint="Choose which rows appear on Home.">
+        {HOME_ROWS.map(([id, label]) => (
+          <SettingRow key={id} label={label}>
+            <Toggle label={label} hideLabel checked={!hidden.has(id)} onChange={(v) => toggleRow(id, v)} />
+          </SettingRow>
+        ))}
+      </Section>
+    </div>
   );
 }

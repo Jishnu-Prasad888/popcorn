@@ -113,8 +113,8 @@ export interface DirListing {
 export const browseServerDirs = (path?: string) =>
   apiGet<DirListing>(path ? `/fs/dirs?path=${encodeURIComponent(path)}` : '/fs/dirs');
 
-export const registerLibrary = (path: string, name?: string) =>
-  apiPost<LibraryCreateResponse>('/libraries', name ? { path, name } : { path });
+export const registerLibrary = (path: string, name?: string, kind?: string) =>
+  apiPost<LibraryCreateResponse>('/libraries', { path, ...(name ? { name } : {}), ...(kind ? { kind } : {}) });
 
 /** Re-check connectivity, or reconnect the library at a new path. */
 export const refreshLibrary = (id: string, path?: string) =>

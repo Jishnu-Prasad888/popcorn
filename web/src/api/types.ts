@@ -44,11 +44,15 @@ export type LibraryStatus = 'online' | 'offline';
  * A registered storage location. `root` is the last known absolute path and
  * may be stale while the library is offline; identity always follows `id`.
  */
+export type LibraryKind = 'movies' | 'shows' | 'mixed';
+
 export interface Library {
   id: string;
   name: string;
   root: string;
   status: LibraryStatus;
+  /** movies, shows or mixed. */
+  kind?: LibraryKind | undefined;
   volume_id?: string;
   schema_version: number;
   created_at: string;

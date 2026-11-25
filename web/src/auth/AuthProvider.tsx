@@ -2,8 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { apiGet, apiPost } from '../api/client';
-import { clearListingCache } from '../components/media/useFileListing';
-import { forgetScrollPositions } from '../components/media/useScrollMemory';
+import { clearResourceCache } from '../api/resources';
 import type { AuthStatusResponse, User } from '../api/types';
 import { type AuthState, AuthContext } from './authContext';
 
@@ -21,8 +20,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   // was signed in; a different account (or none) starts clean.
   const userId = user?.id;
   useEffect(() => {
-    clearListingCache();
-    forgetScrollPositions();
+    clearResourceCache();
   }, [userId]);
 
   useEffect(() => {

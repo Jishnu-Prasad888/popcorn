@@ -1,42 +1,44 @@
 # Popcorn
 
-> A small, beautiful, personal digital place that quietly organizes everything you want to keep.
+> Your own movie and TV server: point it at your folders and watch anywhere in the house.
 
-Popcorn is a self-hosted personal media, file, and memory server. It brings together
-ideas from Google Photos, Google Drive, Obsidian, and personal digital archives into
-one calm, self-hosted application.
+Popcorn is a self-hosted movie and TV media server, a single Go binary with a
+web player. It catalogs films and series where they already live, fetches
+posters, plots, cast and ratings from TMDB (with IMDb ratings through OMDb),
+and streams to any browser, converting with ffmpeg only when the browser needs it.
 
-The most important architectural idea:
+> **Popcorn catalogs your media *in place*. It never copies, moves, recompresses
+> or rewrites your files.** Its catalog, artwork and edits live in a `.popcorn/`
+> folder inside each library, so a drive can move to another machine with them.
 
-> **Popcorn catalogs and manages existing media *in place*. It never copies, moves,
-> recompresses, or rewrites your original files.**
+## What it does
 
-Your filesystem is the source of truth for actual media files. Point Popcorn at a
-directory full of years of photos and videos and it indexes them where they are.
+- **Movies and TV.** Movie libraries with filters (genre, year, rating,
+  resolution, language, watched) and sorts; shows broken into seasons and
+  episodes, with Next Up and Continue Watching.
+- **Metadata.** TMDB matching with manual Identify, field locking so your edits
+  survive a refresh, artwork upload or replacement, and episode thumbnails taken
+  from the video.
+- **Player.** Direct play when the browser can handle the file, remux or
+  transcode when it can't. It has resume, speed, skip intro and credits, a
+  next-episode countdown, quality choice, stream info, picture-in-picture and
+  keyboard shortcuts (press `?` in the player).
+- **Subtitles and audio.** Embedded and sidecar subtitles, uploads, forced and
+  SDH tracks, delay, and styling. Image subtitles (PGS, VobSub) are burned in.
+  Audio tracks follow each person's preferred languages.
+- **Your stuff.** Watchlist, favourites, history, collections (yours plus
+  automatic ones) and playlists with shuffle and repeat. Every account has its
+  own progress and preferences.
+- **Server.** Multiple users and per-library permissions, library stats, live
+  streams, duplicate and unplaced-file reports, and encrypted backups.
 
-## Current status
+## Naming your files
 
-v1.0 — feature-complete. Phases 0–22 are merged to `main` (see
-[docs/roadmap.md](docs/roadmap.md)), including storage libraries, the
-incremental indexer, media processing, file browsing, search, memories,
-albums/tags, resource-based authorization, sharing, backups, optional local ML,
-face recognition, duplicate detection, and the web file-browser + organization
-UI.
-
-The foundation is in place:
-
-- Go API server with clean package boundaries
-- SQLite with WAL, migrations, and a pure-Go driver (cross-compiles without CGO)
-- Embedded React + TypeScript frontend (built into a single binary)
-- Health, version, and authentication endpoints with consistent JSON error
-  envelopes and request IDs
-- User accounts (argon2id password hashing), HTTP-only session cookies,
-  Admin/User roles, and audit logging
-- Configuration via environment variables
-- Build system (`Makefile`), container image, and CI
-- Documentation and architecture decision records
-
-See [docs/roadmap.md](docs/roadmap.md) for the full plan.
+```text
+Movies/Heat (1995)/Heat (1995).mkv
+Movies/Heat (1995)/Heat (1995).en.srt
+TV/Dark/Season 01/Dark S01E01.mkv
+```
 
 ## Quick start
 
@@ -53,11 +55,11 @@ The server database and state live in `$XDG_DATA_HOME/popcorn`
 ### Requirements
 
 - Go and Node (to build from source).
-- **ffmpeg** (recommended): Popcorn uses it to make video thumbnails, and AVIF
-  and HEIC photo thumbnails (HEIC needs ffmpeg 7.1 or newer). Without it,
-  the browser has to decode each video itself, which fails for formats it
-  cannot play (for example HEVC/x265 `.mkv`), and those videos show no
-  preview. Install it with `sudo apt install ffmpeg` (Debian/Ubuntu),
+- **ffmpeg and ffprobe** (strongly recommended). ffprobe reads durations,
+  codecs and tracks; ffmpeg remuxes and transcodes files the browser can't play
+  directly (most `.mkv`, HEVC, DTS and TrueHD audio, image subtitles) and makes
+  episode thumbnails. Without them, only browser-friendly MP4/WebM files play.
+  Install it with `sudo apt install ffmpeg` (Debian/Ubuntu),
   `brew install ffmpeg` (macOS) or your platform's package manager, and make
   sure it is on `PATH` for the server. Popcorn warns in the app when it is missing.
 
@@ -84,31 +86,12 @@ make web-dev        # in another terminal: Vite dev server with /api proxy
 
 See [docs/development.md](docs/development.md) for details.
 
-### Video timeline preview
+### Metadata
 
-Rest the pointer on a video's timeline for a second and a small frame preview
-appears above it. It runs entirely in the browser (a second, muted copy of the
-video seeks to the hovered time); the server is not involved. Things you may
-notice:
-
-- **No preview for some videos.** It needs a format the browser can decode. If
-  the browser cannot show the video's picture (HEVC/x265 on most Linux
-  browsers, some exotic `.mkv` codecs), the preview never appears. The video
-  may still play with sound only.
-- **The time is approximate.** The seek bar is the browser's own control, so
-  Popcorn estimates where it is from the pointer position. Chrome, Firefox and
-  Safari lay it out slightly differently, so the previewed frame can be off by
-  a few seconds and the popup may show when you are not exactly on the bar.
-- **Fullscreen.** It works in Popcorn's fullscreen (the viewer's full-screen
-  button or `F`). The browser's own native video fullscreen button covers the
-  page, so no preview is shown there.
-- **No preview on touch screens.** Phones and tablets have no hover.
-- **A short delay.** The preview waits one second, then needs time to seek:
-  typically 0.1–0.5 s, but a second or more for videos with long gaps between
-  keyframes or whose index sits at the end of the file (some phone and
-  screen-recording clips), because the browser must fetch more data first.
-- **Extra data.** A second connection to the video is opened the first time you
-  hover the timeline, so it reads more of the file while previewing.
+Get a free TMDB API key at <https://www.themoviedb.org/settings/api> and, for
+IMDb ratings, an OMDb key at <https://www.omdbapi.com/apikey.aspx>. Enter them
+under **Server → Metadata providers**, or set `POPCORN_TMDB_API_KEY` and
+`POPCORN_OMDB_API_KEY`.
 
 ## Configuration
 
@@ -126,66 +109,13 @@ All settings use the `POPCORN_` prefix.
 | `POPCORN_BACKUP_INTERVAL_MIN` | `0`                            | Starting backup interval in minutes (`0` = manual only); the Backups page also offers daily/weekly schedules and size triggers |
 | `POPCORN_BACKUP_PASSPHRASE`| *(disabled)*                     | Encrypts backups (needed for restore/verify) |
 | `POPCORN_ENCRYPTION_PASSPHRASE` | *(disabled)*            | Encrypts Popcorn's on-disk metadata (.popcorn identity + thumbnails) at rest |
-| `POPCORN_MEDIA_WORKERS`  | *half the CPUs, 1–4*               | Files per library processed at once for thumbnails and metadata |
-| `POPCORN_ML_ENABLED`      | `false`                           | Enable local ML similarity search           |
-| `POPCORN_ML_SIMILARITY`   | `true`                            | Run a similarity pass when ML is enabled    |
-| `POPCORN_ML_WORKERS`      | `2`                               | Bounded concurrency for the similarity pass |
-| `POPCORN_ML_DISTANCE_THRESHOLD` | `10`                        | Hamming distance for flagging near-duplicates |
-| `POPCORN_ML_FACE_DETECTOR_MODEL` | *(data dir)/models/face-detector.onnx* | Path to the SCRFD face-detector ONNX model. Download via the ML settings page. |
-| `POPCORN_ML_FACE_DETECTOR_URL` | *(InsightFace buffalo_l det_2.5g)* | URL to fetch the SCRFD detector from; override for a mirror or a different model size. |
-| `POPCORN_ML_FACE_MODEL`   | *(data dir)/models/face-recognition.onnx* | Path to the ArcFace R50 recognition ONNX model. Download via the ML settings page. |
-| `POPCORN_ML_FACE_MODEL_URL` | *(InsightFace buffalo_l w600k_r50)* | URL to fetch the ArcFace recognizer from; override for a mirror. |
-
-## Repository layout
-
-```text
-cmd/popcorn/             entrypoint
-internal/
-  audit/               security event (audit) logging
-  auth/                users, passwords, sessions, roles
-  config/              environment configuration
-  db/                  SQLite, pragmas, schema migrations
-  httpapi/             HTTP API v1 and request middleware
-  logging/             structured logging
-  version/             build metadata
-  webui/               embedded single-page app server
-web/                   React + TypeScript frontend
-docs/                  architecture, API, operations documentation
-```
-
-## API
-
-The API is REST/JSON under `/api/v1`. It covers health, version, and the
-authentication lifecycle (bootstrap, login, logout, current user, and admin
-user management). The complete contract is maintained in
-[docs/openapi.yaml](docs/openapi.yaml), with prose in [docs/api.md](docs/api.md).
-A future client (React Native, desktop, CLI) can be built against the documented
-API without reading Go source.
-
-## Documentation
-
-- [Architecture](docs/architecture.md)
-- [Development](docs/development.md)
-- [API](docs/api.md)
-- [Authentication](docs/authentication.md)
-- [Security](docs/security.md)
-- [Storage model](docs/storage.md)
-- [Libraries](docs/libraries.md)
-- [Media](docs/media.md)
-- [Search](docs/search.md)
-- [Memories](docs/memories.md)
-- [Permissions](docs/permissions.md)
-- [Sharing](docs/sharing.md)
-- [Mobile development](docs/mobile-development.md)
-- [Database](docs/database.md)
-- [Indexing](docs/indexing.md)
-- [Installation](docs/installation.md)
-- [Deployment](docs/deployment.md)
-- [Docker](docs/docker.md)
-- [Roadmap](docs/roadmap.md)
-- Architecture decision records in [docs/adr](docs/adr)
-
-## License
-
-Not yet decided. Reviewers should choose an open-source license before public
+| `POPCORN_MEDIA_WORKERS`  | *half the CPUs, 1–4*               | Files per library probed and matched at once |
+| `POPCORN_TMDB_API_KEY`   | *(none)*                           | TMDB key; can also be set in the app |
+| `POPCORN_OMDB_API_KEY`   | *(none)*                           | OMDb key for IMDb ratings (optional) |
+| `POPCORN_METADATA_LANGUAGE` | `en-US`                         | Language for titles and plots |
+| `POPCORN_METADATA_REGION` | `US`                              | Region for release dates and age ratings |
+| `POPCORN_MAX_TRANSCODES` | `3`                                | Conversions that may run at once |
+| `POPCORN_VIDEO_ENCODER`  | `libx264`                          | `libx264`, `h264_nvenc`, `h264_qsv` or `h264_vaapi` |
+| `POPCORN_TRANSCODE_PRESET` | `veryfast`                       | x264 preset for software transcodes |
+| `POPCORN_HW_DEVICE`      | *(none)*                           | Device for VAAPI, e.g. `/dev/dri/renderD128` |
 release.

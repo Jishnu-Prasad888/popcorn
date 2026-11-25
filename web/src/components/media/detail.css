@@ -1,0 +1,552 @@
+.detail-head {
+  position: relative;
+  margin-top: -64px;
+  padding-top: clamp(120px, 26vh, 260px);
+  isolation: isolate;
+}
+
+.detail-backdrop {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: min(78vh, 760px);
+  z-index: -1;
+  overflow: hidden;
+}
+
+.detail-backdrop img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  opacity: 0.55;
+}
+
+.detail-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, var(--color-background) 8%, color-mix(in srgb, var(--color-background) 55%, transparent) 55%, color-mix(in srgb, var(--color-background) 35%, transparent)),
+    linear-gradient(90deg, var(--color-background), transparent 70%);
+}
+
+.detail-head-inner {
+  display: grid;
+  grid-template-columns: minmax(160px, 260px) minmax(0, 1fr);
+  gap: clamp(var(--space-5), 4vw, var(--space-7));
+  align-items: end;
+  padding: 0 var(--content-gutter);
+}
+
+.detail-poster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--dracula-fg) 10%, transparent),
+    0 30px 70px rgb(0 0 0 / 0.55);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+}
+
+.detail-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.detail-main {
+  min-width: 0;
+  padding-bottom: var(--space-2);
+}
+
+.detail-eyebrow {
+  margin-bottom: var(--space-2);
+  color: var(--dracula-cyan);
+  font-weight: var(--font-weight-medium);
+}
+
+.detail-eyebrow a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.detail-eyebrow a:hover {
+  text-decoration: underline;
+}
+
+.detail-title {
+  margin: 0 0 var(--space-3);
+  font-size: clamp(34px, 5vw, var(--font-size-4xl) * 1.4);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.detail-logo {
+  display: block;
+  max-width: min(420px, 90%);
+  max-height: 140px;
+  object-fit: contain;
+  object-position: left bottom;
+  margin-bottom: var(--space-4);
+}
+
+.detail-original {
+  margin: -6px 0 var(--space-3);
+  color: var(--color-text-muted);
+}
+
+.detail-tagline {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  color: var(--dracula-pink);
+}
+
+.detail-overview {
+  max-width: 70ch;
+  margin: 0 0 var(--space-5);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-lg);
+  line-height: 1.6;
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.detail-body {
+  padding: 0 var(--content-gutter);
+}
+
+.detail-section {
+  margin-top: var(--space-7);
+}
+
+.section-title {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-xl);
+}
+
+.crew {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-7);
+  margin: var(--space-5) 0 0;
+}
+
+.crew dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.crew dd {
+  margin: 2px 0 0;
+}
+
+.crew a {
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.crew a:hover {
+  color: var(--dracula-cyan);
+}
+
+/* ---------- cast ---------- */
+
+.cast-row {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 var(--space-2);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 116px;
+  gap: var(--space-4);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.cast-card {
+  display: grid;
+  gap: 2px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.cast-photo {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+  border: 2px solid transparent;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.cast-card:hover .cast-photo,
+.cast-card:focus-visible .cast-photo {
+  border-color: var(--dracula-purple);
+}
+
+.cast-card:focus-visible {
+  outline: none;
+}
+
+.cast-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cast-name {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  line-height: 1.3;
+}
+
+.cast-character {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: 1.3;
+}
+
+/* ---------- technical info ---------- */
+
+.tech-files {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.tech-file {
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-border-subtle);
+  border-left: 3px solid var(--dracula-cyan);
+  border-radius: var(--radius-md);
+  background: var(--color-shell);
+}
+
+.tech-file[data-missing='true'] {
+  border-left-color: var(--dracula-orange);
+}
+
+.tech-file header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: baseline;
+  margin-bottom: var(--space-3);
+}
+
+.tech-missing {
+  color: var(--dracula-orange);
+  font-size: var(--font-size-sm);
+}
+
+.tech-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.tech-streams {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 0;
+}
+
+.tech-streams > div {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.tech-streams dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.tech-streams dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-5);
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.tech-path {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs) !important;
+  color: var(--color-text-muted);
+  word-break: break-all;
+}
+
+/* ---------- seasons and episodes ---------- */
+
+.season-tabs {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+  scrollbar-width: none;
+}
+
+.season-tab {
+  position: relative;
+  flex: none;
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.season-tab:hover {
+  color: var(--color-text-primary);
+}
+
+.season-tab[aria-selected='true'] {
+  color: var(--color-text-primary);
+}
+
+.season-tab[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: -1px;
+  height: 3px;
+  background: var(--gradient-signal);
+}
+
+.season-tab:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--dracula-pink);
+}
+
+.season-tab-done {
+  margin-left: 6px;
+  color: var(--dracula-green);
+}
+
+.season-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.season-summary p {
+  margin: 0;
+  max-width: 70ch;
+  color: var(--color-text-secondary);
+}
+
+.episode-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.episode-row {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr) auto;
+  gap: var(--space-5);
+  align-items: start;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.episode-row:hover {
+  background: var(--color-shell);
+}
+
+.episode-still {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.episode-still img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.episode-still .landscape-signal {
+  position: absolute;
+}
+
+.episode-still:focus-visible {
+  outline: none;
+  box-shadow: var(--glow-focus);
+}
+
+.episode-still:hover .landscape-play,
+.episode-still:focus-visible .landscape-play {
+  opacity: 1;
+}
+
+.episode-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: var(--space-1) 0;
+}
+
+.episode-number {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
+  color: var(--dracula-purple);
+  font-variant-numeric: tabular-nums;
+}
+
+.episode-title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-family: var(--font-ui);
+  font-weight: var(--font-weight-semibold);
+}
+
+.episode-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.episode-title a:hover {
+  color: var(--color-primary);
+}
+
+.episode-meta {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.episode-overview {
+  margin: 0;
+  max-width: 72ch;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.episode-side {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.episode-side .icon-button[aria-pressed='true'] {
+  color: var(--dracula-green);
+}
+
+.next-up {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  color: var(--color-text-secondary);
+}
+
+.next-up strong {
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 899px) {
+  .detail-head-inner {
+    grid-template-columns: 140px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .episode-row {
+    grid-template-columns: 160px minmax(0, 1fr);
+  }
+
+  .episode-side {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 599px) {
+  .detail-head {
+    padding-top: 160px;
+  }
+
+  .detail-head-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .detail-poster {
+    width: 120px;
+  }
+
+  .detail-overview {
+    font-size: var(--font-size-md);
+  }
+
+  .episode-row {
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .episode-overview {
+    grid-column: 1 / -1;
+  }
+}
+
+.version-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.plain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+  color: var(--color-text-secondary);
+}
+
+.reorder-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.reorder-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-shell);
+}

@@ -22,7 +22,7 @@ import {
   triggerIndex,
   unregisterLibrary,
 } from '../api/queries';
-import type { IndexStatus, Library, LibraryProbe } from '../api/types';
+import type { IndexStatus, Library, LibraryKind, LibraryProbe } from '../api/types';
 import { useAuth } from '../auth/authContext';
 import { ConfirmDialog, Dialog } from '../components/Dialog';
 import IgnoreRulesDialog from '../components/IgnoreRulesDialog';
@@ -86,6 +86,7 @@ function AddLibraryDialog({ onClose }: { onClose: () => void }) {
   const { refresh, selectLibrary } = useLibraries();
   const [path, setPath] = useState('');
   const [name, setName] = useState('');
+  const [kind, setKind] = useState<LibraryKind>('mixed');
   // Until the person types a name of their own, the library is named after its
   // folder.
   const [nameTouched, setNameTouched] = useState(false);
@@ -123,7 +124,7 @@ function AddLibraryDialog({ onClose }: { onClose: () => void }) {
     setBusy(true);
     setError(null);
     try {
-      const resp = await registerLibrary(target, name.trim() || undefined);
+      const resp = await registerLibrary(target, name.trim() || undefined, kind);
       refresh();
       selectLibrary(resp.library.id);
       onClose();
@@ -181,7 +182,7 @@ function AddLibraryDialog({ onClose }: { onClose: () => void }) {
               className="library-input"
               value={path}
               onChange={(e) => choosePath(e.target.value)}
-              placeholder="/mnt/photos"
+              placeholder="/mnt/media/movies"
               autoFocus
               data-testid="library-path-input"
             />
@@ -225,9 +226,21 @@ function AddLibraryDialog({ onClose }: { onClose: () => void }) {
               setName(e.target.value);
               setNameTouched(true);
             }}
-            placeholder="Photos"
+            placeholder="Movies"
           />
-          <p className="library-hint">Filled in from the folder name — change it if you like.</p>
+          <p className="library-hint">Filled in from the folder name. Change it if you like.</p>
+        </div>
+
+        <div className="library-field">
+          <label htmlFor="library-kind">What's in it</label>
+          <select id="library-kind" className="library-input" value={kind} onChange={(e) => setKind(e.target.value as LibraryKind)}>
+            <option value="mixed">Movies and TV shows</option>
+            <option value="movies">Movies</option>
+            <option value="shows">TV shows</option>
+          </select>
+          <p className="library-hint">
+            With both, folders named like “Show/Season 1” become shows and the rest become movies.
+          </p>
         </div>
 
         {described && (
@@ -241,7 +254,7 @@ function AddLibraryDialog({ onClose }: { onClose: () => void }) {
             ))}
             {probe?.has_metadata && (
               <p className="muted">
-                Its tags, albums, faces, and memories travel with the library, so it can be
+                Its catalog, artwork and metadata edits travel with the library, so it can be
                 unplugged and reopened on another machine.
               </p>
             )}
@@ -318,7 +331,7 @@ function ReconnectDialog({ library, onClose }: { library: Library; onClose: () =
             className="library-input"
             value={path}
             onChange={(e) => setPath(e.target.value)}
-            placeholder="/media/backup-drive/Photos"
+            placeholder="/media/backup-drive/Movies"
             data-testid="reconnect-path-input"
           />
         </label>
@@ -555,7 +568,7 @@ export default function LibrariesPage() {
         <EmptyState title="No libraries yet" testId="libraries-empty">
           <p className="muted">
             {isAdmin
-              ? 'Add a folder of photos, videos, or files and Popcorn will index it in place.'
+              ? 'Add a folder of movies or TV shows and Popcorn will catalog it in place.'
               : 'You have not been given access to a library yet. Ask an administrator to grant you one.'}
           </p>
         </EmptyState>

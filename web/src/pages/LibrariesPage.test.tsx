@@ -238,6 +238,7 @@ describe('LibrariesPage', () => {
     expect(bodyOf(fetchMock, 'POST', '/api/v1/libraries')).toEqual({
       path: '/mnt/archive',
       name: 'Archive',
+      kind: 'mixed',
     });
     await waitFor(() => {
       expect(screen.queryByTestId('add-library-dialog')).not.toBeInTheDocument();

@@ -554,6 +554,18 @@ func (s *Server) handleStream(w http.ResponseWriter, r *http.Request, u *auth.Us
 	if start < 0 || (f.DurationSecs > 0 && start > f.DurationSecs) {
 		start = 0
 	}
+	// A stream that copies video starts on a keyframe. Aim just past the one
+	// the seek lands on (see probe.SeekPastKeyframe), so ffmpeg starts on the
+	// same keyframe /keyframe reported and the player's clock stays true.
+	seekTo, zero := start, start
+	if d.VideoCopy && start > 0 {
+		if l, err := probe.SeekLanding(r.Context(), full, start); err == nil {
+			seekTo, zero = l.Keyframe+probe.SeekPastKeyframe, l.Zero
+			if f.DurationSecs > 0 && seekTo > f.DurationSecs {
+				seekTo = l.Keyframe
+			}
+		}
+	}
 	session := r.URL.Query().Get("session")
 	if len(session) > 64 {
 		session = session[:64]
@@ -564,12 +576,12 @@ func (s *Server) handleStream(w http.ResponseWriter, r *http.Request, u *auth.Us
 	w.Header().Set("Content-Type", "video/mp4")
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("X-Popcorn-Method", d.Method)
-	w.Header().Set("X-Popcorn-Start", strconv.FormatFloat(start, 'f', 3, 64))
+	w.Header().Set("X-Popcorn-Start", strconv.FormatFloat(zero, 'f', 3, 64))
 	// A transcode can run longer than the server's write timeout.
 	rc := http.NewResponseController(w)
 	_ = rc.SetWriteDeadline(zeroTime)
 	err := s.transcoder.Run(r.Context(), stream.Job{
-		Path: full, Start: start, Source: src, Request: req, Decision: d,
+		Path: full, Start: seekTo, Source: src, Request: req, Decision: d,
 		Session: stream.SessionInfo{Session: session, UserID: u.ID, Username: u.Username, Title: f.Name},
 	}, flushWriter{w: w, rc: rc})
 	if errors.Is(err, stream.ErrBusy) {
@@ -579,6 +591,25 @@ func (s *Server) handleStream(w http.ResponseWriter, r *http.Request, u *auth.Us
 	if err != nil {
 		s.logger.Warn("stream ended with error", "file", f.RelPath, "error", err)
 	}
+}
+
+// handleKeyframe reports where a stream that copies video really starts
+// when asked to start at ?at=: the keyframe it lands on, and the source time
+// that becomes 0 in the stream (zero), which the player offsets its clock by.
+func (s *Server) handleKeyframe(w http.ResponseWriter, r *http.Request, u *auth.User) {
+	_, f, _, full, ok := s.playFile(w, r, u)
+	if !ok {
+		return
+	}
+	at := floatParam(r, "at")
+	if at < 0 || (f.DurationSecs > 0 && at > f.DurationSecs) {
+		at = 0
+	}
+	l, err := probe.SeekLanding(r.Context(), full, at)
+	if err != nil {
+		s.logger.Debug("seek landing lookup failed", "file", f.RelPath, "error", err)
+	}
+	writeJSON(w, s.logger, http.StatusOK, l)
 }
 
 // flushWriter flushes after every write so the browser gets fragments as

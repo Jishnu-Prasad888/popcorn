@@ -34,6 +34,7 @@ func (s *Server) registerMediaRoutes(mux *http.ServeMux) {
 	h("GET /api/v1/libraries/{id}/files/{fileID}/decide", allowAny, s.handleDecide)
 	h("GET /api/v1/libraries/{id}/files/{fileID}/direct", allowAny, s.handleDirect)
 	h("GET /api/v1/libraries/{id}/files/{fileID}/stream", allowAny, s.handleStream)
+	h("GET /api/v1/libraries/{id}/files/{fileID}/keyframe", allowAny, s.handleKeyframe)
 	h("GET /api/v1/libraries/{id}/files/{fileID}/subtitles/{track}", allowAny, s.handleSubtitle)
 	h("POST /api/v1/playback/progress", allowAny, s.handleProgress)
 	h("DELETE /api/v1/playback/progress", allowAny, s.handleClearProgress)

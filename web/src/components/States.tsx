@@ -194,7 +194,7 @@ export function EmptyState({
 export function NoLibrariesState({ isAdmin }: { isAdmin: boolean }) {
   return (
     <EmptyState
-      title="Let's find your photos"
+      title="Add your movies and shows"
       testId="no-libraries"
       icon="drive"
       action={
@@ -218,7 +218,7 @@ export function NoLibrariesState({ isAdmin }: { isAdmin: boolean }) {
 
 /**
  * The library's drive is not connected. Not an error and not empty: the
- * details Popcorn keeps (albums, tags, memories) are still here, the files are
+ * details Popcorn keeps (watch history, collections, metadata edits) are still here, the files are
  * not. Administrators also see where the drive was last mounted.
  */
 export function LibraryOfflineNotice({ library }: { library: Library }) {
@@ -231,8 +231,8 @@ export function LibraryOfflineNotice({ library }: { library: Library }) {
       <div className="notice-text">
         <p className="notice-title">{library.name} is unavailable</p>
         <p>
-          The drive holding this library is disconnected. Your albums, tags, and memories are safe —
-          reconnect it and Popcorn will pick up where it left off.
+          The drive holding this library is disconnected. Your watch history, collections and edits are safe.
+          Reconnect it and Popcorn will pick up where it left off.
         </p>
         {user?.role === 'admin' && (
           <p className="notice-detail">

@@ -55,6 +55,35 @@ function mockFetch(options: {
     if (url.endsWith('/api/v1/health')) {
       return json({ status: 'ok', database: 'ok' });
     }
+    if (url.endsWith('/api/v1/me/preferences')) {
+      return json({
+        playback: {
+          audio_languages: ['eng'],
+          subtitle_languages: ['eng'],
+          subtitle_mode: 'auto',
+          prefer_original_audio: false,
+          prefer_sdh: false,
+          autoplay_next: true,
+          next_countdown: 10,
+          skip_intro: 'button',
+          skip_credits: 'button',
+          quality: 'original',
+          max_bitrate: 0,
+          speed: 1,
+          skip_forward: 30,
+          skip_backward: 10,
+          passthrough: [],
+          subtitle_style: { size: 100, color: '#ffffff', background: 'shadow', opacity: 60, position: 8, font: 'sans' },
+        },
+        interface: { density: 'comfortable', card_size: 'medium', view: 'grid', motion: 'full', accent: 'purple', home_rows: [] },
+      });
+    }
+    if (url.endsWith('/api/v1/home')) {
+      return json({ rows: [], collections: [], counts: { movies: 0, shows: 0 } });
+    }
+    if (url.endsWith('/api/v1/libraries')) {
+      return json({ libraries: [] });
+    }
     if (url.endsWith('/api/v1/version')) {
       return json({ version: '0.1.0', commit: 'abc', built_at: '2026-01-01T00:00:00Z' });
     }
@@ -82,14 +111,14 @@ describe('App routing', () => {
 
   it('sends an anonymous deep link to the sign-in page', async () => {
     mockFetch({ authenticated: false });
-    setup('/albums');
+    setup('/movies');
 
     expect(await screen.findByRole('heading', { name: 'Sign in to Popcorn' })).toBeInTheDocument();
   });
 
   it('sends a brand-new server to the first-run setup page', async () => {
     mockFetch({ authenticated: false, bootstrapRequired: true });
-    setup('/albums');
+    setup('/movies');
 
     expect(
       await screen.findByRole('heading', { name: 'Create your admin account' }),
@@ -112,13 +141,13 @@ describe('App routing', () => {
     expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument();
     expect(await screen.findByTestId('app-shell')).toBeInTheDocument();
     expect(screen.getAllByRole('link', { name: 'Settings' }).length).toBeGreaterThan(0);
-    expect(screen.getByRole('button', { name: 'Account: jishnu' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sign out' })).toBeInTheDocument();
     expect(screen.getAllByText('jishnu').length).toBeGreaterThan(0);
   });
 
   it('shows the access-denied page when a page request is refused', async () => {
     mockFetch({ authenticated: true, usersStatus: 403 });
-    setup('/settings');
+    setup('/permissions');
 
     expect(await screen.findByTestId('forbidden-page')).toBeInTheDocument();
     expect(screen.getByText('You are not allowed to list accounts.')).toBeInTheDocument();
@@ -130,7 +159,7 @@ describe('App routing', () => {
 
     expect(await screen.findByTestId('app-shell')).toBeInTheDocument();
     expect(
-      await screen.findByRole('heading', { name: /^Good (morning|afternoon|evening)/ }),
+      await screen.findByRole('heading', { name: 'Nothing to watch yet' }),
     ).toBeInTheDocument();
   });
 });

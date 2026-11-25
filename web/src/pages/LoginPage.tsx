@@ -71,7 +71,7 @@ export default function LoginPage() {
           <p className="auth-subtitle">
             {bootstrapRequired
               ? 'This server has no accounts yet — create the first one to get started.'
-              : 'Your photos, files, and memories — kept quietly in your own hands.'}
+              : 'Your movies and shows, streamed from your own server.'}
           </p>
         </header>
 

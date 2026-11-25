@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import App from './App';
 import AuthProvider from './auth/AuthProvider';
-import { applyTheme, readStoredTheme } from './lib/theme';
+import { applyInterface, readStoredInterface } from './lib/theme';
 import './styles/global.css';
 
 const rootElement = document.getElementById('root');
@@ -14,7 +14,7 @@ if (!rootElement) {
 
 // Apply the saved appearance before the first paint so a dark-theme user never
 // sees a light flash.
-applyTheme(readStoredTheme());
+applyInterface(readStoredInterface());
 
 createRoot(rootElement).render(
   <StrictMode>

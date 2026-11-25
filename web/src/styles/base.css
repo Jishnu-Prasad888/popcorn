@@ -1,38 +1,14 @@
 /* Fonts, the element baseline, and accessibility utilities. */
 
-/* Handlee — branding only. Bundled locally; no runtime network dependency. */
-@font-face {
-  font-family: 'Handlee';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('../fonts/handlee-latin-400.woff2') format('woff2');
-}
-
-/* Fira Sans — every functional surface. */
-@font-face {
-  font-family: 'Fira Sans';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('../fonts/firasans-latin-400.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Fira Sans';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('../fonts/firasans-latin-500.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Fira Sans';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('../fonts/firasans-latin-600.woff2') format('woff2');
-}
+/* Chakra Petch (display), IBM Plex Sans (text) and Plex Mono (timecodes),
+   bundled through @fontsource: no runtime network dependency. */
+@import '@fontsource/chakra-petch/500.css';
+@import '@fontsource/chakra-petch/600.css';
+@import '@fontsource/chakra-petch/700.css';
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-mono/400.css';
 
 *,
 *::before,
@@ -68,7 +44,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-ui);
+  font-family: var(--font-display);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
   color: var(--color-text-primary);
