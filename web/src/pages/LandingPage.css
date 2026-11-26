@@ -1,0 +1,456 @@
+/* Public page at /landing. Built from the app's own Dracula tokens so it
+   reads as the same place as the signed-in app. Chakra Petch carries the
+   headlines; IBM Plex carries the rest.
+
+   The one bold element is the paused episode in the hero, and its one
+   motion: the resume bar filling to where you stopped, once, on load. */
+
+.landing {
+  --landing-measure: 62ch;
+  --landing-gutter: clamp(16px, 5vw, 56px);
+
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: var(--color-text-primary);
+  background:
+    radial-gradient(
+      60rem 30rem at 85% -10%,
+      color-mix(in srgb, var(--dracula-purple) 14%, transparent),
+      transparent 70%
+    ),
+    var(--color-background);
+}
+
+.landing main {
+  flex: 1;
+}
+
+.landing-heading,
+.landing-title,
+.landing-promises dt,
+.landing-show {
+  font-family: var(--font-display);
+}
+
+/* ------------------------------- nav -------------------------------- */
+
+.landing-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-4) var(--landing-gutter);
+}
+
+.landing-nav-brand {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+/* ------------------------------- hero ------------------------------- */
+
+.landing-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(32px, 6vw, 88px);
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: clamp(32px, 7vw, 96px) var(--landing-gutter) clamp(48px, 8vw, 112px);
+}
+
+.landing-title {
+  margin: 0;
+  font-size: clamp(42px, 6vw, 76px);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.landing-title-accent {
+  white-space: nowrap;
+  background: var(--gradient-signal);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.landing-lede {
+  max-width: 34rem;
+  margin: var(--space-5) 0 0;
+  font-size: clamp(17px, 1.6vw, 19px);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.landing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.landing-cta {
+  min-height: 46px;
+  padding-inline: var(--space-5);
+  font-size: var(--font-size-md);
+}
+
+/* The paused episode: a still frame drawn in CSS, the title over it, and
+   the resume bar where the viewer stopped. */
+.landing-figure {
+  margin: 0;
+}
+
+.landing-screen {
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 60px -28px color-mix(in srgb, var(--dracula-bg-deeper) 90%, transparent);
+}
+
+.landing-frame {
+  position: relative;
+  aspect-ratio: 16 / 8;
+  overflow: hidden;
+  background: linear-gradient(180deg, #44305e 0%, #b45b8f 58%, #ffb86c 100%);
+}
+
+.landing-sun {
+  position: absolute;
+  left: 58%;
+  bottom: 18%;
+  width: 22%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe7b0 0%, #ffb86c 70%);
+  opacity: 0.9;
+}
+
+.landing-hills {
+  position: absolute;
+  inset: auto 0 0;
+  height: 38%;
+  background: var(--dracula-bg-deep);
+  clip-path: polygon(
+    0 55%,
+    18% 30%,
+    34% 52%,
+    52% 20%,
+    70% 48%,
+    86% 28%,
+    100% 45%,
+    100% 100%,
+    0 100%
+  );
+}
+
+.landing-screen-body {
+  padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+.landing-eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.landing-show {
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.landing-episode {
+  margin: 2px 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.landing-resume {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.landing-resume-bar {
+  flex: 1;
+  height: 4px;
+  overflow: hidden;
+  background: var(--color-fill-hover);
+  border-radius: var(--radius-pill);
+}
+
+.landing-resume-bar > span {
+  display: block;
+  width: 62%;
+  height: 100%;
+  background: var(--gradient-signal);
+  animation: landing-resume 1100ms cubic-bezier(0.65, 0, 0.35, 1) 400ms backwards;
+}
+
+@keyframes landing-resume {
+  from {
+    width: 0;
+  }
+}
+
+.landing-resume-time {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.landing-up-next {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.landing-up-next li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.landing-up-next strong {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.landing-up-next small {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.landing-thumb {
+  flex-shrink: 0;
+  width: 72px;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(160deg, #2f4a6b, #8be9fd 140%);
+}
+
+.landing-thumb.is-alt {
+  background: linear-gradient(160deg, #3b2a4f, #ff79c6 160%);
+}
+
+/* --------------------------- sections ------------------------------- */
+
+.landing-why,
+.landing-does,
+.landing-portable,
+.landing-closing {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: clamp(48px, 7vw, 96px) var(--landing-gutter);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.landing-heading {
+  margin: 0 0 var(--space-5);
+  font-size: clamp(28px, 3.4vw, 40px);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.15;
+}
+
+/* Why: a short essay in a single readable column. */
+.landing-why {
+  display: grid;
+  grid-template-columns: minmax(0, var(--landing-measure));
+  justify-content: center;
+}
+
+.landing-essay p {
+  margin: 0 0 var(--space-4);
+  font-size: clamp(17px, 1.7vw, 19px);
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  text-wrap: pretty;
+}
+
+.landing-promises {
+  display: grid;
+  gap: var(--space-5);
+  margin: var(--space-6) 0 0;
+}
+
+.landing-promises > div {
+  padding-left: var(--space-4);
+  border-left: 3px solid var(--color-accent);
+}
+
+.landing-promises dt {
+  font-size: clamp(18px, 1.8vw, 20px);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.35;
+}
+
+.landing-promises dd {
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-md);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+/* What it does: four short groups, no boxes around them. */
+.landing-groups {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-6) clamp(24px, 3vw, 40px);
+}
+
+.landing-group h3 {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.landing-group ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.landing-group li {
+  font-size: var(--font-size-md);
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+/* Take it with you: the copy beside a picture of the folder. */
+.landing-portable {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(28px, 5vw, 72px);
+}
+
+.landing-portable-copy p {
+  max-width: 34rem;
+  margin: 0;
+  font-size: clamp(16px, 1.5vw, 18px);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+.landing-tree {
+  margin: 0;
+  padding: var(--space-5) var(--space-6);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-md);
+  line-height: 1.75;
+  color: var(--color-text-primary);
+  background: var(--color-shell);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.landing-tree-note {
+  font-family: var(--font-ui);
+  font-style: italic;
+  color: var(--color-accent);
+}
+
+.landing-closing {
+  text-align: center;
+}
+
+.landing-closing p {
+  margin: 0;
+  font-size: clamp(16px, 1.5vw, 18px);
+  color: var(--color-text-secondary);
+}
+
+.landing-closing .landing-actions {
+  justify-content: center;
+}
+
+/* ------------------------------ footer ------------------------------ */
+
+.landing-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-6) var(--landing-gutter) var(--space-7);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.landing-footer .wordmark {
+  color: var(--color-text-primary);
+}
+
+/* ---------------------------- responsive ---------------------------- */
+
+@media (max-width: 959px) {
+  .landing-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .landing-figure {
+    max-width: 560px;
+  }
+
+  .landing-groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .landing-portable {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 559px) {
+  .landing-groups {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .landing-title-accent {
+    white-space: normal;
+  }
+
+  .landing-actions .landing-cta {
+    flex: 1 1 auto;
+  }
+
+  .landing-tree-note {
+    display: block;
+    padding-left: 4.5ch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-resume-bar > span {
+    animation: none;
+  }
+}

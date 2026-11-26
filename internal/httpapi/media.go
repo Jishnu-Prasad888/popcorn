@@ -1,17 +1,22 @@
 package httpapi
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
 	"github.com/Jishnu-Prasad888/popcorn/internal/authz"
+	"github.com/Jishnu-Prasad888/popcorn/internal/jobs"
 	"github.com/Jishnu-Prasad888/popcorn/internal/library"
 	"github.com/Jishnu-Prasad888/popcorn/internal/librarydb"
 	"github.com/Jishnu-Prasad888/popcorn/internal/media"
+	"github.com/Jishnu-Prasad888/popcorn/internal/mediajobs"
 )
 
 // openMediaService opens the per-library DB and returns a media.Service and
@@ -284,62 +289,169 @@ func (s *Server) handleDownloadFile(w http.ResponseWriter, r *http.Request, u *a
 }
 
 // handleUploadFile — POST /api/v1/libraries/{id}/files/upload
+//
+// The body is multipart: an optional "path" field (the destination relative
+// to the library root, which may name folders that do not exist yet) and a
+// "file" part. When "path" comes first, as the web client sends it, the file
+// streams straight into the library with no intermediate copy, which matters
+// for multi-gigabyte video. A file part sent before its path is spooled to a
+// temp file first so older clients keep working.
 func (s *Server) handleUploadFile(w http.ResponseWriter, r *http.Request, u *auth.User) {
 	lib, err := s.libraries.Get(actorCtx(r, u).Context(), r.PathValue("id"))
 	if err != nil {
 		s.writeLibraryError(w, r, err)
 		return
 	}
-	// 32 MiB in memory, rest spooled to disk. The request body is capped so
-	// the spool cannot grow without bound (media.WriteUpload enforces the same
-	// limit at the store layer). A small margin absorbs multipart part
-	// headers and form fields.
 	limit := s.maxUploadBytes
 	if limit <= 0 {
 		limit = media.DefaultMaxUploadBytes
 	}
-	// The size cap below bounds the request instead of the clock.
+	// The size cap below bounds the request instead of the clock. A small
+	// margin absorbs multipart part headers and form fields; media.WriteUpload
+	// enforces the exact limit on the file bytes.
 	liftDeadlines(w)
 	r.Body = http.MaxBytesReader(w, r.Body, limit+(1<<20))
-	if err := r.ParseMultipartForm(32 << 20); err != nil {
+
+	reqID := requestIDOrEmpty(r)
+	badForm := func(err error) {
 		var maxErr *http.MaxBytesError
 		if errors.As(err, &maxErr) {
-			writeError(w, s.logger, requestIDOrEmpty(r), http.StatusRequestEntityTooLarge,
+			writeError(w, s.logger, reqID, http.StatusRequestEntityTooLarge,
 				CodePayloadTooLarge, "Upload exceeds the maximum allowed size.")
 			return
 		}
-		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusBadRequest,
-			CodeBadRequest, "Invalid multipart form.")
-		return
+		writeError(w, s.logger, reqID, http.StatusBadRequest, CodeBadRequest, "Invalid multipart form.")
 	}
-	mf, header, err := r.FormFile("file")
+	mr, err := r.MultipartReader()
 	if err != nil {
-		writeError(w, s.logger, requestIDOrEmpty(r), http.StatusBadRequest,
-			CodeBadRequest, "Missing 'file' field in form.")
-		return
-	}
-	defer func() { _ = mf.Close() }()
-
-	destPath := r.FormValue("path")
-	if destPath == "" {
-		destPath = header.Filename
-	}
-	if !s.requireCap(w, r, u, parentFolderKey(lib.ID, destPath), authz.CapCreate) {
+		badForm(err)
 		return
 	}
 
-	svc, cleanup, ok := s.openMediaService(w, r, lib)
-	if !ok {
-		return
-	}
-	defer cleanup()
+	var (
+		destPath  string
+		havePath  bool
+		fileName  string
+		spool     *os.File
+		created   *media.File
+		committed bool
+	)
+	defer func() {
+		if spool != nil {
+			_ = spool.Close()
+			_ = os.Remove(spool.Name())
+		}
+	}()
 
-	created, err := svc.WriteUpload(r.Context(), destPath, mf)
-	if err != nil {
-		s.writeMediaError(w, r, err)
-		return
+	// commit authorizes the destination and writes src into the library.
+	commit := func(src io.Reader) bool {
+		if destPath == "" {
+			destPath = fileName
+		}
+		if destPath == "" {
+			writeError(w, s.logger, reqID, http.StatusBadRequest, CodeBadRequest, "Missing upload path.")
+			return false
+		}
+		if !s.requireCap(w, r, u, parentFolderKey(lib.ID, destPath), authz.CapCreate) {
+			return false
+		}
+		svc, cleanup, ok := s.openMediaService(w, r, lib)
+		if !ok {
+			return false
+		}
+		defer cleanup()
+		f, err := svc.WriteUpload(r.Context(), destPath, src)
+		if err != nil {
+			var maxErr *http.MaxBytesError
+			if errors.As(err, &maxErr) {
+				badForm(err)
+			} else {
+				s.writeMediaError(w, r, err)
+			}
+			return false
+		}
+		created = f
+		return true
 	}
+
+	for {
+		part, err := mr.NextPart()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			badForm(err)
+			return
+		}
+		switch part.FormName() {
+		case "path":
+			b, err := io.ReadAll(io.LimitReader(part, 4096))
+			if err != nil {
+				badForm(err)
+				return
+			}
+			destPath, havePath = string(b), true
+		case "file":
+			if committed || spool != nil {
+				writeError(w, s.logger, reqID, http.StatusBadRequest, CodeBadRequest, "Only one file per upload.")
+				return
+			}
+			fileName = part.FileName()
+			if havePath {
+				if !commit(part) {
+					return
+				}
+				committed = true
+				continue
+			}
+			spool, err = os.CreateTemp("", "popcorn-upload-*")
+			if err != nil {
+				s.logger.Error("spool upload", "error", err)
+				writeError(w, s.logger, reqID, http.StatusInternalServerError, CodeInternal, "Internal server error.")
+				return
+			}
+			if _, err := io.Copy(spool, part); err != nil {
+				badForm(err)
+				return
+			}
+		}
+		_ = part.Close()
+	}
+
+	if !committed {
+		if spool == nil {
+			writeError(w, s.logger, reqID, http.StatusBadRequest, CodeBadRequest, "Missing 'file' field in form.")
+			return
+		}
+		if _, err := spool.Seek(0, io.SeekStart); err != nil {
+			s.logger.Error("rewind upload spool", "error", err)
+			writeError(w, s.logger, reqID, http.StatusInternalServerError, CodeInternal, "Internal server error.")
+			return
+		}
+		if !commit(spool) {
+			return
+		}
+	}
+
+	s.queueCatalogSync(r, lib)
 	writeJSON(w, s.logger, http.StatusCreated, map[string]any{"file": toFileResponse(created)})
+}
+
+// queueCatalogSync asks the library's worker to fold newly uploaded files into
+// the movie and show catalog. A sync already waiting absorbs the request, so a
+// folder of a hundred files queues one sync, not a hundred.
+func (s *Server) queueCatalogSync(r *http.Request, lib *library.Library) {
+	if s.indexer == nil {
+		return
+	}
+	ctx := context.WithoutCancel(r.Context())
+	err := s.indexer.WithQueue(ctx, lib.ID, lib.Root, func(q *jobs.Queue) error {
+		mediajobs.EnqueueSync(ctx, q, s.logger)
+		return nil
+	})
+	if err != nil {
+		s.logger.Warn("queue catalog sync after upload", "library_id", lib.ID, "error", err)
+	}
 }
 
 // handleRenameFile — POST /api/v1/libraries/{id}/files/{fileID}/rename

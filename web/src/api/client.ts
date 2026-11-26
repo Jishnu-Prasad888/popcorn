@@ -208,7 +208,10 @@ export function apiUploadWithProgress<T>(
       const body: ApiErrorBody = envelope?.error?.code
         ? envelope.error
         : { code: 'UNKNOWN', message: `Request failed with status ${xhr.status}.`, request_id: '' };
-      notifyAuthFailure(xhr.status, body);
+      // A refused file is reported on its own row in the upload tray, so a
+      // 403 here must not send the whole app to the access-denied page. An
+      // expired session (401) still signs the visitor out as usual.
+      if (xhr.status === 401) notifyAuthFailure(xhr.status, body);
       reject(new ApiError(body, xhr.status));
     };
     xhr.onerror = () => reject(new Error('The connection to the server was lost.'));

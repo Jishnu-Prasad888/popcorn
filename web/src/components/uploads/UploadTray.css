@@ -1,0 +1,335 @@
+/* The upload tray: a fixed panel in the bottom-right corner with a header
+   that summarises the batch and a scrollable list of one row per file. */
+
+.upload-tray {
+  position: fixed;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  z-index: var(--z-dropdown);
+  display: flex;
+  flex-direction: column;
+  width: min(400px, calc(100vw - 2 * var(--space-4)));
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-3);
+  animation: upload-tray-in var(--duration-base) var(--ease-out);
+}
+
+@keyframes upload-tray-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.upload-tray-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 52px;
+  padding: 0 var(--space-2) 0 var(--space-4);
+  background: var(--color-shell);
+}
+
+.upload-tray-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.upload-head-button,
+.upload-row-action {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.upload-head-button:hover,
+.upload-row-action:hover {
+  color: var(--color-text-primary);
+  background: var(--color-fill-hover);
+}
+
+.upload-head-button:focus-visible,
+.upload-row-action:focus-visible {
+  outline: none;
+  box-shadow: var(--glow-focus);
+}
+
+/* Overall progress: a thin signal-coloured line under the header. */
+.upload-tray-progress {
+  height: 3px;
+  background: var(--color-fill-subtle);
+}
+
+.upload-tray-progress > span,
+.upload-row-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--gradient-signal);
+  transition: width var(--duration-slow) var(--ease-standard);
+}
+
+.upload-tray-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.upload-tray-summary {
+  flex: 1;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.upload-tray-bar .link-button {
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+/* The list never grows past this height; the rest scrolls. */
+.upload-list {
+  max-height: min(340px, 50vh);
+  margin: 0;
+  padding: var(--space-1) 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+.upload-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 56px;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+}
+
+.upload-row:hover {
+  background: var(--color-fill-subtle);
+}
+
+.upload-file-icon {
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.upload-row[data-status='failed'] .upload-file-icon,
+.upload-row[data-status='cancelled'] .upload-file-icon {
+  color: var(--color-text-muted);
+}
+
+.upload-row-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.upload-name {
+  overflow: hidden;
+  font-size: var(--font-size-md);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.upload-meta {
+  overflow: hidden;
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* A failure reason wraps so the whole sentence is readable. */
+.upload-row[data-status='failed'] .upload-meta {
+  color: var(--color-danger-ink);
+  white-space: normal;
+}
+
+.upload-row-end {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.upload-row-state {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  min-width: 36px;
+}
+
+.upload-pct {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.upload-status-icon.is-done {
+  color: var(--color-success);
+}
+
+.upload-status-icon.is-failed {
+  color: var(--color-danger);
+}
+
+.upload-status-icon.is-muted {
+  color: var(--color-text-muted);
+}
+
+.upload-ring {
+  transform: rotate(-90deg);
+}
+
+.upload-ring circle {
+  fill: none;
+  stroke-width: 2.5;
+}
+
+.upload-ring-track {
+  stroke: var(--color-fill-hover);
+}
+
+.upload-ring-fill {
+  stroke: var(--color-accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--duration-slow) var(--ease-standard);
+}
+
+/* Row actions replace the state icon on hover or keyboard focus, so a row
+   shows one thing at a time, like a sync client's list. */
+.upload-row-action {
+  display: none;
+}
+
+.upload-row:hover .upload-row-action,
+.upload-row:focus-within .upload-row-action {
+  display: grid;
+}
+
+.upload-row:hover .upload-row-state,
+.upload-row:focus-within .upload-row-state {
+  display: none;
+}
+
+/* Touch screens have no hover: keep the action in view. */
+@media (hover: none) {
+  .upload-row-action {
+    display: grid;
+  }
+
+  .upload-row-state {
+    display: none;
+  }
+
+  .upload-row[data-status='done'] .upload-row-state {
+    display: flex;
+  }
+}
+
+.upload-row-bar {
+  position: absolute;
+  right: var(--space-4);
+  bottom: 4px;
+  left: calc(var(--space-4) + 20px + var(--space-3));
+  height: 2px;
+  overflow: hidden;
+  background: var(--color-fill-subtle);
+  border-radius: var(--radius-pill);
+}
+
+@media (max-width: 899px) {
+  .upload-tray {
+    right: var(--space-2);
+    bottom: calc(var(--bottom-nav-height) + var(--space-2) + env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-tray {
+    animation: none;
+  }
+
+  .upload-tray-progress > span,
+  .upload-row-bar > span,
+  .upload-ring-fill {
+    transition: none;
+  }
+}
+
+/* ---------------------------- upload dialog ---------------------------- */
+
+.upload-dialog {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.upload-dialog-fields {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.upload-drop {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+  color: var(--color-text-secondary);
+  border: 1.5px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.upload-drop[data-over='true'] {
+  color: var(--color-text-primary);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+
+.upload-drop p {
+  margin: 0;
+}
+
+.upload-drop-icon {
+  color: var(--color-accent);
+}
+
+.upload-drop-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.upload-drop-limit {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}

@@ -29,6 +29,8 @@ and streams to any browser, converting with ffmpeg only when the browser needs i
 - **Your stuff.** Watchlist, favourites, history, collections (yours plus
   automatic ones) and playlists with shuffle and repeat. Every account has its
   own progress and preferences.
+- **Uploads.** Upload files or whole folders from the browser, with a
+  per-file progress list that says why anything failed.
 - **Server.** Multiple users and per-library permissions, library stats, live
   streams, duplicate and unplaced-file reports, and encrypted backups.
 
@@ -39,6 +41,42 @@ Movies/Heat (1995)/Heat (1995).mkv
 Movies/Heat (1995)/Heat (1995).en.srt
 TV/Dark/Season 01/Dark S01E01.mkv
 ```
+
+## Install
+
+Linux and macOS:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Jishnu-Prasad888/popcorn/main/scripts/install.sh | bash
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/Jishnu-Prasad888/popcorn/main/scripts/install.ps1 | iex
+```
+
+The installer picks the build for your OS and CPU, checks it against the
+release's `SHA256SUMS`, and installs it. It warns if ffmpeg is missing, then
+asks a few yes/no questions about starting Popcorn automatically:
+
+- **Linux:** a systemd service. Either a system service (starts at boot, runs
+  as you; settings in `/etc/popcorn/popcorn.env`) or a user service (settings
+  in `~/.config/popcorn/popcorn.env`, with the option to start at boot via
+  lingering).
+- **macOS:** a launchd agent that starts at login.
+- **Windows:** a scheduled task. From an Administrator PowerShell it starts at
+  boot; otherwise it starts when you sign in. Settings are in
+  `popcorn-start.cmd` next to the binary.
+
+Run the same command again to upgrade: it replaces the binary in place, keeps
+the old one as `popcorn.previous`, and restarts the service. To skip the
+questions, pass `-y` (`… | bash -s -- -y`) or, on Windows, set
+`$env:POPCORN_YES = '1'` first. `--version vX.Y.Z` / `$env:POPCORN_VERSION`
+installs a specific release.
+
+Then open http://127.0.0.1:8045, create the administrator account, and add a
+library.
 
 ## Quick start
 

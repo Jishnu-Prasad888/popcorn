@@ -349,3 +349,19 @@
     color: var(--color-primary);
   }
 }
+
+/* Upload sits at the far end of the top bar. */
+.shell-upload {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+@media (max-width: 599px) {
+  .shell-upload span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+}

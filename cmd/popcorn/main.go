@@ -34,6 +34,14 @@ import (
 )
 
 func main() {
+	// `popcorn --version` prints the release and exits; the installer uses it
+	// to tell what is installed and to check a download before replacing it.
+	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-version" || os.Args[1] == "version") {
+		info := version.Get()
+		fmt.Println(info.Version)
+		fmt.Printf("commit %s, built %s, %s, %s\n", info.Commit, info.BuildDate, info.GoVersion, info.Platform)
+		return
+	}
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, "popcorn:", err)
 		os.Exit(1)

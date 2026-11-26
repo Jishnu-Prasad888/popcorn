@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Jishnu-Prasad888/popcorn/internal/auth"
+	"github.com/Jishnu-Prasad888/popcorn/internal/media"
 	"github.com/Jishnu-Prasad888/popcorn/internal/metadata"
 	"github.com/Jishnu-Prasad888/popcorn/internal/probe"
 )
@@ -17,5 +18,15 @@ func (s *Server) handleCapabilities(w http.ResponseWriter, _ *http.Request, _ *a
 		"ffmpeg":   metadata.VideoFramesAvailable(),
 		"ffprobe":  probe.Available(),
 		"metadata": s.metadataConfigured(),
+		// The largest single file the upload endpoint accepts, so the app
+		// can refuse an oversized file before sending a byte of it.
+		"max_upload_bytes": s.uploadLimit(),
 	})
+}
+
+func (s *Server) uploadLimit() int64 {
+	if s.maxUploadBytes <= 0 {
+		return media.DefaultMaxUploadBytes
+	}
+	return s.maxUploadBytes
 }

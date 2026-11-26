@@ -779,8 +779,10 @@ export async function addMLRules(libraryId: string, add: MLRule[]): Promise<MLRu
 export interface SystemCapabilities {
   /** Whether the server found ffmpeg (video thumbnails). */
   ffmpeg: boolean;
-  /** Whether the learned face-recognition model is loaded. */
-  face_model: boolean;
+  /** Whether ffprobe is installed (runtimes, tracks). */
+  ffprobe?: boolean;
+  /** The largest single file the upload endpoint accepts, in bytes. */
+  max_upload_bytes?: number;
 }
 
 export const getSystemCapabilities = () => apiGet<SystemCapabilities>('/system/capabilities');

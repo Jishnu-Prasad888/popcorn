@@ -21,10 +21,14 @@ import {
   Tv,
   Archive,
   Activity,
+  Upload,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
+import { useLibraries } from '../../api/libraries';
 import { useAuth } from '../../auth/authContext';
+import { UploadDialog } from '../uploads/UploadDialog';
+import { UploadTray } from '../uploads/UploadTray';
 import { usePreferences } from '../../lib/preferences';
 import './AppShell.css';
 
@@ -79,7 +83,15 @@ function storeCollapsed(v: boolean) {
   }
 }
 
-function NavGroup({ title, items, onNavigate }: { title?: string; items: NavItem[]; onNavigate?: () => void }) {
+function NavGroup({
+  title,
+  items,
+  onNavigate,
+}: {
+  title?: string;
+  items: NavItem[];
+  onNavigate?: () => void;
+}) {
   return (
     <div className="nav-group">
       {title && <p className="nav-group-title">{title}</p>}
@@ -132,7 +144,8 @@ function SearchBar() {
   useEffect(() => {
     if (!onSearch) return;
     const t = window.setTimeout(() => {
-      if ((params.get('q') ?? '') !== value) navigate(`/search?q=${encodeURIComponent(value)}`, { replace: true });
+      if ((params.get('q') ?? '') !== value)
+        navigate(`/search?q=${encodeURIComponent(value)}`, { replace: true });
     }, 250);
     return () => window.clearTimeout(t);
   }, [value, onSearch, params, navigate]);
@@ -167,6 +180,8 @@ export default function AppShell() {
   const [collapsed, setCollapsed] = useState(() => readCollapsed());
   const location = useLocation();
   usePreferences(); // applies interface preferences once signed in
+  const { libraries } = useLibraries();
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   // The drawer closes whenever the route changes.
   const [drawerPath, setDrawerPath] = useState(location.pathname);
@@ -188,7 +203,12 @@ export default function AppShell() {
   const sidebarOpen = drawer || !collapsed;
 
   return (
-    <div className="shell" data-testid="app-shell" data-drawer={drawer ? 'open' : 'closed'} data-collapsed={collapsed}>
+    <div
+      className="shell"
+      data-testid="app-shell"
+      data-drawer={drawer ? 'open' : 'closed'}
+      data-collapsed={collapsed}
+    >
       <a className="skip-link" href="#main">
         Skip to content
       </a>
@@ -197,7 +217,13 @@ export default function AppShell() {
           <NavLink to="/" className="shell-brand-link" aria-label="Popcorn home">
             <Wordmark />
           </NavLink>
-          <button type="button" className="icon-button shell-drawer-close" onClick={() => setSidebar(false)} aria-label="Hide sidebar" title="Hide sidebar">
+          <button
+            type="button"
+            className="icon-button shell-drawer-close"
+            onClick={() => setSidebar(false)}
+            aria-label="Hide sidebar"
+            title="Hide sidebar"
+          >
             <PanelLeftClose size={20} />
           </button>
         </div>
@@ -216,7 +242,13 @@ export default function AppShell() {
               {user?.username.slice(0, 1).toUpperCase()}
             </span>
             <span className="shell-username">{user?.username}</span>
-            <button type="button" className="icon-button" onClick={() => void logout()} aria-label="Sign out" title="Sign out">
+            <button
+              type="button"
+              className="icon-button"
+              onClick={() => void logout()}
+              aria-label="Sign out"
+              title="Sign out"
+            >
               <LogOut size={17} />
             </button>
           </div>
@@ -239,11 +271,25 @@ export default function AppShell() {
             <Wordmark />
           </span>
           <SearchBar />
+          {libraries.length > 0 && (
+            <button
+              type="button"
+              className="button shell-upload"
+              onClick={() => setUploadOpen(true)}
+              title="Upload files or folders"
+              data-testid="upload-button"
+            >
+              <Upload size={17} aria-hidden="true" />
+              <span>Upload</span>
+            </button>
+          )}
         </header>
         <main id="main" className="shell-content" tabIndex={-1}>
           <Outlet />
         </main>
       </div>
+      <UploadTray />
+      <UploadDialog open={uploadOpen} onClose={() => setUploadOpen(false)} />
       <nav className="shell-bottom-nav" aria-label="Quick navigation">
         {[...BROWSE.slice(0, 3), ...YOURS.slice(0, 1), ...YOURS.slice(2, 3)].map((it) => (
           <NavLink key={it.to} to={it.to} end={it.end ?? false} className="bottom-link">

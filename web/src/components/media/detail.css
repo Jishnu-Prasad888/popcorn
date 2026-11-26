@@ -125,6 +125,14 @@
   padding: 0 var(--content-gutter);
 }
 
+/* The backdrop is taller than the header and fades out below it. Being
+   positioned, it would paint over the in-flow content that follows (the
+   File section was hidden behind it), so what follows is positioned too and
+   paints after it, on top. */
+.detail-head ~ * {
+  position: relative;
+}
+
 .detail-section {
   margin-top: var(--space-7);
 }
