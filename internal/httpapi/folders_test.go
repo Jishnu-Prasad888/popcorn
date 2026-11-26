@@ -25,27 +25,6 @@ func seedDiskFile(t *testing.T, libRoot, id, relPath, content string) {
 	seedLibraryFileHash(t, libRoot, id, relPath, int64(len(content)), "h-"+id)
 }
 
-func folderNames(t *testing.T, rec interface{ Bytes() []byte }) []string {
-	t.Helper()
-	var body struct {
-		Folders []struct {
-			Name      string `json:"name"`
-			RelPath   string `json:"rel_path"`
-			FileCount int    `json:"file_count"`
-			SizeBytes int64  `json:"size_bytes"`
-			ModTime   string `json:"mod_time"`
-		} `json:"folders"`
-	}
-	if err := json.Unmarshal(rec.Bytes(), &body); err != nil {
-		t.Fatalf("decode folders: %v", err)
-	}
-	out := make([]string, 0, len(body.Folders))
-	for _, f := range body.Folders {
-		out = append(out, f.RelPath)
-	}
-	return out
-}
-
 func TestFolderListingCarriesSizeAndDate(t *testing.T) {
 	_, client, libID, libRoot := newSearchTestServer(t)
 	seedDiskFile(t, libRoot, "a", "Trips/a.jpg", "12345")

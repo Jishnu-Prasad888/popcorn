@@ -36,7 +36,9 @@ export function DetailHeader({
         {backdrop && <img src={backdrop} alt="" />}
       </div>
       <div className="detail-head-inner">
-        <div className="detail-poster">{poster ? <img src={poster} alt="" /> : <span className="card-fallback" />}</div>
+        <div className="detail-poster">
+          {poster ? <img src={poster} alt="" /> : <span className="card-fallback" />}
+        </div>
         <div className="detail-main">
           {eyebrow && <div className="detail-eyebrow">{eyebrow}</div>}
           {logo ? (
@@ -47,7 +49,9 @@ export function DetailHeader({
           ) : (
             <h1 className="detail-title">{item.title}</h1>
           )}
-          {item.original_title && item.original_title !== item.title && <p className="detail-original">{item.original_title}</p>}
+          {item.original_title && item.original_title !== item.title && (
+            <p className="detail-original">{item.original_title}</p>
+          )}
           <Facts c={item} />
           {item.tagline && <p className="detail-tagline">{item.tagline}</p>}
           {item.overview && <p className="detail-overview">{item.overview}</p>}
@@ -103,7 +107,11 @@ export function CastRow({ credits, libraryId }: { credits: Credit[]; libraryId: 
           <li key={c.person_id + (c.character ?? '')} onContextMenu={(e) => openPerson(e, c)}>
             <Link to={`/person/${libraryId}/${c.person_id}`} className="cast-card">
               <span className="cast-photo">
-                {c.profile_url ? <img src={personImageUrl(libraryId, c.person_id)} alt="" loading="lazy" /> : <User size={26} strokeWidth={1.5} />}
+                {c.profile_url ? (
+                  <img src={personImageUrl(libraryId, c.person_id)} alt="" loading="lazy" />
+                ) : (
+                  <User size={26} strokeWidth={1.5} />
+                )}
               </span>
               <span className="cast-name">{c.name}</span>
               {c.character && <span className="cast-character">{c.character}</span>}
@@ -126,21 +134,48 @@ export function TechInfo({ files }: { files: FileInfo[] }) {
           const video = f.streams?.find((s) => s.kind === 'video');
           const audio = f.streams?.filter((s) => s.kind === 'audio') ?? [];
           const subs = [
-            ...(f.streams?.filter((s) => s.kind === 'subtitle').map((s) => ({ key: `e${s.type_index}`, label: s.language_name || 'Unknown', flags: [s.is_forced && 'Forced', s.is_hearing_impaired && 'SDH', codecName(s.codec)] })) ?? []),
-            ...(f.subtitles?.map((s) => ({ key: s.id, label: s.language_name || 'Unknown', flags: [s.is_forced && 'Forced', s.is_hearing_impaired && 'SDH', s.format.toUpperCase(), s.source === 'upload' ? 'Added' : 'External'] })) ?? []),
+            ...(f.streams
+              ?.filter((s) => s.kind === 'subtitle')
+              .map((s) => ({
+                key: `e${s.type_index}`,
+                label: s.language_name || 'Unknown',
+                flags: [
+                  s.is_forced && 'Forced',
+                  s.is_hearing_impaired && 'SDH',
+                  codecName(s.codec),
+                ],
+              })) ?? []),
+            ...(f.subtitles?.map((s) => ({
+              key: s.id,
+              label: s.language_name || 'Unknown',
+              flags: [
+                s.is_forced && 'Forced',
+                s.is_hearing_impaired && 'SDH',
+                s.format.toUpperCase(),
+                s.source === 'upload' ? 'Added' : 'External',
+              ],
+            })) ?? []),
           ];
           return (
             <article key={f.id} className="tech-file" data-missing={f.status !== 'present'}>
               <header>
                 <strong>{f.edition || f.name}</strong>
-                {f.status !== 'present' && <span className="tech-missing">Not available: the disk may be offline</span>}
+                {f.status !== 'present' && (
+                  <span className="tech-missing">Not available: the disk may be offline</span>
+                )}
               </header>
               <div className="tech-chips">
                 {f.resolution && <span className="tech-chip">{f.resolution}</span>}
                 {f.hdr && <span className="tech-chip">{f.hdr}</span>}
                 {video && <span className="tech-chip">{codecName(video.codec)}</span>}
-                {f.container && <span className="tech-chip">{(f.container.split(',')[0] ?? '').toUpperCase()}</span>}
-                {f.bitrate ? <span className="tech-chip">{(f.bitrate / 1e6).toFixed(1)} Mb/s</span> : null}
+                {f.container && (
+                  <span className="tech-chip">
+                    {(f.container.split(',')[0] ?? '').toUpperCase()}
+                  </span>
+                )}
+                {f.bitrate ? (
+                  <span className="tech-chip">{(f.bitrate / 1e6).toFixed(1)} Mb/s</span>
+                ) : null}
                 <span className="tech-chip">{formatBytes(f.size_bytes)}</span>
               </div>
               <dl className="tech-streams">

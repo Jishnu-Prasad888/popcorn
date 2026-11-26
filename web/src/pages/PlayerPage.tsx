@@ -39,7 +39,15 @@ import {
   stopStream,
   updatePlaylist,
 } from '../api/media';
-import type { Card, Decision, PlayableType, PlayInfo, Ref, SubtitleStyle, SubtitleTrack } from '../api/media';
+import type {
+  Card,
+  Decision,
+  PlayableType,
+  PlayInfo,
+  Ref,
+  SubtitleStyle,
+  SubtitleTrack,
+} from '../api/media';
 import { audioLabel, codecName } from '../lib/mediaFormat';
 import { activeCues, clientCaps, parseVTT, sessionId } from '../lib/playback';
 import type { Cue } from '../lib/playback';
@@ -57,7 +65,8 @@ const QUALITIES: [string, string][] = [
 const NO_CUES: Cue[] = [];
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
-type Panel = null | 'menu' | 'audio' | 'subtitles' | 'quality' | 'speed' | 'style' | 'sync' | 'info' | 'keys';
+type Panel =
+  null | 'menu' | 'audio' | 'subtitles' | 'quality' | 'speed' | 'style' | 'sync' | 'info' | 'keys';
 
 interface QueueEntry extends Ref {
   entry?: string;
@@ -73,7 +82,13 @@ async function loadQueue(queue: string): Promise<{ items: QueueEntry[]; repeat?:
   if (kind === 'playlist' && id) {
     const p = await getPlaylist(id);
     return {
-      items: p.entries.map((e) => ({ library_id: e.library_id, type: e.type, id: e.id, entry: e.entry_id, position_secs: e.position_secs })),
+      items: p.entries.map((e) => ({
+        library_id: e.library_id,
+        type: e.type,
+        id: e.id,
+        entry: e.entry_id,
+        position_secs: e.position_secs,
+      })),
       repeat: p.playlist.repeat,
     };
   }
@@ -93,7 +108,10 @@ function styleFor(s: SubtitleStyle): CSSProperties {
     '--sub-color': s.color,
     '--sub-bg': bg,
     '--sub-bottom': `${s.position}%`,
-    '--sub-shadow': s.background === 'shadow' ? '0 0 4px #000, 0 2px 3px #000, 0 0 10px rgb(0 0 0 / 0.8)' : 'none',
+    '--sub-shadow':
+      s.background === 'shadow'
+        ? '0 0 4px #000, 0 2px 3px #000, 0 0 10px rgb(0 0 0 / 0.8)'
+        : 'none',
     '--sub-font': fonts[s.font] ?? fonts.sans,
   } as CSSProperties;
 }
@@ -149,7 +167,10 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
   const startAt = useRef(0);
   const lastReport = useRef(0);
 
-  const duration = info?.files.find((f) => f.id === (fileId || info.file_id))?.duration_secs ?? info?.item.duration_secs ?? 0;
+  const duration =
+    info?.files.find((f) => f.id === (fileId || info.file_id))?.duration_secs ??
+    info?.item.duration_secs ??
+    0;
   const file = info?.files.find((f) => f.id === (fileId || info?.file_id));
   const prefs = info?.preferences;
 
@@ -210,7 +231,11 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
     async (url: string, at: number, videoCopy: boolean) => {
       const seq = ++restartSeq.current;
       let zero = at;
-      if (videoCopy && at > 0) zero = await keyframeAt(lib, activeFile, at).then((r) => r.zero, () => at);
+      if (videoCopy && at > 0)
+        zero = await keyframeAt(lib, activeFile, at).then(
+          (r) => r.zero,
+          () => at,
+        );
       // A later seek replaced this one while the keyframe was looked up.
       if (seq !== restartSeq.current) return;
       setOffset(zero);
@@ -254,7 +279,10 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
   // Where a seek is heading until the video gets there. Until then the old
   // stream's clock is stale, so position and the time display use this.
   const pendingSeek = useRef<number | null>(null);
-  const position = useCallback(() => pendingSeek.current ?? offset + (videoRef.current?.currentTime ?? 0), [offset]);
+  const position = useCallback(
+    () => pendingSeek.current ?? offset + (videoRef.current?.currentTime ?? 0),
+    [offset],
+  );
 
   // (Re)start when the stream inputs change, keeping the position.
   const streamKey = `${fileId}|${audio}|${quality}|${burn}|${audioDelay}`;
@@ -326,7 +354,10 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
       }
       // Restarting the stream is costly: held or repeated arrow keys and a
       // dragged bar settle first, then one restart goes to where they ended.
-      restartTimer.current = window.setTimeout(() => void restartAt(baseUrl, t, decision?.video_copy ?? false), 350);
+      restartTimer.current = window.setTimeout(
+        () => void restartAt(baseUrl, t, decision?.video_copy ?? false),
+        350,
+      );
     },
     [duration, method, offset, baseUrl, decision, restartAt],
   );
@@ -334,7 +365,8 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
   const skip = useCallback((d: number) => seek(position() + d), [seek, position]);
 
   // ---------- progress ----------
-  const audioLang = file?.streams?.find((s) => s.kind === 'audio' && s.type_index === audio)?.language ?? '';
+  const audioLang =
+    file?.streams?.find((s) => s.kind === 'audio' && s.type_index === audio)?.language ?? '';
   const subLang = subtitle ? (subTrack?.language ?? '') : 'off';
   const queueEntry = queue?.items.find((x) => x.entry === entryParam);
 
@@ -353,7 +385,9 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
         audio_language: audioLang,
         subtitle_language: subLang,
         ended,
-        ...(queueName.startsWith('playlist:') && queueEntry ? { playlist_id: queueName.split(':')[1], playlist_entry: queueEntry.entry } : {}),
+        ...(queueName.startsWith('playlist:') && queueEntry
+          ? { playlist_id: queueName.split(':')[1], playlist_entry: queueEntry.entry }
+          : {}),
       };
       lastReport.current = Date.now();
       void reportProgress(body).catch(() => undefined);
@@ -381,7 +415,9 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
   // ---------- next item ----------
   const next = useMemo((): { to: string; card: Card | null; label: string } | null => {
     if (queue && queue.items.length) {
-      const idx = queue.items.findIndex((x) => (entryParam ? x.entry === entryParam : x.type === type && x.id === id));
+      const idx = queue.items.findIndex((x) =>
+        entryParam ? x.entry === entryParam : x.type === type && x.id === id,
+      );
       let n: QueueEntry | undefined;
       if (queue.repeat === 'one' && idx >= 0) {
         n = queue.items[idx];
@@ -392,10 +428,19 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
       const qs = new URLSearchParams({ queue: queueName });
       if (n.entry) qs.set('entry', n.entry);
       const same = n.id === info?.next?.id;
-      return { to: `/play/${n.library_id}/${n.type}/${n.id}?${qs}`, card: same ? (info?.next ?? null) : null, label: same && info?.next ? `${episodeCode(info.next)} ${info.next.title}` : 'Next in queue' };
+      return {
+        to: `/play/${n.library_id}/${n.type}/${n.id}?${qs}`,
+        card: same ? (info?.next ?? null) : null,
+        label:
+          same && info?.next ? `${episodeCode(info.next)} ${info.next.title}` : 'Next in queue',
+      };
     }
     if (info?.next) {
-      return { to: playPath(info.next, queueName ? { queue: queueName } : {}), card: info.next, label: `${episodeCode(info.next)} ${info.next.title}` };
+      return {
+        to: playPath(info.next, queueName ? { queue: queueName } : {}),
+        card: info.next,
+        label: `${episodeCode(info.next)} ${info.next.title}`,
+      };
     }
     return null;
   }, [queue, entryParam, type, id, queueName, info]);
@@ -405,15 +450,20 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
     report();
     if (queueName.startsWith('playlist:')) {
       const e = new URLSearchParams(next.to.split('?')[1]).get('entry');
-      if (e) void updatePlaylist(queueName.split(':')[1] ?? '', { current_entry: e }).catch(() => undefined);
+      if (e)
+        void updatePlaylist(queueName.split(':')[1] ?? '', { current_entry: e }).catch(
+          () => undefined,
+        );
     }
     navigate(next.to, { replace: true });
   }, [next, navigate, report, queueName]);
 
   // ---------- markers ----------
   const m = info?.markers ?? {};
-  const inIntro = m.intro_start != null && m.intro_end != null && time >= m.intro_start && time < m.intro_end - 1;
-  const creditsAt = m.credits_start ?? (duration > 0 ? duration - Math.min(30, duration * 0.05) : Infinity);
+  const inIntro =
+    m.intro_start != null && m.intro_end != null && time >= m.intro_start && time < m.intro_end - 1;
+  const creditsAt =
+    m.credits_start ?? (duration > 0 ? duration - Math.min(30, duration * 0.05) : Infinity);
   const inCredits = time >= creditsAt && duration > 0 && time < duration;
 
   useEffect(() => {
@@ -512,7 +562,8 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
   }, []);
 
   const pip = async () => {
-    const v = videoRef.current as (HTMLVideoElement & { requestPictureInPicture?: () => Promise<unknown> }) | null;
+    const v = videoRef.current as
+      (HTMLVideoElement & { requestPictureInPicture?: () => Promise<unknown> }) | null;
     try {
       if (document.pictureInPictureElement) await document.exitPictureInPicture();
       else await v?.requestPictureInPicture?.();
@@ -568,8 +619,10 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
       const k = e.key;
       let handled = true;
       if (k === ' ' || k === 'k') togglePlay();
-      else if (k === 'ArrowLeft' || k === 'j') skip(-(k === 'j' ? (prefs?.skip_backward ?? 10) : step));
-      else if (k === 'ArrowRight' || k === 'l') skip(k === 'l' ? (prefs?.skip_forward ?? 30) : step);
+      else if (k === 'ArrowLeft' || k === 'j')
+        skip(-(k === 'j' ? (prefs?.skip_backward ?? 10) : step));
+      else if (k === 'ArrowRight' || k === 'l')
+        skip(k === 'l' ? (prefs?.skip_forward ?? 30) : step);
       else if (k === 'ArrowUp') setVol(volume + 0.05);
       else if (k === 'ArrowDown') setVol(volume - 0.05);
       else if (k === 'm') setMuted((x) => !x);
@@ -606,7 +659,25 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
     },
     // pip and setVol are stable enough for a key handler re-created on render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [togglePlay, skip, prefs, volume, toggleFullscreen, cycleSubs, cycleAudio, goNext, inIntro, inCredits, m.intro_end, seek, speed, panel, navigate, duration, wake],
+    [
+      togglePlay,
+      skip,
+      prefs,
+      volume,
+      toggleFullscreen,
+      cycleSubs,
+      cycleAudio,
+      goNext,
+      inIntro,
+      inCredits,
+      m.intro_end,
+      seek,
+      speed,
+      panel,
+      navigate,
+      duration,
+      wake,
+    ],
   );
 
   useEffect(() => {
@@ -635,7 +706,12 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
 
   const item = info?.item;
   const title = item?.type === 'episode' ? item.show_title : item?.title;
-  const subtitleLine = item?.type === 'episode' ? `${episodeCode(item)} ${item.title}` : item?.year ? String(item.year) : '';
+  const subtitleLine =
+    item?.type === 'episode'
+      ? `${episodeCode(item)} ${item.title}`
+      : item?.year
+        ? String(item.year)
+        : '';
   const pct = (x: number) => (duration > 0 ? `${Math.min(100, (x / duration) * 100)}%` : '0%');
   const audioTracks = file?.streams?.filter((s) => s.kind === 'audio') ?? [];
   const showControls = !playing || !idle || panel !== null;
@@ -677,14 +753,27 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
               const at = v?.currentTime ?? startAt.current;
               void (async () => {
                 const caps = clientCaps();
-                const d = await decide(lib, fileId, { audio, vc: caps.vc, ac: caps.ac, ct: caps.ct, method: 'remux' }).catch(() => null);
+                const d = await decide(lib, fileId, {
+                  audio,
+                  vc: caps.vc,
+                  ac: caps.ac,
+                  ct: caps.ct,
+                  method: 'remux',
+                }).catch(() => null);
                 if (!d) return;
-                setDecision({ ...d.decision, reasons: [...d.decision.reasons, 'the browser could not open the original file'] });
+                setDecision({
+                  ...d.decision,
+                  reasons: [...d.decision.reasons, 'the browser could not open the original file'],
+                });
                 setMethod(d.decision.method === 'direct' ? 'remux' : d.decision.method);
                 await restartAt(d.url, at, d.decision.video_copy);
               })();
             } else {
-              setError(method === 'direct' ? 'This browser cannot play this file, and ffmpeg is not installed on the server to convert it.' : 'The stream stopped unexpectedly. The file may have gone offline.');
+              setError(
+                method === 'direct'
+                  ? 'This browser cannot play this file, and ffmpeg is not installed on the server to convert it.'
+                  : 'The stream stopped unexpectedly. The file may have gone offline.',
+              );
             }
           }}
           onClick={togglePlay}
@@ -710,7 +799,12 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
       {toast && <div className="player-flash">{toast}</div>}
 
       <header className="player-top">
-        <button type="button" className="player-icon" onClick={() => navigate(-1)} aria-label="Back">
+        <button
+          type="button"
+          className="player-icon"
+          onClick={() => navigate(-1)}
+          aria-label="Back"
+        >
           <ArrowLeft size={24} />
         </button>
         <div className="player-titles">
@@ -718,7 +812,10 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
           <span>{subtitleLine}</span>
         </div>
         {decision && (
-          <span className={`player-method method-${method}`} title={decision.reasons.join('; ') || 'Playing the original file'}>
+          <span
+            className={`player-method method-${method}`}
+            title={decision.reasons.join('; ') || 'Playing the original file'}
+          >
             {method === 'direct' ? 'Direct play' : method === 'remux' ? 'Remux' : 'Transcode'}
           </span>
         )}
@@ -729,11 +826,15 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
           Skip intro <ChevronRight size={18} />
         </button>
       )}
-      {inCredits && next && countdown === null && prefs?.skip_credits !== 'off' && !countdownDismissed && (
-        <button type="button" className="player-skip" onClick={goNext}>
-          {item?.type === 'episode' ? 'Next episode' : 'Play next'} <SkipForward size={18} />
-        </button>
-      )}
+      {inCredits &&
+        next &&
+        countdown === null &&
+        prefs?.skip_credits !== 'off' &&
+        !countdownDismissed && (
+          <button type="button" className="player-skip" onClick={goNext}>
+            {item?.type === 'episode' ? 'Next episode' : 'Play next'} <SkipForward size={18} />
+          </button>
+        )}
 
       {countdown !== null && next && (
         <aside className="player-next" aria-live="polite">
@@ -757,7 +858,10 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
               </button>
             </div>
           </div>
-          <span className="player-next-ring" style={{ animationDuration: `${prefs?.next_countdown ?? 10}s` }} />
+          <span
+            className="player-next-ring"
+            style={{ animationDuration: `${prefs?.next_countdown ?? 10}s` }}
+          />
         </aside>
       )}
 
@@ -765,12 +869,28 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
         <div className="player-seek">
           <span className="player-time">{formatTimecode(time)}</span>
           <div className="player-track">
-            <span className="player-buffer" style={{ left: pct(offset), width: `calc(${pct(buffered)} - ${pct(offset)})` }} />
+            <span
+              className="player-buffer"
+              style={{ left: pct(offset), width: `calc(${pct(buffered)} - ${pct(offset)})` }}
+            />
             <span className="player-played" style={{ width: pct(time) }} />
             {m.intro_start != null && m.intro_end != null && (
-              <span className="player-marker" style={{ left: pct(m.intro_start), width: `calc(${pct(m.intro_end)} - ${pct(m.intro_start)})` }} title="Intro" />
+              <span
+                className="player-marker"
+                style={{
+                  left: pct(m.intro_start),
+                  width: `calc(${pct(m.intro_end)} - ${pct(m.intro_start)})`,
+                }}
+                title="Intro"
+              />
             )}
-            {m.credits_start != null && <span className="player-marker player-marker-credits" style={{ left: pct(m.credits_start), right: 0 }} title="Credits" />}
+            {m.credits_start != null && (
+              <span
+                className="player-marker player-marker-credits"
+                style={{ left: pct(m.credits_start), right: 0 }}
+                title="Credits"
+              />
+            )}
             <input
               type="range"
               min={0}
@@ -785,44 +905,109 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
           <span className="player-time">-{formatTimecode(Math.max(0, duration - time))}</span>
         </div>
         <div className="player-controls">
-          <button type="button" className="player-icon player-icon-big" onClick={togglePlay} aria-label={playing ? 'Pause' : 'Play'}>
-            {playing ? <Pause size={30} fill="currentColor" /> : <Play size={30} fill="currentColor" />}
+          <button
+            type="button"
+            className="player-icon player-icon-big"
+            onClick={togglePlay}
+            aria-label={playing ? 'Pause' : 'Play'}
+          >
+            {playing ? (
+              <Pause size={30} fill="currentColor" />
+            ) : (
+              <Play size={30} fill="currentColor" />
+            )}
           </button>
-          <button type="button" className="player-icon" onClick={() => skip(-(prefs?.skip_backward ?? 10))} aria-label={`Back ${prefs?.skip_backward ?? 10} seconds`}>
+          <button
+            type="button"
+            className="player-icon"
+            onClick={() => skip(-(prefs?.skip_backward ?? 10))}
+            aria-label={`Back ${prefs?.skip_backward ?? 10} seconds`}
+          >
             <Undo2 size={22} />
             <small>{prefs?.skip_backward ?? 10}</small>
           </button>
-          <button type="button" className="player-icon" onClick={() => skip(prefs?.skip_forward ?? 30)} aria-label={`Forward ${prefs?.skip_forward ?? 30} seconds`}>
+          <button
+            type="button"
+            className="player-icon"
+            onClick={() => skip(prefs?.skip_forward ?? 30)}
+            aria-label={`Forward ${prefs?.skip_forward ?? 30} seconds`}
+          >
             <Redo2 size={22} />
             <small>{prefs?.skip_forward ?? 30}</small>
           </button>
           {next && (
-            <button type="button" className="player-icon" onClick={goNext} aria-label="Next" title={next.label}>
+            <button
+              type="button"
+              className="player-icon"
+              onClick={goNext}
+              aria-label="Next"
+              title={next.label}
+            >
               <SkipForward size={22} />
             </button>
           )}
           <div className="player-volume">
-            <button type="button" className="player-icon" onClick={() => setMuted((x) => !x)} aria-label={muted ? 'Unmute' : 'Mute'}>
+            <button
+              type="button"
+              className="player-icon"
+              onClick={() => setMuted((x) => !x)}
+              aria-label={muted ? 'Unmute' : 'Mute'}
+            >
               <VolIcon size={22} />
             </button>
-            <input type="range" min={0} max={1} step={0.02} value={muted ? 0 : volume} onChange={(e) => setVol(Number(e.target.value))} aria-label="Volume" />
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.02}
+              value={muted ? 0 : volume}
+              onChange={(e) => setVol(Number(e.target.value))}
+              aria-label="Volume"
+            />
           </div>
           <span className="player-spacer" />
-          <button type="button" className="player-icon" onClick={() => setPanel(panel === 'subtitles' ? null : 'subtitles')} aria-label="Subtitles" aria-pressed={Boolean(subtitle)}>
+          <button
+            type="button"
+            className="player-icon"
+            onClick={() => setPanel(panel === 'subtitles' ? null : 'subtitles')}
+            aria-label="Subtitles"
+            aria-pressed={Boolean(subtitle)}
+          >
             <Captions size={22} />
           </button>
           {audioTracks.length > 1 && (
-            <button type="button" className="player-icon" onClick={() => setPanel(panel === 'audio' ? null : 'audio')} aria-label="Audio track">
+            <button
+              type="button"
+              className="player-icon"
+              onClick={() => setPanel(panel === 'audio' ? null : 'audio')}
+              aria-label="Audio track"
+            >
               <AudioLines size={22} />
             </button>
           )}
-          <button type="button" className="player-icon" onClick={() => setPanel(panel ? null : 'menu')} aria-label="Playback settings" aria-expanded={panel !== null}>
+          <button
+            type="button"
+            className="player-icon"
+            onClick={() => setPanel(panel ? null : 'menu')}
+            aria-label="Playback settings"
+            aria-expanded={panel !== null}
+          >
             <Settings2 size={22} />
           </button>
-          <button type="button" className="player-icon" onClick={() => void pip()} aria-label="Picture in picture">
+          <button
+            type="button"
+            className="player-icon"
+            onClick={() => void pip()}
+            aria-label="Picture in picture"
+          >
             <PictureInPicture2 size={22} />
           </button>
-          <button type="button" className="player-icon" onClick={toggleFullscreen} aria-label={fullscreen ? 'Exit full screen' : 'Full screen'}>
+          <button
+            type="button"
+            className="player-icon"
+            onClick={toggleFullscreen}
+            aria-label={fullscreen ? 'Exit full screen' : 'Full screen'}
+          >
             {fullscreen ? <Minimize size={22} /> : <Maximize size={22} />}
           </button>
         </div>
@@ -838,23 +1023,66 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
             ) : (
               <strong>{PANEL_TITLES[panel]}</strong>
             )}
-            <button type="button" className="player-icon" onClick={() => setPanel(null)} aria-label="Close">
+            <button
+              type="button"
+              className="player-icon"
+              onClick={() => setPanel(null)}
+              aria-label="Close"
+            >
               <X size={18} />
             </button>
           </header>
           <div className="player-panel-body">
             {panel === 'menu' && (
               <ul className="pp-menu">
-                <MenuRow icon={<AudioLines size={18} />} label="Audio" value={audioTracks.find((a) => a.type_index === audio) ? audioLabel(audioTracks.find((a) => a.type_index === audio)!) : '—'} onClick={() => setPanel('audio')} />
-                <MenuRow icon={<Captions size={18} />} label="Subtitles" value={subTrack ? trackName(subTrack) : 'Off'} onClick={() => setPanel('subtitles')} />
-                <MenuRow icon={<Settings2 size={18} />} label="Quality" value={QUALITIES.find(([q]) => q === quality)?.[1] ?? quality} onClick={() => setPanel('quality')} />
-                <MenuRow icon={<Gauge size={18} />} label="Speed" value={`${speed}×`} onClick={() => setPanel('speed')} />
-                <MenuRow icon={<Captions size={18} />} label="Subtitle style" value={`${style?.size ?? 100}%`} onClick={() => setPanel('style')} />
-                <MenuRow icon={<Undo2 size={18} />} label="Sync" value={subDelay || audioDelay ? 'Adjusted' : 'In sync'} onClick={() => setPanel('sync')} />
+                <MenuRow
+                  icon={<AudioLines size={18} />}
+                  label="Audio"
+                  value={
+                    audioTracks.find((a) => a.type_index === audio)
+                      ? audioLabel(audioTracks.find((a) => a.type_index === audio)!)
+                      : '—'
+                  }
+                  onClick={() => setPanel('audio')}
+                />
+                <MenuRow
+                  icon={<Captions size={18} />}
+                  label="Subtitles"
+                  value={subTrack ? trackName(subTrack) : 'Off'}
+                  onClick={() => setPanel('subtitles')}
+                />
+                <MenuRow
+                  icon={<Settings2 size={18} />}
+                  label="Quality"
+                  value={QUALITIES.find(([q]) => q === quality)?.[1] ?? quality}
+                  onClick={() => setPanel('quality')}
+                />
+                <MenuRow
+                  icon={<Gauge size={18} />}
+                  label="Speed"
+                  value={`${speed}×`}
+                  onClick={() => setPanel('speed')}
+                />
+                <MenuRow
+                  icon={<Captions size={18} />}
+                  label="Subtitle style"
+                  value={`${style?.size ?? 100}%`}
+                  onClick={() => setPanel('style')}
+                />
+                <MenuRow
+                  icon={<Undo2 size={18} />}
+                  label="Sync"
+                  value={subDelay || audioDelay ? 'Adjusted' : 'In sync'}
+                  onClick={() => setPanel('sync')}
+                />
                 {info.files.length > 1 && (
                   <li className="pp-versions">
                     <span>Version</span>
-                    <select value={fileId} onChange={(e) => setFileId(e.target.value)} aria-label="Version">
+                    <select
+                      value={fileId}
+                      onChange={(e) => setFileId(e.target.value)}
+                      aria-label="Version"
+                    >
                       {info.files.map((f) => (
                         <option key={f.id} value={f.id}>
                           {[f.edition || f.name, f.resolution].filter(Boolean).join(', ')}
@@ -863,38 +1091,87 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
                     </select>
                   </li>
                 )}
-                <MenuRow icon={<Info size={18} />} label="Stream info" value="" onClick={() => setPanel('info')} />
-                <MenuRow icon={<Keyboard size={18} />} label="Keyboard shortcuts" value="?" onClick={() => setPanel('keys')} />
+                <MenuRow
+                  icon={<Info size={18} />}
+                  label="Stream info"
+                  value=""
+                  onClick={() => setPanel('info')}
+                />
+                <MenuRow
+                  icon={<Keyboard size={18} />}
+                  label="Keyboard shortcuts"
+                  value="?"
+                  onClick={() => setPanel('keys')}
+                />
               </ul>
             )}
             {panel === 'audio' && (
               <Choices
-                items={audioTracks.map((a) => ({ id: String(a.type_index), label: audioLabel(a), hint: a.is_default ? 'Default' : '' }))}
+                items={audioTracks.map((a) => ({
+                  id: String(a.type_index),
+                  label: audioLabel(a),
+                  hint: a.is_default ? 'Default' : '',
+                }))}
                 value={String(audio)}
                 onPick={(v) => {
                   setAudio(Number(v));
                   const t = audioTracks.find((a) => String(a.type_index) === v);
-                  if (t?.language) void updatePlayback({ audio_languages: dedupeFront(prefs?.audio_languages ?? [], t.language) }).catch(() => undefined);
+                  if (t?.language)
+                    void updatePlayback({
+                      audio_languages: dedupeFront(prefs?.audio_languages ?? [], t.language),
+                    }).catch(() => undefined);
                 }}
               />
             )}
             {panel === 'subtitles' && (
               <>
                 <Choices
-                  items={[{ id: '', label: 'Off', hint: '' }, ...textSubs.map((s) => ({ id: s.id, label: trackName(s), hint: subtitleHint(s) }))]}
+                  items={[
+                    { id: '', label: 'Off', hint: '' },
+                    ...textSubs.map((s) => ({
+                      id: s.id,
+                      label: trackName(s),
+                      hint: subtitleHint(s),
+                    })),
+                  ]}
                   value={subtitle}
                   onPick={setSubtitle}
                 />
-                {textSubs.length === 0 && <p className="pp-note">This title has no subtitles. Editors can add a file from the title's Manage menu.</p>}
+                {textSubs.length === 0 && (
+                  <p className="pp-note">
+                    This title has no subtitles. Editors can add a file from the title's Manage
+                    menu.
+                  </p>
+                )}
               </>
             )}
             {panel === 'quality' && (
               <>
-                <Choices items={QUALITIES.map(([q, l]) => ({ id: q, label: l, hint: q === 'original' && file?.resolution ? file.resolution : '' }))} value={quality} onPick={setQuality} />
-                <p className="pp-note">Lower qualities are transcoded on the server, which uses more of its CPU.</p>
+                <Choices
+                  items={QUALITIES.map(([q, l]) => ({
+                    id: q,
+                    label: l,
+                    hint: q === 'original' && file?.resolution ? file.resolution : '',
+                  }))}
+                  value={quality}
+                  onPick={setQuality}
+                />
+                <p className="pp-note">
+                  Lower qualities are transcoded on the server, which uses more of its CPU.
+                </p>
               </>
             )}
-            {panel === 'speed' && <Choices items={SPEEDS.map((s) => ({ id: String(s), label: s === 1 ? 'Normal' : `${s}×`, hint: '' }))} value={String(speed)} onPick={(v) => setSpeed(Number(v))} />}
+            {panel === 'speed' && (
+              <Choices
+                items={SPEEDS.map((s) => ({
+                  id: String(s),
+                  label: s === 1 ? 'Normal' : `${s}×`,
+                  hint: '',
+                }))}
+                value={String(speed)}
+                onPick={(v) => setSpeed(Number(v))}
+              />
+            )}
             {panel === 'style' && style && (
               <StylePanel
                 style={style}
@@ -906,14 +1183,34 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
             )}
             {panel === 'sync' && (
               <div className="pp-sync">
-                <Stepper label="Subtitle delay" value={subDelay} unit="ms" step={100} onChange={setSubDelay} hint="Later subtitles: +. Keys G and H." />
-                <Stepper label="Audio delay" value={audioDelay} unit="ms" step={50} onChange={setAudioDelay} hint="Applied on the server; the stream restarts." />
+                <Stepper
+                  label="Subtitle delay"
+                  value={subDelay}
+                  unit="ms"
+                  step={100}
+                  onChange={setSubDelay}
+                  hint="Later subtitles: +. Keys G and H."
+                />
+                <Stepper
+                  label="Audio delay"
+                  value={audioDelay}
+                  unit="ms"
+                  step={50}
+                  onChange={setAudioDelay}
+                  hint="Applied on the server; the stream restarts."
+                />
               </div>
             )}
             {panel === 'info' && (
               <dl className="pp-info">
                 <dt>Playback</dt>
-                <dd>{method === 'direct' ? 'Direct play' : method === 'remux' ? 'Remux (copying streams)' : 'Transcode'}</dd>
+                <dd>
+                  {method === 'direct'
+                    ? 'Direct play'
+                    : method === 'remux'
+                      ? 'Remux (copying streams)'
+                      : 'Transcode'}
+                </dd>
                 {decision?.reasons.length ? (
                   <>
                     <dt>Why</dt>
@@ -922,14 +1219,32 @@ function Player({ lib, type, id }: { lib: string; type: string; id: string }) {
                 ) : null}
                 <dt>Video</dt>
                 <dd>
-                  {[codecName(file?.video_codec), file?.resolution, file?.hdr, file?.frame_rate ? `${file.frame_rate.toFixed(3).replace(/\.?0+$/, '')} fps` : '', decision && method !== 'direct' ? (decision.video_copy ? 'copied' : 'encoded to H.264') : '']
+                  {[
+                    codecName(file?.video_codec),
+                    file?.resolution,
+                    file?.hdr,
+                    file?.frame_rate
+                      ? `${file.frame_rate.toFixed(3).replace(/\.?0+$/, '')} fps`
+                      : '',
+                    decision && method !== 'direct'
+                      ? decision.video_copy
+                        ? 'copied'
+                        : 'encoded to H.264'
+                      : '',
+                  ]
                     .filter(Boolean)
                     .join(', ')}
                 </dd>
                 <dt>Audio</dt>
                 <dd>
-                  {audioTracks.find((a) => a.type_index === audio) ? audioLabel(audioTracks.find((a) => a.type_index === audio)!) : '—'}
-                  {decision && method !== 'direct' ? (decision.audio_copy ? ', copied' : ', encoded to AAC') : ''}
+                  {audioTracks.find((a) => a.type_index === audio)
+                    ? audioLabel(audioTracks.find((a) => a.type_index === audio)!)
+                    : '—'}
+                  {decision && method !== 'direct'
+                    ? decision.audio_copy
+                      ? ', copied'
+                      : ', encoded to AAC'
+                    : ''}
                 </dd>
                 <dt>Container</dt>
                 <dd>{file?.container}</dd>
@@ -999,14 +1314,33 @@ function dedupeFront(list: string[], lang: string) {
 }
 
 function trackName(s: SubtitleTrack) {
-  return [s.language_name || 'Unknown', s.title && s.title !== s.language_name ? s.title : ''].filter(Boolean).join(', ');
+  return [s.language_name || 'Unknown', s.title && s.title !== s.language_name ? s.title : '']
+    .filter(Boolean)
+    .join(', ');
 }
 
 function subtitleHint(s: SubtitleTrack) {
-  return [s.is_forced && 'Forced', s.is_hearing_impaired && 'SDH', s.image_based && 'Burned in', s.source !== 'embedded' && (s.source === 'upload' ? 'Added' : 'External')].filter(Boolean).join(', ');
+  return [
+    s.is_forced && 'Forced',
+    s.is_hearing_impaired && 'SDH',
+    s.image_based && 'Burned in',
+    s.source !== 'embedded' && (s.source === 'upload' ? 'Added' : 'External'),
+  ]
+    .filter(Boolean)
+    .join(', ');
 }
 
-function MenuRow({ icon, label, value, onClick }: { icon: ReactNode; label: string; value: string; onClick: () => void }) {
+function MenuRow({
+  icon,
+  label,
+  value,
+  onClick,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  onClick: () => void;
+}) {
   return (
     <li>
       <button type="button" className="pp-row" onClick={onClick}>
@@ -1019,12 +1353,26 @@ function MenuRow({ icon, label, value, onClick }: { icon: ReactNode; label: stri
   );
 }
 
-function Choices({ items, value, onPick }: { items: { id: string; label: string; hint: string }[]; value: string; onPick: (id: string) => void }) {
+function Choices({
+  items,
+  value,
+  onPick,
+}: {
+  items: { id: string; label: string; hint: string }[];
+  value: string;
+  onPick: (id: string) => void;
+}) {
   return (
     <ul className="pp-choices" role="radiogroup">
       {items.map((it) => (
         <li key={it.id}>
-          <button type="button" role="radio" aria-checked={it.id === value} className="pp-choice" onClick={() => onPick(it.id)}>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={it.id === value}
+            className="pp-choice"
+            onClick={() => onPick(it.id)}
+          >
             <span className="pp-dot" aria-hidden="true" />
             <span className="pp-row-label">{it.label}</span>
             {it.hint && <span className="pp-row-value">{it.hint}</span>}
@@ -1035,19 +1383,43 @@ function Choices({ items, value, onPick }: { items: { id: string; label: string;
   );
 }
 
-function Stepper({ label, value, unit, step, onChange, hint }: { label: string; value: number; unit: string; step: number; onChange: (v: number) => void; hint: string }) {
+function Stepper({
+  label,
+  value,
+  unit,
+  step,
+  onChange,
+  hint,
+}: {
+  label: string;
+  value: number;
+  unit: string;
+  step: number;
+  onChange: (v: number) => void;
+  hint: string;
+}) {
   return (
     <div className="pp-stepper">
       <span className="pp-row-label">{label}</span>
       <div>
-        <button type="button" className="player-icon" onClick={() => onChange(value - step)} aria-label={`${label} minus ${step} ${unit}`}>
+        <button
+          type="button"
+          className="player-icon"
+          onClick={() => onChange(value - step)}
+          aria-label={`${label} minus ${step} ${unit}`}
+        >
           −
         </button>
         <output>
           {value > 0 ? '+' : ''}
           {value} {unit}
         </output>
-        <button type="button" className="player-icon" onClick={() => onChange(value + step)} aria-label={`${label} plus ${step} ${unit}`}>
+        <button
+          type="button"
+          className="player-icon"
+          onClick={() => onChange(value + step)}
+          aria-label={`${label} plus ${step} ${unit}`}
+        >
           +
         </button>
         {value !== 0 && (
@@ -1061,25 +1433,52 @@ function Stepper({ label, value, unit, step, onChange, hint }: { label: string; 
   );
 }
 
-function StylePanel({ style, onChange }: { style: SubtitleStyle; onChange: (s: SubtitleStyle) => void }) {
+function StylePanel({
+  style,
+  onChange,
+}: {
+  style: SubtitleStyle;
+  onChange: (s: SubtitleStyle) => void;
+}) {
   const colors = ['#ffffff', '#f1fa8c', '#8be9fd', '#50fa7b', '#ff79c6'];
   return (
     <div className="pp-style">
       <label>
         <span className="pp-row-label">Size</span>
-        <input type="range" min={50} max={250} step={10} value={style.size} onChange={(e) => onChange({ ...style, size: Number(e.target.value) })} />
+        <input
+          type="range"
+          min={50}
+          max={250}
+          step={10}
+          value={style.size}
+          onChange={(e) => onChange({ ...style, size: Number(e.target.value) })}
+        />
         <output>{style.size}%</output>
       </label>
       <label>
         <span className="pp-row-label">Position</span>
-        <input type="range" min={0} max={40} step={1} value={style.position} onChange={(e) => onChange({ ...style, position: Number(e.target.value) })} />
+        <input
+          type="range"
+          min={0}
+          max={40}
+          step={1}
+          value={style.position}
+          onChange={(e) => onChange({ ...style, position: Number(e.target.value) })}
+        />
         <output>{style.position}%</output>
       </label>
       <div className="pp-style-row">
         <span className="pp-row-label">Colour</span>
         <span className="pp-swatches">
           {colors.map((c) => (
-            <button key={c} type="button" style={{ background: c }} aria-label={c} aria-pressed={style.color === c} onClick={() => onChange({ ...style, color: c })} />
+            <button
+              key={c}
+              type="button"
+              style={{ background: c }}
+              aria-label={c}
+              aria-pressed={style.color === c}
+              onClick={() => onChange({ ...style, color: c })}
+            />
           ))}
         </span>
       </div>
@@ -1087,7 +1486,12 @@ function StylePanel({ style, onChange }: { style: SubtitleStyle; onChange: (s: S
         <span className="pp-row-label">Background</span>
         <span className="pp-segs">
           {(['shadow', 'box', 'none'] as const).map((b) => (
-            <button key={b} type="button" aria-pressed={style.background === b} onClick={() => onChange({ ...style, background: b })}>
+            <button
+              key={b}
+              type="button"
+              aria-pressed={style.background === b}
+              onClick={() => onChange({ ...style, background: b })}
+            >
               {b === 'shadow' ? 'Shadow' : b === 'box' ? 'Box' : 'None'}
             </button>
           ))}
@@ -1096,7 +1500,14 @@ function StylePanel({ style, onChange }: { style: SubtitleStyle; onChange: (s: S
       {style.background === 'box' && (
         <label>
           <span className="pp-row-label">Box opacity</span>
-          <input type="range" min={10} max={100} step={5} value={style.opacity} onChange={(e) => onChange({ ...style, opacity: Number(e.target.value) })} />
+          <input
+            type="range"
+            min={10}
+            max={100}
+            step={5}
+            value={style.opacity}
+            onChange={(e) => onChange({ ...style, opacity: Number(e.target.value) })}
+          />
           <output>{style.opacity}%</output>
         </label>
       )}
@@ -1104,7 +1515,12 @@ function StylePanel({ style, onChange }: { style: SubtitleStyle; onChange: (s: S
         <span className="pp-row-label">Font</span>
         <span className="pp-segs">
           {(['sans', 'serif', 'mono', 'rounded'] as const).map((f) => (
-            <button key={f} type="button" aria-pressed={style.font === f} onClick={() => onChange({ ...style, font: f })}>
+            <button
+              key={f}
+              type="button"
+              aria-pressed={style.font === f}
+              onClick={() => onChange({ ...style, font: f })}
+            >
               {f === 'sans' ? 'Sans' : f === 'serif' ? 'Serif' : f === 'mono' ? 'Mono' : 'Techno'}
             </button>
           ))}
@@ -1116,4 +1532,3 @@ function StylePanel({ style, onChange }: { style: SubtitleStyle; onChange: (s: S
     </div>
   );
 }
-

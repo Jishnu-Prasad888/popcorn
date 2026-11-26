@@ -153,7 +153,9 @@ describe('LoginPage', () => {
 
     await screen.findByRole('heading', { name: 'Sign in to Popcorn' });
     // Only the administrator adds accounts after the first one.
-    expect(screen.getByText("No account? Ask this server's administrator to add you.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No account? Ask this server's administrator to add you."),
+    ).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /create/i })).not.toBeInTheDocument();
     expect(screen.queryByText('First time on this server?')).not.toBeInTheDocument();
     expect(

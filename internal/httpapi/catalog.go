@@ -128,7 +128,7 @@ func (s *Server) handleGetMovie(w http.ResponseWriter, r *http.Request, u *auth.
 	if s.userdata != nil {
 		all, _ := s.userdata.History(r.Context(), u.ID, 500, 0)
 		for _, h := range all {
-			if h.LibraryID == lib.ID && h.Type == "movie" && h.Ref.ID == m.ID {
+			if h.LibraryID == lib.ID && h.Type == "movie" && h.ID == m.ID {
 				history = append(history, h)
 			}
 		}

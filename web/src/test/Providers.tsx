@@ -16,9 +16,7 @@ export default function Providers({ children }: { children: ReactNode }) {
   return (
     <AuthProvider>
       <LibrariesProvider>
-        <ToastProvider>
-          {children}
-        </ToastProvider>
+        <ToastProvider>{children}</ToastProvider>
       </LibrariesProvider>
     </AuthProvider>
   );

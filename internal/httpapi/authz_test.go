@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"image"
-	"image/jpeg"
 	"io"
 	"log/slog"
 	"mime/multipart"
@@ -123,55 +121,6 @@ func uploadFile(t *testing.T, c *testClient, libID, path string) string {
 	rec := rawUpload(t, c, libID, path)
 	if rec.Code != http.StatusCreated {
 		t.Fatalf("upload status = %d, body=%s", rec.Code, rec.Body.String())
-	}
-	var resp struct {
-		File struct {
-			ID string `json:"id"`
-		} `json:"file"`
-	}
-	if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
-		t.Fatalf("unmarshal upload: %v", err)
-	}
-	return resp.File.ID
-}
-
-// uploadJPEG uploads a real, decodable JPEG through the live upload endpoint —
-// unlike uploadFile's placeholder bytes, this is needed wherever the test
-// exercises thumbnail generation, which has to decode the source image.
-func uploadJPEG(t *testing.T, c *testClient, libID, path string) string {
-	t.Helper()
-	var jpegBuf bytes.Buffer
-	img := image.NewRGBA(image.Rect(0, 0, 64, 48))
-	if err := jpeg.Encode(&jpegBuf, img, nil); err != nil {
-		t.Fatalf("encode test jpeg: %v", err)
-	}
-
-	var buf bytes.Buffer
-	mw := multipart.NewWriter(&buf)
-	fw, err := mw.CreateFormFile("file", filepath.Base(path))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err := fw.Write(jpegBuf.Bytes()); err != nil {
-		t.Fatal(err)
-	}
-	if err := mw.WriteField("path", path); err != nil {
-		t.Fatal(err)
-	}
-	if err := mw.Close(); err != nil {
-		t.Fatal(err)
-	}
-
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/libraries/"+libID+"/files/upload", &buf)
-	req.Header.Set("Content-Type", mw.FormDataContentType())
-	for name, value := range c.cookies {
-		req.AddCookie(&http.Cookie{Name: name, Value: value})
-	}
-	rec := httptest.NewRecorder()
-	c.handler.ServeHTTP(rec, req)
-	c.applySetCookies(rec.Result().Cookies())
-	if rec.Code != http.StatusCreated {
-		t.Fatalf("upload jpeg status = %d, body=%s", rec.Code, rec.Body.String())
 	}
 	var resp struct {
 		File struct {

@@ -32,7 +32,12 @@ const CODEC_NAMES: Record<string, string> = {
 export const codecName = (c?: string) => (c ? (CODEC_NAMES[c] ?? c.toUpperCase()) : '');
 
 export function audioLabel(s: StreamInfo): string {
-  return [s.language_name || 'Unknown', codecName(s.codec), channels(s.channels, s.channel_layout), s.title && !/^(stereo|surround|5\.1)$/i.test(s.title) ? s.title : '']
+  return [
+    s.language_name || 'Unknown',
+    codecName(s.codec),
+    channels(s.channels, s.channel_layout),
+    s.title && !/^(stereo|surround|5\.1)$/i.test(s.title) ? s.title : '',
+  ]
     .filter(Boolean)
     .join('  ');
 }

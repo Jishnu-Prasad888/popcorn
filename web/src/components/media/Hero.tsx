@@ -3,7 +3,15 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Info, Play, RotateCcw } from 'lucide-react';
 
-import { backdropOf, formatRuntime, itemPath, logoOf, playPath, progressOf, ratingOf } from '../../api/media';
+import {
+  backdropOf,
+  formatRuntime,
+  itemPath,
+  logoOf,
+  playPath,
+  progressOf,
+  ratingOf,
+} from '../../api/media';
 import type { Card } from '../../api/media';
 import { SignalBar } from './Cards';
 import { useCardMenu } from './CardMenu';
@@ -22,7 +30,12 @@ export function Facts({ c }: { c: Card }) {
       </span>,
     );
   }
-  if (c.content_rating) facts.push(<span key="c" className="content-rating">{c.content_rating}</span>);
+  if (c.content_rating)
+    facts.push(
+      <span key="c" className="content-rating">
+        {c.content_rating}
+      </span>,
+    );
   if (rating) {
     facts.push(
       <span key="i" className="rating-imdb">
@@ -97,7 +110,11 @@ function HeroSlide({
         {backdrop && <img src={backdrop} alt="" />}
       </div>
       <div className="hero-body">
-        {logo ? <img className="hero-logo" src={logo} alt={c.title} /> : <h1 className="hero-title">{c.title}</h1>}
+        {logo ? (
+          <img className="hero-logo" src={logo} alt={c.title} />
+        ) : (
+          <h1 className="hero-title">{c.title}</h1>
+        )}
         {logo && <h1 className="visually-hidden">{c.title}</h1>}
         <Facts c={c} />
         {c.overview && <p className="hero-overview">{c.overview}</p>}

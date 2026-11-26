@@ -232,17 +232,6 @@ func envOrDefaultInt(name string, def int) int {
 	return def
 }
 
-// envOrDefaultFloat parses a POPCORN_<name> floating-point setting, falling
-// back to the default when unset or malformed.
-func envOrDefaultFloat(name string, def float64) float64 {
-	if v, ok := os.LookupEnv(EnvPrefix + "_" + name); ok {
-		if f, err := strconv.ParseFloat(strings.TrimSpace(v), 64); err == nil {
-			return f
-		}
-	}
-	return def
-}
-
 // envOrDefaultInt64 parses a POPCORN_<name> 64-bit integer setting, falling
 // back to the default when unset or malformed.
 func envOrDefaultInt64(name string, def int64) int64 {

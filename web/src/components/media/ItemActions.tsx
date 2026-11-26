@@ -40,7 +40,8 @@ export function ItemActions({ item, onChange }: { item: Card; onChange?: () => v
     }
   };
 
-  const watchedLabel = item.type === 'show' || item.type === 'season' ? 'Mark all watched' : 'Mark watched';
+  const watchedLabel =
+    item.type === 'show' || item.type === 'season' ? 'Mark all watched' : 'Mark watched';
   return (
     <>
       <button
@@ -78,20 +79,42 @@ export function ItemActions({ item, onChange }: { item: Card; onChange?: () => v
         </>
       )}
       {item.type !== 'season' && (
-        <button type="button" className="btn-round" onClick={() => setAddTo('collection')} title="Add to collection" aria-label="Add to collection">
+        <button
+          type="button"
+          className="btn-round"
+          onClick={() => setAddTo('collection')}
+          title="Add to collection"
+          aria-label="Add to collection"
+        >
           <Layers size={19} />
         </button>
       )}
-      <button type="button" className="btn-round" onClick={() => setAddTo('playlist')} title="Add to playlist" aria-label="Add to playlist">
+      <button
+        type="button"
+        className="btn-round"
+        onClick={() => setAddTo('playlist')}
+        title="Add to playlist"
+        aria-label="Add to playlist"
+      >
         <ListPlus size={20} />
       </button>
-      {addTo && <AddToDialog kind={addTo} items={[ref]} title={item.title} onClose={() => setAddTo(null)} />}
+      {addTo && (
+        <AddToDialog kind={addTo} items={[ref]} title={item.title} onClose={() => setAddTo(null)} />
+      )}
     </>
   );
 }
 
 function emptyState(): UserState {
-  return { position_secs: 0, duration_secs: 0, played: false, play_count: 0, favorite: false, watchlist: false, unplayed_count: 0 };
+  return {
+    position_secs: 0,
+    duration_secs: 0,
+    played: false,
+    play_count: 0,
+    favorite: false,
+    watchlist: false,
+    unplayed_count: 0,
+  };
 }
 
 /** Pick (or create) a collection or playlist to add items to. */
@@ -108,8 +131,17 @@ export function AddToDialog({
 }) {
   const toast = useToast();
   const lists = useResource(async () => {
-    if (kind === 'collection') return (await listCollections()).collections.map((c) => ({ id: c.id, name: c.name, count: c.item_count }));
-    return (await listPlaylists()).playlists.map((p) => ({ id: p.id, name: p.name, count: p.item_count }));
+    if (kind === 'collection')
+      return (await listCollections()).collections.map((c) => ({
+        id: c.id,
+        name: c.name,
+        count: c.item_count,
+      }));
+    return (await listPlaylists()).playlists.map((p) => ({
+      id: p.id,
+      name: p.name,
+      count: p.item_count,
+    }));
   }, [kind]);
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
@@ -154,7 +186,13 @@ export function AddToDialog({
           void create();
         }}
       >
-        <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder={`New ${noun} name`} aria-label={`New ${noun} name`} />
+        <input
+          className="input"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder={`New ${noun} name`}
+          aria-label={`New ${noun} name`}
+        />
         <button type="submit" className="primary-button" disabled={busy || !name.trim()}>
           <Plus size={16} /> Create
         </button>
@@ -173,7 +211,9 @@ export function AddToDialog({
           ))}
         </ul>
       )}
-      {lists.data?.length === 0 && <p className="muted">You have no {noun}s yet. Name one above to create it.</p>}
+      {lists.data?.length === 0 && (
+        <p className="muted">You have no {noun}s yet. Name one above to create it.</p>
+      )}
     </Dialog>
   );
 }

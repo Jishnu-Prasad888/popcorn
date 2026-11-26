@@ -361,7 +361,11 @@ export interface PlayInfo {
   audio: number;
   subtitle: string;
   resume_secs: number;
-  markers: { intro_start?: number | null; intro_end?: number | null; credits_start?: number | null };
+  markers: {
+    intro_start?: number | null;
+    intro_end?: number | null;
+    credits_start?: number | null;
+  };
   next: Card | null;
   previous: Card | null;
   preferences: PlaybackPrefs;
@@ -442,7 +446,10 @@ export function landscapeOf(c: Card): string | null {
       (c.show_id ? artUrl(c.library_id, 'show', c.show_id, 'backdrop', c.show_art) : null)
     );
   }
-  return artUrl(c.library_id, c.type, c.id, 'backdrop', c.art) ?? artUrl(c.library_id, c.type, c.id, 'thumb', c.art);
+  return (
+    artUrl(c.library_id, c.type, c.id, 'backdrop', c.art) ??
+    artUrl(c.library_id, c.type, c.id, 'thumb', c.art)
+  );
 }
 
 export function backdropOf(c: Card): string | null {
@@ -453,7 +460,8 @@ export function backdropOf(c: Card): string | null {
 }
 
 export function logoOf(c: Card): string | null {
-  if (c.type === 'episode' && c.show_id) return artUrl(c.library_id, 'show', c.show_id, 'logo', c.show_art);
+  if (c.type === 'episode' && c.show_id)
+    return artUrl(c.library_id, 'show', c.show_id, 'logo', c.show_art);
   return artUrl(c.library_id, c.type, c.id, 'logo', c.art);
 }
 
@@ -461,7 +469,13 @@ export const personImageUrl = (libraryId: string, personId: string) =>
   `${API_BASE}/libraries/${libraryId}/people/${personId}/image`;
 
 /** The app route of an item's page. */
-export function itemPath(c: { type: ItemType; library_id: string; id: string; show_id?: string | undefined; season_id?: string | undefined }): string {
+export function itemPath(c: {
+  type: ItemType;
+  library_id: string;
+  id: string;
+  show_id?: string | undefined;
+  season_id?: string | undefined;
+}): string {
   switch (c.type) {
     case 'movie':
       return `/movie/${c.library_id}/${c.id}`;
@@ -474,7 +488,10 @@ export function itemPath(c: { type: ItemType; library_id: string; id: string; sh
   }
 }
 
-export function playPath(c: { type: ItemType; library_id: string; id: string }, opts: { restart?: boolean; queue?: string } = {}): string {
+export function playPath(
+  c: { type: ItemType; library_id: string; id: string },
+  opts: { restart?: boolean; queue?: string } = {},
+): string {
   const q = new URLSearchParams();
   if (opts.restart) q.set('restart', '1');
   if (opts.queue) q.set('queue', opts.queue);
@@ -500,10 +517,13 @@ export function formatTimecode(secs: number): string {
   return h ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
 }
 
-export function episodeCode(c: Pick<Card, 'season_number' | 'episode_number' | 'episode_end'>): string {
+export function episodeCode(
+  c: Pick<Card, 'season_number' | 'episode_number' | 'episode_end'>,
+): string {
   if (c.episode_number === undefined) return '';
   const pad = (n: number) => String(n).padStart(2, '0');
-  const end = c.episode_end && c.episode_end > (c.episode_number ?? 0) ? `–E${pad(c.episode_end)}` : '';
+  const end =
+    c.episode_end && c.episode_end > (c.episode_number ?? 0) ? `–E${pad(c.episode_end)}` : '';
   return `S${pad(c.season_number)}E${pad(c.episode_number)}${end}`;
 }
 
@@ -539,22 +559,33 @@ const qs = (params: Record<string, string | number | boolean | undefined | null>
 export type ListParams = Record<string, string | number | undefined>;
 
 export const getHome = () =>
-  apiGet<{ rows: HomeRow[]; collections: Collection[]; counts: { movies: number; shows: number } }>('/home');
+  apiGet<{ rows: HomeRow[]; collections: Collection[]; counts: { movies: number; shows: number } }>(
+    '/home',
+  );
 export const listMovies = (p: ListParams = {}) => apiGet<Listing>(`/movies${qs(p)}`);
 export const listShows = (p: ListParams = {}) => apiGet<Listing>(`/shows${qs(p)}`);
 export const getFacets = (type: 'movie' | 'show') => apiGet<Facets>(`/facets?type=${type}`);
 export const search = (q: string) =>
-  apiGet<{ movies: Card[]; shows: Card[]; episodes: Card[]; people: PersonHit[] }>(`/search${qs({ q })}`);
+  apiGet<{ movies: Card[]; shows: Card[]; episodes: Card[]; people: PersonHit[] }>(
+    `/search${qs({ q })}`,
+  );
 
 export const getMovie = (lib: string, id: string) =>
-  apiGet<{ movie: Movie; related: Card[]; history: HistoryEntry[]; can_edit: boolean }>(`/libraries/${lib}/movies/${id}`);
+  apiGet<{ movie: Movie; related: Card[]; history: HistoryEntry[]; can_edit: boolean }>(
+    `/libraries/${lib}/movies/${id}`,
+  );
 export const getShow = (lib: string, id: string) =>
-  apiGet<{ show: Show; next_up: Card | null; related: Card[]; can_edit: boolean }>(`/libraries/${lib}/shows/${id}`);
+  apiGet<{ show: Show; next_up: Card | null; related: Card[]; can_edit: boolean }>(
+    `/libraries/${lib}/shows/${id}`,
+  );
 export const getSeasonEpisodes = (lib: string, seasonId: string) =>
   apiGet<{ season: Season; episodes: Card[] }>(`/libraries/${lib}/seasons/${seasonId}/episodes`);
 export const getEpisode = (lib: string, id: string) =>
-  apiGet<{ episode: Episode; previous_id: string; next_id: string; can_edit: boolean }>(`/libraries/${lib}/episodes/${id}`);
-export const getPerson = (lib: string, id: string) => apiGet<Person>(`/libraries/${lib}/people/${id}`);
+  apiGet<{ episode: Episode; previous_id: string; next_id: string; can_edit: boolean }>(
+    `/libraries/${lib}/episodes/${id}`,
+  );
+export const getPerson = (lib: string, id: string) =>
+  apiGet<Person>(`/libraries/${lib}/people/${id}`);
 
 export const getPlayInfo = (lib: string, type: PlayableType, id: string, fileId?: string) =>
   apiGet<PlayInfo>(`/libraries/${lib}/play/${type}/${id}${qs({ file: fileId })}`);
@@ -565,7 +596,9 @@ export const decide = (lib: string, fileId: string, params: ListParams) =>
 /** Where a stream that copies video really starts when asked for `at`:
  * the keyframe it lands on, and the source time that is 0 in the stream. */
 export const keyframeAt = (lib: string, fileId: string, at: number) =>
-  apiGet<{ keyframe: number; zero: number }>(`/libraries/${lib}/files/${fileId}/keyframe${qs({ at: at.toFixed(3) })}`);
+  apiGet<{ keyframe: number; zero: number }>(
+    `/libraries/${lib}/files/${fileId}/keyframe${qs({ at: at.toFixed(3) })}`,
+  );
 export const reportProgress = (body: {
   library_id: string;
   type: PlayableType;
@@ -586,12 +619,15 @@ export const clearProgress = (ref: Ref) => apiDelete<void>('/playback/progress',
 
 export type ListName = 'favorite' | 'watchlist';
 export const setInList = (list: ListName, ref: Ref, on: boolean) =>
-  (on ? apiPut<void> : apiDelete<void>)(`/me/lists/${list}/${ref.library_id}/${ref.type}/${ref.id}`);
+  (on ? apiPut<void> : apiDelete<void>)(
+    `/me/lists/${list}/${ref.library_id}/${ref.type}/${ref.id}`,
+  );
 export const getList = (list: ListName) => apiGet<{ items: Card[] }>(`/me/lists/${list}`);
 export const getHistory = (limit = 100, offset = 0) =>
   apiGet<{ entries: HistoryEntry[] }>(`/me/history${qs({ limit, offset })}`);
 export const deleteHistory = (id: number) => apiDelete<void>(`/me/history/${id}`);
-export const getPreferences = () => apiGet<{ playback: PlaybackPrefs; interface: InterfacePrefs }>('/me/preferences');
+export const getPreferences = () =>
+  apiGet<{ playback: PlaybackPrefs; interface: InterfacePrefs }>('/me/preferences');
 export const savePreferences = (body: { playback?: PlaybackPrefs; interface?: InterfacePrefs }) =>
   apiPut<{ playback: PlaybackPrefs; interface: InterfacePrefs }>('/me/preferences', body);
 
@@ -606,10 +642,12 @@ export const updateCollection = (id: string, patch: { name?: string; description
 export const deleteCollection = (id: string) => apiDelete<void>(`/collections/${id}`);
 export const duplicateCollection = (id: string, name?: string) =>
   apiPost<Collection>(`/collections/${id}/duplicate`, { name });
-export const addToCollection = (id: string, items: Ref[]) => apiPost<void>(`/collections/${id}/items`, { items });
+export const addToCollection = (id: string, items: Ref[]) =>
+  apiPost<void>(`/collections/${id}/items`, { items });
 export const removeFromCollection = (id: string, items: Ref[]) =>
   apiDelete<void>(`/collections/${id}/items`, { items });
-export const reorderCollection = (id: string, items: Ref[]) => apiPut<void>(`/collections/${id}/order`, { items });
+export const reorderCollection = (id: string, items: Ref[]) =>
+  apiPut<void>(`/collections/${id}/order`, { items });
 export const collectionQueue = (id: string) => apiGet<{ queue: Ref[] }>(`/collections/${id}/queue`);
 export const collectionPosterUrl = (c: Collection) =>
   c.poster_version > 0 ? `${API_BASE}/collections/${c.id}/poster?v=${c.poster_version}` : null;
@@ -623,7 +661,13 @@ export const createPlaylist = (name: string, description = '', items: Ref[] = []
   apiPost<Playlist>('/playlists', { name, description, items });
 export const updatePlaylist = (
   id: string,
-  patch: { name?: string; description?: string; shuffle?: boolean; repeat?: string; current_entry?: string },
+  patch: {
+    name?: string;
+    description?: string;
+    shuffle?: boolean;
+    repeat?: string;
+    current_entry?: string;
+  },
 ) => apiPatch<Playlist>(`/playlists/${id}`, patch);
 export const deletePlaylist = (id: string) => apiDelete<void>(`/playlists/${id}`);
 export const addToPlaylist = (id: string, items: Ref[], collection?: string) =>
@@ -635,8 +679,16 @@ export const reorderPlaylist = (id: string, entryIds: string[]) =>
 export const shufflePlaylist = (id: string) => apiPost<void>(`/playlists/${id}/shuffle`);
 
 /** Uploads raw bytes (artwork, subtitles). */
-export async function uploadBytes(path: string, body: Blob, method: 'PUT' | 'POST' = 'PUT'): Promise<unknown> {
-  const res = await fetch(`${API_BASE}${path}`, { method, body, headers: { Accept: 'application/json' } });
+export async function uploadBytes(
+  path: string,
+  body: Blob,
+  method: 'PUT' | 'POST' = 'PUT',
+): Promise<unknown> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method,
+    body,
+    headers: { Accept: 'application/json' },
+  });
   if (!res.ok) {
     let message = `Upload failed (${res.status}).`;
     try {
@@ -657,34 +709,48 @@ export const removeUserPoster = (kind: 'collections' | 'playlists', id: string) 
 /* ---------- management ---------- */
 
 export const getLibraryStats = (lib: string) =>
-  apiGet<{ stats: Stats; jobs: Record<string, number>; ffprobe: boolean }>(`/libraries/${lib}/stats`);
+  apiGet<{ stats: Stats; jobs: Record<string, number>; ffprobe: boolean }>(
+    `/libraries/${lib}/stats`,
+  );
 export const getCatalogDuplicates = (lib: string) =>
-  apiGet<{ duplicates: { kind: string; movies: Card[] }[] }>(`/libraries/${lib}/catalog/duplicates`);
+  apiGet<{ duplicates: { kind: string; movies: Card[] }[] }>(
+    `/libraries/${lib}/catalog/duplicates`,
+  );
 export const getUnassigned = (lib: string) =>
   apiGet<{ files: { id: string; rel_path: string }[] }>(`/libraries/${lib}/catalog/unassigned`);
 export const updateLibrary = (lib: string, patch: { name?: string; kind?: string }) =>
   apiPatch<unknown>(`/libraries/${lib}`, patch);
 export const syncCatalog = (lib: string) => apiPost<void>(`/libraries/${lib}/catalog/sync`);
-export const refreshMetadata = (lib: string, items: { type: ItemType; id: string }[] = [], force = false) =>
-  apiPost<{ queued: number }>(`/libraries/${lib}/metadata/refresh`, { items, force });
+export const refreshMetadata = (
+  lib: string,
+  items: { type: ItemType; id: string }[] = [],
+  force = false,
+) => apiPost<{ queued: number }>(`/libraries/${lib}/metadata/refresh`, { items, force });
 export const getMetadataSettings = () => apiGet<MetadataSettings>('/settings/metadata');
-export const saveMetadataSettings = (body: Partial<{
-  tmdb_key: string;
-  omdb_key: string;
-  language: string;
-  region: string;
-  auto: boolean;
-  generate_thumbs: boolean;
-}>) => apiPut<MetadataSettings>('/settings/metadata', body);
-export const testMetadata = () => apiPost<{ ok: boolean; error?: string }>('/settings/metadata/test');
+export const saveMetadataSettings = (
+  body: Partial<{
+    tmdb_key: string;
+    omdb_key: string;
+    language: string;
+    region: string;
+    auto: boolean;
+    generate_thumbs: boolean;
+  }>,
+) => apiPut<MetadataSettings>('/settings/metadata', body);
+export const testMetadata = () =>
+  apiPost<{ ok: boolean; error?: string }>('/settings/metadata/test');
 export const providerSearch = (type: 'movie' | 'show', q: string, year?: number) =>
   apiGet<{ results: ProviderResult[] }>(`/metadata/search${qs({ type, q, year })}`);
 export const matchItem = (lib: string, type: 'movie' | 'show', id: string, providerId: string) =>
   apiPost<void>(`/libraries/${lib}/items/${type}/${id}/match`, { provider_id: providerId });
 export const unmatchItem = (lib: string, type: 'movie' | 'show', id: string) =>
   apiPost<void>(`/libraries/${lib}/items/${type}/${id}/unmatch`);
-export const editItem = (lib: string, type: ItemType, id: string, changes: Record<string, unknown>) =>
-  apiPatch<void>(`/libraries/${lib}/items/${type}/${id}`, changes);
+export const editItem = (
+  lib: string,
+  type: ItemType,
+  id: string,
+  changes: Record<string, unknown>,
+) => apiPatch<void>(`/libraries/${lib}/items/${type}/${id}`, changes);
 export const unlockFields = (lib: string, type: ItemType, id: string, fields: string[]) =>
   apiPost<void>(`/libraries/${lib}/items/${type}/${id}/unlock`, { fields });
 export const uploadArtwork = (lib: string, type: ItemType, id: string, kind: string, file: Blob) =>
@@ -699,7 +765,8 @@ export const setEdition = (lib: string, fileId: string, edition: string) =>
   apiPut<void>(`/libraries/${lib}/files/${fileId}/edition`, { edition });
 export const splitFile = (lib: string, fileId: string) =>
   apiPost<{ movie_id: string }>(`/libraries/${lib}/files/${fileId}/split`);
-export const releaseFile = (lib: string, fileId: string) => apiPost<void>(`/libraries/${lib}/files/${fileId}/release`);
+export const releaseFile = (lib: string, fileId: string) =>
+  apiPost<void>(`/libraries/${lib}/files/${fileId}/release`);
 export const mergeMovies = (lib: string, target: string, others: string[]) =>
   apiPost<void>(`/libraries/${lib}/movies/${target}/merge`, { others });
 export const moveEpisode = (lib: string, id: string, season: number, number: number) =>
@@ -728,5 +795,6 @@ export const replaceSubtitle = (lib: string, subId: string, file: Blob) =>
   uploadBytes(`/libraries/${lib}/subtitles/${subId}/content`, file);
 export const renameSubtitle = (lib: string, subId: string, name: string) =>
   apiPost<{ path: string }>(`/libraries/${lib}/subtitles/${subId}/rename`, { name });
-export const deleteSubtitle = (lib: string, subId: string) => apiDelete<void>(`/libraries/${lib}/subtitles/${subId}`);
+export const deleteSubtitle = (lib: string, subId: string) =>
+  apiDelete<void>(`/libraries/${lib}/subtitles/${subId}`);
 export const listStreams = () => apiGet<{ streams: StreamSession[] }>('/streams');

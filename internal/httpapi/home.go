@@ -289,7 +289,7 @@ func (s *Server) handleHome(w http.ResponseWriter, r *http.Request, u *auth.User
 			if err != nil {
 				continue
 			}
-			rel, _ := st.Related(ctx, "movie", h.Ref.ID, 20)
+			rel, _ := st.Related(ctx, "movie", h.ID, 20)
 			release()
 			us.decorate(rel)
 			rel = applyWatched(rel, "unwatched")

@@ -21,7 +21,14 @@ import './media.css';
 export function SignalBar({ value, className = '' }: { value: number; className?: string }) {
   if (value <= 0) return null;
   return (
-    <span className={`signal-bar ${className}`} role="progressbar" aria-valuenow={Math.round(value * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="Watched">
+    <span
+      className={`signal-bar ${className}`}
+      role="progressbar"
+      aria-valuenow={Math.round(value * 100)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label="Watched"
+    >
       <span style={{ width: `${Math.max(3, value * 100)}%` }} />
     </span>
   );
@@ -30,7 +37,9 @@ export function SignalBar({ value, className = '' }: { value: number; className?
 function Img({ src, alt, fallback }: { src: string | null; alt: string; fallback: ReactNode }) {
   const [failed, setFailed] = useState(false);
   if (!src || failed) return <span className="card-fallback">{fallback}</span>;
-  return <img src={src} alt={alt} loading="lazy" decoding="async" onError={() => setFailed(true)} />;
+  return (
+    <img src={src} alt={alt} loading="lazy" decoding="async" onError={() => setFailed(true)} />
+  );
 }
 
 function Placeholder({ c }: { c: Card }) {
@@ -38,7 +47,9 @@ function Placeholder({ c }: { c: Card }) {
   return (
     <>
       <Icon size={28} strokeWidth={1.5} aria-hidden="true" />
-      <span className="card-fallback-title">{c.type === 'episode' ? (c.show_title ?? c.title) : c.title}</span>
+      <span className="card-fallback-title">
+        {c.type === 'episode' ? (c.show_title ?? c.title) : c.title}
+      </span>
     </>
   );
 }
@@ -65,7 +76,12 @@ function Badge({ c }: { c: Card }) {
       </span>
     );
   }
-  if (c.type === 'show' && st && st.unplayed_count > 0 && st.unplayed_count < (c.episode_count ?? 0)) {
+  if (
+    c.type === 'show' &&
+    st &&
+    st.unplayed_count > 0 &&
+    st.unplayed_count < (c.episode_count ?? 0)
+  ) {
     return (
       <span className="card-badge" title={`${st.unplayed_count} unwatched`}>
         {st.unplayed_count}
@@ -84,17 +100,17 @@ export function PosterCard({ c: item, sub }: { c: Card; sub?: string }) {
     <article className="poster-card" onContextMenu={onContextMenu}>
       {element}
       <div className="poster-wrap">
-      <Link to={itemPath(c)} className="poster-frame" aria-label={title}>
-        <Img src={posterOf(c)} alt="" fallback={<Placeholder c={c} />} />
-        <Badge c={c} />
-        {!c.available && <span className="card-offline">Offline</span>}
-        <SignalBar value={progressOf(c)} className="poster-signal" />
-      </Link>
-      {(c.type === 'movie' || c.type === 'episode') && c.available && (
-        <Link to={playPath(c)} className="card-play" aria-label={`Play ${title}`}>
-          <Play size={18} fill="currentColor" />
+        <Link to={itemPath(c)} className="poster-frame" aria-label={title}>
+          <Img src={posterOf(c)} alt="" fallback={<Placeholder c={c} />} />
+          <Badge c={c} />
+          {!c.available && <span className="card-offline">Offline</span>}
+          <SignalBar value={progressOf(c)} className="poster-signal" />
         </Link>
-      )}
+        {(c.type === 'movie' || c.type === 'episode') && c.available && (
+          <Link to={playPath(c)} className="card-play" aria-label={`Play ${title}`}>
+            <Play size={18} fill="currentColor" />
+          </Link>
+        )}
       </div>
       <div className="card-meta">
         <Link to={itemPath(c)} className="card-title">
@@ -118,12 +134,19 @@ export function PosterCard({ c: item, sub }: { c: Card; sub?: string }) {
 export function LandscapeCard({ c: item, playable = true }: { c: Card; playable?: boolean }) {
   const { card: c, onContextMenu, element } = useCardMenu(item, { landscape: true });
   const title = c.type === 'episode' ? (c.show_title ?? c.title) : c.title;
-  const sub = c.type === 'episode' ? subtitleFor(c) : [c.year, formatRuntime(c.runtime_mins, c.duration_secs)].filter(Boolean).join(', ');
+  const sub =
+    c.type === 'episode'
+      ? subtitleFor(c)
+      : [c.year, formatRuntime(c.runtime_mins, c.duration_secs)].filter(Boolean).join(', ');
   const to = playable && c.available ? playPath(c) : itemPath(c);
   return (
     <article className="landscape-card" onContextMenu={onContextMenu}>
       {element}
-      <Link to={to} className="landscape-frame" aria-label={`${playable ? 'Play' : 'Open'} ${title}${c.type === 'episode' ? `, ${sub}` : ''}`}>
+      <Link
+        to={to}
+        className="landscape-frame"
+        aria-label={`${playable ? 'Play' : 'Open'} ${title}${c.type === 'episode' ? `, ${sub}` : ''}`}
+      >
         <Img src={landscapeOf(c)} alt="" fallback={<Placeholder c={c} />} />
         {playable && (
           <span className="landscape-play" aria-hidden="true">
@@ -165,10 +188,20 @@ export function Row({
       <header className="row-head">
         <h2 className="row-title">{link ? <Link to={link}>{title}</Link> : title}</h2>
         <div className="row-arrows">
-          <button type="button" className="icon-button" onClick={() => scroll(-1)} aria-label={`Scroll ${title} back`}>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => scroll(-1)}
+            aria-label={`Scroll ${title} back`}
+          >
             <ChevronLeft size={20} />
           </button>
-          <button type="button" className="icon-button" onClick={() => scroll(1)} aria-label={`Scroll ${title} forward`}>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => scroll(1)}
+            aria-label={`Scroll ${title} forward`}
+          >
             <ChevronRight size={20} />
           </button>
         </div>
@@ -216,7 +249,13 @@ function ListRow({ c: item }: { c: Card }) {
           {c.title}
         </Link>
         <p className="card-sub">
-          {[c.year, (c.genres ?? []).slice(0, 3).join(', '), formatRuntime(c.runtime_mins, c.duration_secs)].filter(Boolean).join('  /  ')}
+          {[
+            c.year,
+            (c.genres ?? []).slice(0, 3).join(', '),
+            formatRuntime(c.runtime_mins, c.duration_secs),
+          ]
+            .filter(Boolean)
+            .join('  /  ')}
         </p>
         {c.overview && <p className="list-overview">{c.overview}</p>}
         <SignalBar value={progressOf(c)} />

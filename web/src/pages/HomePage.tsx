@@ -14,8 +14,18 @@ export default function HomePage() {
   const home = useResource(getHome, []);
   const { iface } = usePreferences();
 
-  if (home.loading) return <div className="page"><LoadingState /></div>;
-  if (home.error) return <div className="page"><ErrorState message={home.error} onRetry={home.reload} /></div>;
+  if (home.loading)
+    return (
+      <div className="page">
+        <LoadingState />
+      </div>
+    );
+  if (home.error)
+    return (
+      <div className="page">
+        <ErrorState message={home.error} onRetry={home.reload} />
+      </div>
+    );
   const data = home.data!;
 
   if (data.counts.movies === 0 && data.counts.shows === 0) {
@@ -24,8 +34,10 @@ export default function HomePage() {
         <div className="empty-media">
           <h2>Nothing to watch yet</h2>
           <p>
-            Movies and shows appear here once a library is added and scanned. Put movies in folders like
-            <code> Movies/Heat (1995)/Heat.mkv</code> and shows like <code>TV/Dark/Season 01/Dark S01E01.mkv</code>.
+            Movies and shows appear here once a library is added and scanned. Put movies in folders
+            like
+            <code> Movies/Heat (1995)/Heat.mkv</code> and shows like{' '}
+            <code>TV/Dark/Season 01/Dark S01E01.mkv</code>.
           </p>
           {user?.role === 'admin' ? (
             <Link to="/libraries" className="primary-button">

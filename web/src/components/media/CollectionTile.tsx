@@ -42,7 +42,11 @@ export function CollectionTile({
   const [anchor, setAnchor] = useState<MenuAnchor | null>(null);
   const [confirming, setConfirming] = useState(false);
   const to = playlist ? `/playlists/${item.id}` : `/collections/${item.id}`;
-  const own = collection ? collectionPosterUrl(collection) : playlist ? playlistPosterUrl(playlist) : null;
+  const own = collection
+    ? collectionPosterUrl(collection)
+    : playlist
+      ? playlistPosterUrl(playlist)
+      : null;
   const cards = covers ?? collection?.covers ?? playlist?.covers ?? smart?.covers ?? [];
   const Icon = playlist ? ListVideo : Layers;
   const count = item.item_count;
@@ -54,12 +58,16 @@ export function CollectionTile({
     try {
       if (playlist) {
         const p = await getPlaylist(item.id);
-        const e = p.entries.find((x) => x.entry_id === p.playlist.current_entry && x.item?.available) ?? p.entries.find((x) => x.item?.available);
+        const e =
+          p.entries.find((x) => x.entry_id === p.playlist.current_entry && x.item?.available) ??
+          p.entries.find((x) => x.item?.available);
         if (!e) {
           toast({ message: 'Nothing in this playlist can be played.' });
           return;
         }
-        navigate(`/play/${e.library_id}/${e.type}/${e.id}?queue=playlist:${item.id}&entry=${e.entry_id}`);
+        navigate(
+          `/play/${e.library_id}/${e.type}/${e.id}?queue=playlist:${item.id}&entry=${e.entry_id}`,
+        );
         return;
       }
       const q = await collectionQueue(item.id);
@@ -99,26 +107,64 @@ export function CollectionTile({
   const onContextMenu = (e: MouseEvent<HTMLElement>) => {
     if (e.shiftKey) return;
     e.preventDefault();
-    setAnchor(e.clientX === 0 && e.clientY === 0 ? { element: e.currentTarget } : { x: e.clientX, y: e.clientY });
+    setAnchor(
+      e.clientX === 0 && e.clientY === 0
+        ? { element: e.currentTarget }
+        : { x: e.clientX, y: e.clientY },
+    );
   };
 
   const items: MenuEntry[] = [
-    { id: 'play', label: count ? 'Play all' : 'Play all (empty)', icon: 'video', disabled: !count, onSelect: () => void play() },
+    {
+      id: 'play',
+      label: count ? 'Play all' : 'Play all (empty)',
+      icon: 'video',
+      disabled: !count,
+      onSelect: () => void play(),
+    },
     { id: 'open', label: `Open ${noun}`, icon: 'info', onSelect: () => navigate(to) },
-    ...(custom ? [{ id: 'duplicate', label: 'Duplicate', icon: 'copy' as const, onSelect: () => void duplicate() }] : []),
-    ...(custom || playlist ? (['separator', { id: 'delete', label: `Delete ${noun}…`, icon: 'trash', danger: true, onSelect: () => setConfirming(true) }] as MenuEntry[]) : []),
+    ...(custom
+      ? [
+          {
+            id: 'duplicate',
+            label: 'Duplicate',
+            icon: 'copy' as const,
+            onSelect: () => void duplicate(),
+          },
+        ]
+      : []),
+    ...(custom || playlist
+      ? ([
+          'separator',
+          {
+            id: 'delete',
+            label: `Delete ${noun}…`,
+            icon: 'trash',
+            danger: true,
+            onSelect: () => setConfirming(true),
+          },
+        ] as MenuEntry[])
+      : []),
   ];
 
   return (
     <article className="collection-tile" onContextMenu={onContextMenu}>
-      <Link to={to} className="collection-frame" aria-label={`${item.name}, ${count} item${count === 1 ? '' : 's'}`}>
+      <Link
+        to={to}
+        className="collection-frame"
+        aria-label={`${item.name}, ${count} item${count === 1 ? '' : 's'}`}
+      >
         {own ? (
           <img src={own} alt="" loading="lazy" />
         ) : cards.length > 0 ? (
           <span className="collection-fan" aria-hidden="true">
             {cards.slice(0, 4).map((c, i) => {
               const src = posterOf(c) ?? backdropOf(c);
-              return src ? <img key={c.library_id + c.id + i} src={src} alt="" loading="lazy" /> : <span key={i} />;
+              return src ? (
+                <img key={c.library_id + c.id + i} src={src} alt="" loading="lazy" />
+              ) : (
+                <span key={i} />
+              );
             })}
           </span>
         ) : (
@@ -136,7 +182,14 @@ export function CollectionTile({
           {smart && <span>Automatic</span>}
         </p>
       </div>
-      {anchor && <Menu anchor={anchor} items={items} label={`${item.name}, ${noun} actions`} onClose={() => setAnchor(null)} />}
+      {anchor && (
+        <Menu
+          anchor={anchor}
+          items={items}
+          label={`${item.name}, ${noun} actions`}
+          onClose={() => setAnchor(null)}
+        />
+      )}
       <ConfirmDialog
         open={confirming}
         title={`Delete ${item.name}?`}

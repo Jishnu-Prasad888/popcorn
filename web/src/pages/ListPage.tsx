@@ -1,7 +1,14 @@
 import { Link } from 'react-router-dom';
 import { Trash2 } from 'lucide-react';
 
-import { deleteHistory, errorMessage, getHistory, getList, itemPath, episodeCode } from '../api/media';
+import {
+  deleteHistory,
+  errorMessage,
+  getHistory,
+  getList,
+  itemPath,
+  episodeCode,
+} from '../api/media';
 import type { ListName } from '../api/media';
 import { useResource } from '../api/resources';
 import { CardMenuArea } from '../components/media/CardMenuArea';
@@ -48,7 +55,9 @@ export function ListPage({ list }: { list: ListName }) {
           </Link>
         </div>
       )}
-      {res.data && res.data.items.length > 0 && <CardGrid items={res.data.items} view={iface.view} />}
+      {res.data && res.data.items.length > 0 && (
+        <CardGrid items={res.data.items} view={iface.view} />
+      )}
     </div>
   );
 }
@@ -83,21 +92,31 @@ export function HistoryPage() {
           {res.data.entries.map((h) => (
             <li key={h.entry_id}>
               <CardMenuArea item={h.item} onChanged={res.reload}>
-              <time dateTime={h.watched_at}>{formatDateTime(h.watched_at)}</time>
-              <Link to={itemPath(h.item)} className="history-title">
-                {h.item.type === 'episode' ? (
-                  <>
-                    {h.item.show_title} <span className="muted">{episodeCode(h.item)} {h.item.title}</span>
-                  </>
-                ) : (
-                  <>
-                    {h.item.title} {h.item.year ? <span className="muted">{h.item.year}</span> : null}
-                  </>
-                )}
-              </Link>
-              <button type="button" className="icon-button" onClick={() => void remove(h.entry_id)} aria-label="Remove from history" title="Remove from history">
-                <Trash2 size={16} />
-              </button>
+                <time dateTime={h.watched_at}>{formatDateTime(h.watched_at)}</time>
+                <Link to={itemPath(h.item)} className="history-title">
+                  {h.item.type === 'episode' ? (
+                    <>
+                      {h.item.show_title}{' '}
+                      <span className="muted">
+                        {episodeCode(h.item)} {h.item.title}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      {h.item.title}{' '}
+                      {h.item.year ? <span className="muted">{h.item.year}</span> : null}
+                    </>
+                  )}
+                </Link>
+                <button
+                  type="button"
+                  className="icon-button"
+                  onClick={() => void remove(h.entry_id)}
+                  aria-label="Remove from history"
+                  title="Remove from history"
+                >
+                  <Trash2 size={16} />
+                </button>
               </CardMenuArea>
             </li>
           ))}

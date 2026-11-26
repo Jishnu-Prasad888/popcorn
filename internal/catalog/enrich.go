@@ -59,10 +59,10 @@ func BestMatch(results []provider.SearchResult, title string, year int) *provide
 		}
 		if year > 0 && r.Year > 0 {
 			d := r.Year - year
-			switch {
-			case d == 0:
+			switch d {
+			case 0:
 				score += 6
-			case d == 1 || d == -1:
+			case 1, -1:
 				score += 3
 			default:
 				score -= 6

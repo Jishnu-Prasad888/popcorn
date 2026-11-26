@@ -7,7 +7,16 @@ import { LandscapeCard, PosterCard, Row } from '../components/media/Cards';
 import { ErrorState, LoadingState } from '../components/States';
 import '../components/media/detail.css';
 
-const SUGGESTIONS = ['Action', 'Comedy', 'Drama', 'Animation', 'Science Fiction', 'Thriller', 'Documentary', 'Horror'];
+const SUGGESTIONS = [
+  'Action',
+  'Comedy',
+  'Drama',
+  'Animation',
+  'Science Fiction',
+  'Thriller',
+  'Documentary',
+  'Horror',
+];
 
 export default function SearchPage() {
   const [params] = useSearchParams();
@@ -20,7 +29,9 @@ export default function SearchPage() {
         <h1 className="page-title">{q ? `Results for “${q}”` : 'Search'}</h1>
         {!q && (
           <>
-            <p className="page-count">Find movies, shows, episodes and people. Press / anywhere to search.</p>
+            <p className="page-count">
+              Find movies, shows, episodes and people. Press / anywhere to search.
+            </p>
             <div className="genre-chips" style={{ marginTop: 'var(--space-5)' }}>
               {SUGGESTIONS.map((g) => (
                 <Link key={g} className="genre-chip" to={`/search?q=${encodeURIComponent(g)}`}>
@@ -35,11 +46,17 @@ export default function SearchPage() {
       </div>
       {res.data && (
         <>
-          {res.data.movies.length + res.data.shows.length + res.data.episodes.length + res.data.people.length === 0 && (
+          {res.data.movies.length +
+            res.data.shows.length +
+            res.data.episodes.length +
+            res.data.people.length ===
+            0 && (
             <div className="page">
               <div className="empty-media">
                 <h2>Nothing matches “{q}”</h2>
-                <p>Check the spelling, try the original title, or search for an actor or director.</p>
+                <p>
+                  Check the spelling, try the original title, or search for an actor or director.
+                </p>
               </div>
             </div>
           )}
@@ -67,7 +84,11 @@ export default function SearchPage() {
                   <li key={p.library_id + p.id}>
                     <Link to={`/person/${p.library_id}/${p.id}`} className="cast-card">
                       <span className="cast-photo">
-                        {p.profile_url ? <img src={personImageUrl(p.library_id, p.id)} alt="" loading="lazy" /> : <User size={26} strokeWidth={1.5} />}
+                        {p.profile_url ? (
+                          <img src={personImageUrl(p.library_id, p.id)} alt="" loading="lazy" />
+                        ) : (
+                          <User size={26} strokeWidth={1.5} />
+                        )}
                       </span>
                       <span className="cast-name">{p.name}</span>
                       <span className="cast-character">

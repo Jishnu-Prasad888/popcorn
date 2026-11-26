@@ -246,7 +246,7 @@ func ParseEpisode(rel string) (ParsedEpisode, bool) {
 
 	// Episode numbers from the file name.
 	nameNoBrackets := reBrackets.ReplaceAllString(base, " ")
-	var titleStart int = -1
+	var titleStart int
 	var prefix string
 	switch {
 	case reSxE.MatchString(nameNoBrackets):

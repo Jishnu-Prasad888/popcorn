@@ -65,7 +65,15 @@ export function ManageMenu({ item, onChanged }: { item: Manageable; onChanged: (
   };
   return (
     <>
-      <button type="button" className="btn-round" onClick={menu.toggle} aria-haspopup="menu" aria-expanded={menu.open} aria-label="Manage" title="Manage">
+      <button
+        type="button"
+        className="btn-round"
+        onClick={menu.toggle}
+        aria-haspopup="menu"
+        aria-expanded={menu.open}
+        aria-label="Manage"
+        title="Manage"
+      >
         <SlidersHorizontal size={19} />
       </button>
       {menu.anchor && (
@@ -75,19 +83,37 @@ export function ManageMenu({ item, onChanged }: { item: Manageable; onChanged: (
           label="Manage"
           items={[
             { id: 'edit', label: 'Edit metadata', onSelect: () => setPanel('edit') },
-            ...(matchable ? [{ id: 'match', label: 'Fix match', onSelect: () => setPanel('match') }] : []),
-            ...(matchable ? [{ id: 'refresh', label: 'Refresh metadata', onSelect: () => void refresh() }] : []),
+            ...(matchable
+              ? [{ id: 'match', label: 'Fix match', onSelect: () => setPanel('match') }]
+              : []),
+            ...(matchable
+              ? [{ id: 'refresh', label: 'Refresh metadata', onSelect: () => void refresh() }]
+              : []),
             { id: 'art', label: 'Artwork', onSelect: () => setPanel('art') },
-            ...(item.files?.length ? [{ id: 'files', label: 'Versions and files', onSelect: () => setPanel('files') }] : []),
-            ...(item.files?.length ? [{ id: 'subs', label: 'Subtitles', onSelect: () => setPanel('subs') }] : []),
+            ...(item.files?.length
+              ? [{ id: 'files', label: 'Versions and files', onSelect: () => setPanel('files') }]
+              : []),
+            ...(item.files?.length
+              ? [{ id: 'subs', label: 'Subtitles', onSelect: () => setPanel('subs') }]
+              : []),
           ]}
         />
       )}
-      {panel === 'edit' && <EditDialog item={item} onClose={() => setPanel(null)} onSaved={onChanged} />}
-      {panel === 'match' && <MatchDialog item={item} onClose={() => setPanel(null)} onSaved={onChanged} />}
-      {panel === 'art' && <ArtworkDialog item={item} onClose={() => setPanel(null)} onSaved={onChanged} />}
-      {panel === 'files' && <FilesDialog item={item} onClose={() => setPanel(null)} onSaved={onChanged} />}
-      {panel === 'subs' && <SubtitlesDialog item={item} onClose={() => setPanel(null)} onSaved={onChanged} />}
+      {panel === 'edit' && (
+        <EditDialog item={item} onClose={() => setPanel(null)} onSaved={onChanged} />
+      )}
+      {panel === 'match' && (
+        <MatchDialog item={item} onClose={() => setPanel(null)} onSaved={onChanged} />
+      )}
+      {panel === 'art' && (
+        <ArtworkDialog item={item} onClose={() => setPanel(null)} onSaved={onChanged} />
+      )}
+      {panel === 'files' && (
+        <FilesDialog item={item} onClose={() => setPanel(null)} onSaved={onChanged} />
+      )}
+      {panel === 'subs' && (
+        <SubtitlesDialog item={item} onClose={() => setPanel(null)} onSaved={onChanged} />
+      )}
     </>
   );
 }
@@ -162,13 +188,24 @@ function fromText(s: string, kind: FieldKind): unknown {
     case 'secs':
       return Number.parseFloat(t);
     case 'list':
-      return t.split(',').map((x) => x.trim()).filter(Boolean);
+      return t
+        .split(',')
+        .map((x) => x.trim())
+        .filter(Boolean);
     default:
       return t;
   }
 }
 
-export function EditDialog({ item, onClose, onSaved }: { item: Manageable; onClose: () => void; onSaved: () => void }) {
+export function EditDialog({
+  item,
+  onClose,
+  onSaved,
+}: {
+  item: Manageable;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
   const toast = useToast();
   const fields = FIELDS[item.type];
   const [values, setValues] = useState<Record<string, string>>(() =>
@@ -189,7 +226,10 @@ export function EditDialog({ item, onClose, onSaved }: { item: Manageable; onClo
     setBusy(true);
     try {
       await editItem(item.library_id, item.type, item.id, changes);
-      toast({ message: 'Saved. Edited fields are locked, so a refresh keeps them.', tone: 'success' });
+      toast({
+        message: 'Saved. Edited fields are locked, so a refresh keeps them.',
+        tone: 'success',
+      });
       onSaved();
       onClose();
     } catch (err) {
@@ -222,7 +262,12 @@ export function EditDialog({ item, onClose, onSaved }: { item: Manageable; onClo
           <button type="button" className="button" onClick={onClose}>
             Cancel
           </button>
-          <button type="button" className="primary-button" onClick={() => void save()} disabled={busy}>
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => void save()}
+            disabled={busy}
+          >
             Save changes
           </button>
         </>
@@ -234,17 +279,28 @@ export function EditDialog({ item, onClose, onSaved }: { item: Manageable; onClo
             <span className="field-label edit-label">
               {label}
               {locked.has(k) && (
-                <button type="button" className="lock-button" onClick={() => void unlock(k)} title="Locked: refreshes keep your value. Unlock to let refreshes update it.">
+                <button
+                  type="button"
+                  className="lock-button"
+                  onClick={() => void unlock(k)}
+                  title="Locked: refreshes keep your value. Unlock to let refreshes update it."
+                >
                   <Lock size={12} /> Locked
                   <Unlock size={12} className="lock-alt" />
                 </button>
               )}
             </span>
             {kind === 'long' ? (
-              <textarea rows={5} value={values[k]} onChange={(e) => setValues({ ...values, [k]: e.target.value })} />
+              <textarea
+                rows={5}
+                value={values[k]}
+                onChange={(e) => setValues({ ...values, [k]: e.target.value })}
+              />
             ) : (
               <input
-                type={kind === 'date' ? 'date' : kind === 'text' || kind === 'list' ? 'text' : 'number'}
+                type={
+                  kind === 'date' ? 'date' : kind === 'text' || kind === 'list' ? 'text' : 'number'
+                }
                 step={kind === 'float' ? '0.1' : kind === 'secs' ? '0.5' : undefined}
                 value={values[k]}
                 onChange={(e) => setValues({ ...values, [k]: e.target.value })}
@@ -258,7 +314,15 @@ export function EditDialog({ item, onClose, onSaved }: { item: Manageable; onClo
   );
 }
 
-export function MatchDialog({ item, onClose, onSaved }: { item: Manageable; onClose: () => void; onSaved: () => void }) {
+export function MatchDialog({
+  item,
+  onClose,
+  onSaved,
+}: {
+  item: Manageable;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
   const toast = useToast();
   const kind = item.type === 'show' ? 'show' : 'movie';
   const [q, setQ] = useState(item.title);
@@ -324,26 +388,48 @@ export function MatchDialog({ item, onClose, onSaved }: { item: Manageable; onCl
           void run();
         }}
       >
-        <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Title, IMDb id (tt…) or tmdb:<id>" placeholder="Title, IMDb id (tt0133093) or tmdb:603" />
-        <input value={year} onChange={(e) => setYear(e.target.value)} aria-label="Year" placeholder="Year" type="number" style={{ width: 100 }} />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          aria-label="Title, IMDb id (tt…) or tmdb:<id>"
+          placeholder="Title, IMDb id (tt0133093) or tmdb:603"
+        />
+        <input
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          aria-label="Year"
+          placeholder="Year"
+          type="number"
+          style={{ width: 100 }}
+        />
         <button type="submit" className="primary-button" disabled={busy || !q.trim()}>
           <Search size={16} /> Search
         </button>
       </form>
       {error && <p className="error-text">{error}</p>}
-      {results?.length === 0 && <p className="muted">No titles found. Try the original title, fewer words, or the IMDb id.</p>}
+      {results?.length === 0 && (
+        <p className="muted">
+          No titles found. Try the original title, fewer words, or the IMDb id.
+        </p>
+      )}
       {results && results.length > 0 && (
         <ul className="match-results">
           {results.map((r) => (
             <li key={r.id}>
               <button type="button" disabled={busy} onClick={() => void pick(r)}>
-                {r.poster_url ? <img src={r.poster_url} alt="" loading="lazy" /> : <span className="match-noposter" />}
+                {r.poster_url ? (
+                  <img src={r.poster_url} alt="" loading="lazy" />
+                ) : (
+                  <span className="match-noposter" />
+                )}
                 <span>
                   <strong>
                     {r.title}
                     {r.year ? ` (${r.year})` : ''}
                   </strong>
-                  {r.original_title && r.original_title !== r.title && <span className="muted"> {r.original_title}</span>}
+                  {r.original_title && r.original_title !== r.title && (
+                    <span className="muted"> {r.original_title}</span>
+                  )}
                   {r.overview && <span className="match-overview">{r.overview}</span>}
                 </span>
               </button>
@@ -370,10 +456,19 @@ const ART_KINDS: Record<ItemType, [string, string][]> = {
   episode: [['thumb', 'Still']],
 };
 
-export function ArtworkDialog({ item, onClose, onSaved }: { item: Manageable; onClose: () => void; onSaved: () => void }) {
+export function ArtworkDialog({
+  item,
+  onClose,
+  onSaved,
+}: {
+  item: Manageable;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
   const toast = useToast();
   const [art, setArt] = useState(item.art);
-  const bump = (kind: string, has: boolean) => setArt({ ...art, [kind]: has, version: art.version + 1 });
+  const bump = (kind: string, has: boolean) =>
+    setArt({ ...art, [kind]: has, version: art.version + 1 });
 
   const act = async (fn: () => Promise<unknown>, kind: string, has: boolean, msg: string) => {
     try {
@@ -393,7 +488,13 @@ export function ArtworkDialog({ item, onClose, onSaved }: { item: Manageable; on
           const src = artUrl(item.library_id, item.type, item.id, kind as 'poster', art);
           return (
             <figure key={kind} className={`art-slot art-${kind}`}>
-              <div className="art-preview">{src ? <img src={src} alt={`Current ${label.toLowerCase()}`} /> : <span className="muted">No {label.toLowerCase()}</span>}</div>
+              <div className="art-preview">
+                {src ? (
+                  <img src={src} alt={`Current ${label.toLowerCase()}`} />
+                ) : (
+                  <span className="muted">No {label.toLowerCase()}</span>
+                )}
+              </div>
               <figcaption>
                 <strong>{label}</strong>
                 <span className="art-actions">
@@ -405,17 +506,46 @@ export function ArtworkDialog({ item, onClose, onSaved }: { item: Manageable; on
                       className="visually-hidden"
                       onChange={(e) => {
                         const f = e.target.files?.[0];
-                        if (f) void act(() => uploadArtwork(item.library_id, item.type, item.id, kind, f), kind, true, `${label} replaced.`);
+                        if (f)
+                          void act(
+                            () => uploadArtwork(item.library_id, item.type, item.id, kind, f),
+                            kind,
+                            true,
+                            `${label} replaced.`,
+                          );
                       }}
                     />
                   </label>
                   {(item.type === 'episode' || item.type === 'movie') && kind !== 'logo' && (
-                    <button type="button" className="button button-sm" onClick={() => void act(() => generateArtwork(item.library_id, item.type, item.id, kind), kind, true, `${label} taken from the video.`)}>
+                    <button
+                      type="button"
+                      className="button button-sm"
+                      onClick={() =>
+                        void act(
+                          () => generateArtwork(item.library_id, item.type, item.id, kind),
+                          kind,
+                          true,
+                          `${label} taken from the video.`,
+                        )
+                      }
+                    >
                       <Wand2 size={14} /> From video
                     </button>
                   )}
                   {src && (
-                    <button type="button" className="button button-sm" onClick={() => void act(() => removeArtwork(item.library_id, item.type, item.id, kind), kind, false, `${label} removed.`)} aria-label={`Remove ${label.toLowerCase()}`}>
+                    <button
+                      type="button"
+                      className="button button-sm"
+                      onClick={() =>
+                        void act(
+                          () => removeArtwork(item.library_id, item.type, item.id, kind),
+                          kind,
+                          false,
+                          `${label} removed.`,
+                        )
+                      }
+                      aria-label={`Remove ${label.toLowerCase()}`}
+                    >
                       <Trash2 size={14} />
                     </button>
                   )}
@@ -425,12 +555,22 @@ export function ArtworkDialog({ item, onClose, onSaved }: { item: Manageable; on
           );
         })}
       </div>
-      <p className="field-hint">Uploaded artwork wins over provider artwork, and a refresh keeps it.</p>
+      <p className="field-hint">
+        Uploaded artwork wins over provider artwork, and a refresh keeps it.
+      </p>
     </Dialog>
   );
 }
 
-function FilesDialog({ item, onClose, onSaved }: { item: Manageable; onClose: () => void; onSaved: () => void }) {
+function FilesDialog({
+  item,
+  onClose,
+  onSaved,
+}: {
+  item: Manageable;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
   const toast = useToast();
   const [editions, setEditions] = useState<Record<string, string>>(() =>
     Object.fromEntries((item.files ?? []).map((f) => [f.id, f.edition ?? ''])),
@@ -460,18 +600,47 @@ function FilesDialog({ item, onClose, onSaved }: { item: Manageable; onClose: ()
                     placeholder="Edition, e.g. Director's Cut"
                     aria-label={`Edition of ${f.name}`}
                   />
-                  <button type="button" className="button button-sm" onClick={() => void run(() => setEdition(item.library_id, f.id, editions[f.id] ?? ''), 'Edition saved.')}>
+                  <button
+                    type="button"
+                    className="button button-sm"
+                    onClick={() =>
+                      void run(
+                        () => setEdition(item.library_id, f.id, editions[f.id] ?? ''),
+                        'Edition saved.',
+                      )
+                    }
+                  >
                     Save
                   </button>
                   {(item.files?.length ?? 0) > 1 && (
-                    <button type="button" className="button button-sm" onClick={() => void run(() => splitFile(item.library_id, f.id), 'Made a separate movie from this file.', true)}>
+                    <button
+                      type="button"
+                      className="button button-sm"
+                      onClick={() =>
+                        void run(
+                          () => splitFile(item.library_id, f.id),
+                          'Made a separate movie from this file.',
+                          true,
+                        )
+                      }
+                    >
                       Split off
                     </button>
                   )}
                 </>
               )}
               {f.manual && (
-                <button type="button" className="button button-sm" onClick={() => void run(() => releaseFile(item.library_id, f.id), 'Released: the file is placed automatically again.', true)}>
+                <button
+                  type="button"
+                  className="button button-sm"
+                  onClick={() =>
+                    void run(
+                      () => releaseFile(item.library_id, f.id),
+                      'Released: the file is placed automatically again.',
+                      true,
+                    )
+                  }
+                >
                   Undo manual placement
                 </button>
               )}
@@ -480,16 +649,51 @@ function FilesDialog({ item, onClose, onSaved }: { item: Manageable; onClose: ()
         ))}
       </ul>
       <p className="field-hint">
-        Several files of one title are versions: the player lets people choose. Episode numbers are fixed from the episode's own page.
+        Several files of one title are versions: the player lets people choose. Episode numbers are
+        fixed from the episode's own page.
       </p>
     </Dialog>
   );
 }
 
-const SUB_LANGS = ['eng', 'hin', 'kan', 'tam', 'tel', 'mal', 'jpn', 'kor', 'chi', 'spa', 'fre', 'ger', 'ita', 'por', 'rus', 'ara'];
+const SUB_LANGS = [
+  'eng',
+  'hin',
+  'kan',
+  'tam',
+  'tel',
+  'mal',
+  'jpn',
+  'kor',
+  'chi',
+  'spa',
+  'fre',
+  'ger',
+  'ita',
+  'por',
+  'rus',
+  'ara',
+];
 const LANG_NAMES = new Intl.DisplayNames(['en'], { type: 'language' });
 const langName = (c: string) => {
-  const two: Record<string, string> = { eng: 'en', hin: 'hi', kan: 'kn', tam: 'ta', tel: 'te', mal: 'ml', jpn: 'ja', kor: 'ko', chi: 'zh', spa: 'es', fre: 'fr', ger: 'de', ita: 'it', por: 'pt', rus: 'ru', ara: 'ar' };
+  const two: Record<string, string> = {
+    eng: 'en',
+    hin: 'hi',
+    kan: 'kn',
+    tam: 'ta',
+    tel: 'te',
+    mal: 'ml',
+    jpn: 'ja',
+    kor: 'ko',
+    chi: 'zh',
+    spa: 'es',
+    fre: 'fr',
+    ger: 'de',
+    ita: 'it',
+    por: 'pt',
+    rus: 'ru',
+    ara: 'ar',
+  };
   try {
     return LANG_NAMES.of(two[c] ?? c) ?? c;
   } catch {
@@ -497,7 +701,15 @@ const langName = (c: string) => {
   }
 };
 
-function SubtitlesDialog({ item, onClose, onSaved }: { item: Manageable; onClose: () => void; onSaved: () => void }) {
+function SubtitlesDialog({
+  item,
+  onClose,
+  onSaved,
+}: {
+  item: Manageable;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
   const toast = useToast();
   const files = (item.files ?? []).filter((f) => f.status === 'present');
   const [fileId, setFileId] = useState(files[0]?.id ?? '');
@@ -552,7 +764,12 @@ function SubtitlesDialog({ item, onClose, onSaved }: { item: Manageable; onClose
               ))}
             </select>
             <label className="check">
-              <input type="checkbox" checked={forced} onChange={(e) => setForced(e.target.checked)} /> Forced
+              <input
+                type="checkbox"
+                checked={forced}
+                onChange={(e) => setForced(e.target.checked)}
+              />{' '}
+              Forced
             </label>
             <label className="check">
               <input type="checkbox" checked={sdh} onChange={(e) => setSdh(e.target.checked)} /> SDH
@@ -566,25 +783,51 @@ function SubtitlesDialog({ item, onClose, onSaved }: { item: Manageable; onClose
                 onChange={(e) => {
                   const f = e.target.files?.[0];
                   if (!f) return;
-                  void run(
-                    async () => {
-                      const r = await uploadSubtitle(item.library_id, file.id, f, { language: lang, forced, sdh });
-                      setSubs((s) => [...s, { id: r.id, source: 'upload', path: f.name, format: f.name.split('.').pop() ?? '', language: lang, language_name: langName(lang), is_forced: forced, is_hearing_impaired: sdh }]);
-                    },
-                    `Added ${f.name}.`,
-                  );
+                  void run(async () => {
+                    const r = await uploadSubtitle(item.library_id, file.id, f, {
+                      language: lang,
+                      forced,
+                      sdh,
+                    });
+                    setSubs((s) => [
+                      ...s,
+                      {
+                        id: r.id,
+                        source: 'upload',
+                        path: f.name,
+                        format: f.name.split('.').pop() ?? '',
+                        language: lang,
+                        language_name: langName(lang),
+                        is_forced: forced,
+                        is_hearing_impaired: sdh,
+                      },
+                    ]);
+                  }, `Added ${f.name}.`);
                   e.target.value = '';
                 }}
               />
             </label>
           </div>
-          <p className="field-hint">SRT, ASS, SSA, VTT and SUB files. They are stored in the library's .popcorn folder; your media folders are not touched.</p>
+          <p className="field-hint">
+            SRT, ASS, SSA, VTT and SUB files. They are stored in the library's .popcorn folder; your
+            media folders are not touched.
+          </p>
 
           <h3 className="manage-subhead">External and added</h3>
-          {subs.length === 0 && <p className="muted">None. Subtitle files next to the video (Movie.en.srt) are found automatically.</p>}
+          {subs.length === 0 && (
+            <p className="muted">
+              None. Subtitle files next to the video (Movie.en.srt) are found automatically.
+            </p>
+          )}
           <ul className="sub-list">
             {subs.map((s) => (
-              <SubRow key={s.id} lib={item.library_id} sub={s} run={run} onRemoved={() => setSubs((x) => x.filter((y) => y.id !== s.id))} />
+              <SubRow
+                key={s.id}
+                lib={item.library_id}
+                sub={s}
+                run={run}
+                onRemoved={() => setSubs((x) => x.filter((y) => y.id !== s.id))}
+              />
             ))}
           </ul>
 
@@ -595,7 +838,18 @@ function SubtitlesDialog({ item, onClose, onSaved }: { item: Manageable; onClose
                 {embedded.map((s) => (
                   <li key={s.index} className="sub-row">
                     <span>
-                      {s.language_name || 'Unknown'} <span className="muted">{[s.title, s.codec, s.is_forced && 'forced', s.is_hearing_impaired && 'SDH', s.image_based && 'image: burned in when chosen'].filter(Boolean).join(', ')}</span>
+                      {s.language_name || 'Unknown'}{' '}
+                      <span className="muted">
+                        {[
+                          s.title,
+                          s.codec,
+                          s.is_forced && 'forced',
+                          s.is_hearing_impaired && 'SDH',
+                          s.image_based && 'image: burned in when chosen',
+                        ]
+                          .filter(Boolean)
+                          .join(', ')}
+                      </span>
                     </span>
                   </li>
                 ))}
@@ -631,15 +885,36 @@ function SubRow({
         <span className="muted">{sub.source === 'upload' ? 'Added' : 'Next to the video'}</span>
       </div>
       <div className="sub-row-edit">
-        <input value={lang} onChange={(e) => setLang(e.target.value)} aria-label="Language code" placeholder="Language (eng, hin…)" style={{ width: 150 }} />
-        <input value={title} onChange={(e) => setTitle(e.target.value)} aria-label="Title" placeholder="Title" />
+        <input
+          value={lang}
+          onChange={(e) => setLang(e.target.value)}
+          aria-label="Language code"
+          placeholder="Language (eng, hin…)"
+          style={{ width: 150 }}
+        />
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          aria-label="Title"
+          placeholder="Title"
+        />
         <label className="check">
-          <input type="checkbox" checked={forced} onChange={(e) => setForced(e.target.checked)} /> Forced
+          <input type="checkbox" checked={forced} onChange={(e) => setForced(e.target.checked)} />{' '}
+          Forced
         </label>
         <label className="check">
           <input type="checkbox" checked={sdh} onChange={(e) => setSdh(e.target.checked)} /> SDH
         </label>
-        <button type="button" className="button button-sm" onClick={() => void run(() => updateSubtitle(lib, sub.id, { language: lang, title, forced, sdh }), 'Subtitle updated.')}>
+        <button
+          type="button"
+          className="button button-sm"
+          onClick={() =>
+            void run(
+              () => updateSubtitle(lib, sub.id, { language: lang, title, forced, sdh }),
+              'Subtitle updated.',
+            )
+          }
+        >
           Save
         </button>
         <label className="button button-sm">
@@ -654,14 +929,37 @@ function SubRow({
             }}
           />
         </label>
-        <button type="button" className="button button-sm" onClick={() => void run(() => deleteSubtitle(lib, sub.id), sub.source === 'upload' ? 'Subtitle removed.' : 'Subtitle file deleted.', onRemoved)} aria-label="Remove subtitle">
+        <button
+          type="button"
+          className="button button-sm"
+          onClick={() =>
+            void run(
+              () => deleteSubtitle(lib, sub.id),
+              sub.source === 'upload' ? 'Subtitle removed.' : 'Subtitle file deleted.',
+              onRemoved,
+            )
+          }
+          aria-label="Remove subtitle"
+        >
           <Trash2 size={14} />
         </button>
       </div>
       {sub.source === 'sidecar' && (
         <div className="sub-row-edit">
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="New file name" aria-label="New file name" />
-          <button type="button" className="button button-sm" disabled={!name.trim()} onClick={() => void run(() => renameSubtitle(lib, sub.id, name.trim()), 'Subtitle file renamed.')}>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="New file name"
+            aria-label="New file name"
+          />
+          <button
+            type="button"
+            className="button button-sm"
+            disabled={!name.trim()}
+            onClick={() =>
+              void run(() => renameSubtitle(lib, sub.id, name.trim()), 'Subtitle file renamed.')
+            }
+          >
             Rename file
           </button>
         </div>

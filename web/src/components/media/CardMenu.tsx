@@ -47,7 +47,17 @@ async function loadManageable(c: Card): Promise<Loaded | null> {
     return {
       canEdit: can_edit,
       fresh: m,
-      item: { library_id: m.library_id, type: 'movie', id: m.id, title: m.title, year: m.year, art: m.art, locked_fields: m.locked_fields, values: asValues(m), files: m.files },
+      item: {
+        library_id: m.library_id,
+        type: 'movie',
+        id: m.id,
+        title: m.title,
+        year: m.year,
+        art: m.art,
+        locked_fields: m.locked_fields,
+        values: asValues(m),
+        files: m.files,
+      },
     };
   }
   if (c.type === 'show') {
@@ -55,7 +65,16 @@ async function loadManageable(c: Card): Promise<Loaded | null> {
     return {
       canEdit: can_edit,
       fresh: s,
-      item: { library_id: s.library_id, type: 'show', id: s.id, title: s.title, year: s.year, art: s.art, locked_fields: s.locked_fields, values: asValues(s) },
+      item: {
+        library_id: s.library_id,
+        type: 'show',
+        id: s.id,
+        title: s.title,
+        year: s.year,
+        art: s.art,
+        locked_fields: s.locked_fields,
+        values: asValues(s),
+      },
     };
   }
   if (c.type === 'episode') {
@@ -63,14 +82,26 @@ async function loadManageable(c: Card): Promise<Loaded | null> {
     return {
       canEdit: can_edit,
       fresh: e,
-      item: { library_id: e.library_id, type: 'episode', id: e.id, title: e.title, art: e.art, locked_fields: e.locked_fields, values: asValues(e), files: e.files },
+      item: {
+        library_id: e.library_id,
+        type: 'episode',
+        id: e.id,
+        title: e.title,
+        art: e.art,
+        locked_fields: e.locked_fields,
+        values: asValues(e),
+        files: e.files,
+      },
     };
   }
   return null;
 }
 
 /** The artwork a card's main image comes from: an episode poster is its show's. */
-function imageTarget(c: Card, landscape: boolean): { type: ItemType; id: string; kind: 'poster' | 'thumb' | 'backdrop'; label: string } | null {
+function imageTarget(
+  c: Card,
+  landscape: boolean,
+): { type: ItemType; id: string; kind: 'poster' | 'thumb' | 'backdrop'; label: string } | null {
   if (c.type === 'episode') {
     if (landscape) return { type: 'episode', id: c.id, kind: 'thumb', label: 'thumbnail' };
     return c.show_id ? { type: 'show', id: c.show_id, kind: 'poster', label: 'show poster' } : null;
@@ -82,7 +113,15 @@ function imageTarget(c: Card, landscape: boolean): { type: ItemType; id: string;
 const NO_OVERRIDE: Partial<Card> = {};
 
 function emptyState(): UserState {
-  return { position_secs: 0, duration_secs: 0, played: false, play_count: 0, favorite: false, watchlist: false, unplayed_count: 0 };
+  return {
+    position_secs: 0,
+    duration_secs: 0,
+    played: false,
+    play_count: 0,
+    favorite: false,
+    watchlist: false,
+    unplayed_count: 0,
+  };
 }
 
 /**
@@ -92,7 +131,10 @@ function emptyState(): UserState {
  */
 export function useCardMenu(
   c: Card,
-  { landscape = false, onChanged }: { landscape?: boolean; onChanged?: (() => void) | undefined } = {},
+  {
+    landscape = false,
+    onChanged,
+  }: { landscape?: boolean; onChanged?: (() => void) | undefined } = {},
 ) {
   const navigate = useNavigate();
   const toast = useToast();
@@ -103,7 +145,8 @@ export function useCardMenu(
   const [ovState, setOvState] = useState<{ key: string; v: Partial<Card> }>({ key, v: {} });
   const override = ovState.key === key ? ovState.v : NO_OVERRIDE;
   const setOverride = useCallback(
-    (f: (o: Partial<Card>) => Partial<Card>) => setOvState((st) => ({ key, v: f(st.key === key ? st.v : {}) })),
+    (f: (o: Partial<Card>) => Partial<Card>) =>
+      setOvState((st) => ({ key, v: f(st.key === key ? st.v : {}) })),
     [key],
   );
   const [loadedState, setLoadedState] = useState<{ key: string; l: Loaded } | null>(null);
@@ -155,11 +198,29 @@ export function useCardMenu(
   const toggle = async (key: 'played' | 'favorite' | 'watchlist') => {
     const prev = state;
     const on = !state?.[key];
-    setOverride((o) => ({ ...o, state: { ...(prev ?? emptyState()), [key]: on, ...(key === 'played' ? { position_secs: 0 } : {}) } }));
+    setOverride((o) => ({
+      ...o,
+      state: {
+        ...(prev ?? emptyState()),
+        [key]: on,
+        ...(key === 'played' ? { position_secs: 0 } : {}),
+      },
+    }));
     try {
       if (key === 'played') await setPlayed([ref], on);
       else await setInList(key, ref, on);
-      const what = key === 'played' ? (on ? 'Marked watched' : 'Marked unwatched') : key === 'favorite' ? (on ? 'Added to favourites' : 'Removed from favourites') : on ? 'Added to watchlist' : 'Removed from watchlist';
+      const what =
+        key === 'played'
+          ? on
+            ? 'Marked watched'
+            : 'Marked unwatched'
+          : key === 'favorite'
+            ? on
+              ? 'Added to favourites'
+              : 'Removed from favourites'
+            : on
+              ? 'Added to watchlist'
+              : 'Removed from watchlist';
       toast({ message: what, tone: 'success' });
       onChanged?.();
     } catch (err) {
@@ -177,7 +238,8 @@ export function useCardMenu(
   // A new version number makes the browser fetch the changed image.
   const applyArt = (has: boolean) => {
     if (!target) return;
-    if (c.type === 'episode' && target.type === 'show') setOverride((o) => ({ ...o, show_art: bumpArt(o.show_art ?? c.show_art, has) }));
+    if (c.type === 'episode' && target.type === 'show')
+      setOverride((o) => ({ ...o, show_art: bumpArt(o.show_art ?? c.show_art, has) }));
     else setOverride((o) => ({ ...o, art: bumpArt(o.art ?? c.art, has) }));
   };
 
@@ -220,7 +282,11 @@ export function useCardMenu(
 
   const playable = (c.type === 'movie' || c.type === 'episode') && c.available;
   const position = state && !state.played ? state.position_secs : 0;
-  const hasImage = target ? (target.type === 'show' && c.type === 'episode' ? card.show_art?.[target.kind] : card.art?.[target.kind]) : false;
+  const hasImage = target
+    ? target.type === 'show' && c.type === 'episode'
+      ? card.show_art?.[target.kind]
+      : card.art?.[target.kind]
+    : false;
   const canEdit = loaded?.canEdit ?? false;
   const matchable = c.type === 'movie' || c.type === 'show';
   const noun = c.type === 'show' ? 'show' : c.type === 'episode' ? 'episode' : 'movie';
@@ -228,24 +294,85 @@ export function useCardMenu(
   const items: MenuEntry[] = [
     ...(playable
       ? [
-          { id: 'play', label: position > 30 ? `Resume from ${formatTimecode(position)}` : 'Play', icon: 'video' as const, onSelect: () => navigate(playPath(c)) },
-          ...(position > 30 ? [{ id: 'restart', label: 'Play from the beginning', onSelect: () => navigate(playPath(c, { restart: true })) }] : []),
+          {
+            id: 'play',
+            label: position > 30 ? `Resume from ${formatTimecode(position)}` : 'Play',
+            icon: 'video' as const,
+            onSelect: () => navigate(playPath(c)),
+          },
+          ...(position > 30
+            ? [
+                {
+                  id: 'restart',
+                  label: 'Play from the beginning',
+                  onSelect: () => navigate(playPath(c, { restart: true })),
+                },
+              ]
+            : []),
         ]
       : []),
-    { id: 'open', label: c.type === 'show' ? 'Open show' : c.type === 'episode' ? 'Open episode' : 'Open details', icon: 'info', onSelect: () => navigate(itemPath(c)) },
-    ...(c.type === 'episode' && c.show_id ? [{ id: 'show', label: 'Go to show', onSelect: () => navigate(`/show/${c.library_id}/${c.show_id}`) }] : []),
+    {
+      id: 'open',
+      label:
+        c.type === 'show' ? 'Open show' : c.type === 'episode' ? 'Open episode' : 'Open details',
+      icon: 'info',
+      onSelect: () => navigate(itemPath(c)),
+    },
+    ...(c.type === 'episode' && c.show_id
+      ? [
+          {
+            id: 'show',
+            label: 'Go to show',
+            onSelect: () => navigate(`/show/${c.library_id}/${c.show_id}`),
+          },
+        ]
+      : []),
     'separator',
-    { id: 'played', label: state?.played ? 'Mark unwatched' : c.type === 'show' ? 'Mark all watched' : 'Mark watched', onSelect: () => void toggle('played') },
-    { id: 'favorite', label: state?.favorite ? 'Remove from favourites' : 'Add to favourites', onSelect: () => void toggle('favorite') },
-    { id: 'watchlist', label: state?.watchlist ? 'Remove from watchlist' : 'Add to watchlist', onSelect: () => void toggle('watchlist') },
+    {
+      id: 'played',
+      label: state?.played
+        ? 'Mark unwatched'
+        : c.type === 'show'
+          ? 'Mark all watched'
+          : 'Mark watched',
+      onSelect: () => void toggle('played'),
+    },
+    {
+      id: 'favorite',
+      label: state?.favorite ? 'Remove from favourites' : 'Add to favourites',
+      onSelect: () => void toggle('favorite'),
+    },
+    {
+      id: 'watchlist',
+      label: state?.watchlist ? 'Remove from watchlist' : 'Add to watchlist',
+      onSelect: () => void toggle('watchlist'),
+    },
     { id: 'collection', label: 'Add to collection…', onSelect: () => setPanel('collection') },
     { id: 'playlist', label: 'Add to playlist…', onSelect: () => setPanel('playlist') },
     ...(canEdit && loaded
       ? ([
           'separator',
           { id: 'edit', label: 'Edit metadata…', icon: 'edit', onSelect: () => setPanel('edit') },
-          ...(matchable ? [{ id: 'match', label: 'Fix match…', icon: 'search' as const, onSelect: () => setPanel('match') }] : []),
-          ...(matchable ? [{ id: 'refresh', label: 'Refresh metadata', icon: 'refresh' as const, onSelect: () => void refresh() }] : []),
+          ...(matchable
+            ? [
+                {
+                  id: 'match',
+                  label: 'Fix match…',
+                  icon: 'search' as const,
+                  onSelect: () => setPanel('match'),
+                },
+              ]
+            : []),
+          ...(matchable
+            ? [
+                {
+                  id: 'refresh',
+                  label: 'Refresh metadata',
+                  icon: 'refresh' as const,
+                  onSelect: () => void refresh(),
+                },
+              ]
+            : []),
           ...(target
             ? [
                 {
@@ -258,7 +385,17 @@ export function useCardMenu(
               ]
             : []),
           { id: 'art', label: 'Choose artwork…', onSelect: () => setPanel('art') },
-          ...(target && hasImage ? [{ id: 'remove-art', label: `Remove the ${target.label}`, icon: 'trash' as const, danger: true, onSelect: () => void removeImage() }] : []),
+          ...(target && hasImage
+            ? [
+                {
+                  id: 'remove-art',
+                  label: `Remove the ${target.label}`,
+                  icon: 'trash' as const,
+                  danger: true,
+                  onSelect: () => void removeImage(),
+                },
+              ]
+            : []),
         ] as MenuEntry[])
       : []),
   ];
@@ -283,12 +420,39 @@ export function useCardMenu(
           if (f) void upload(f);
         }}
       />
-      {anchor && <Menu anchor={anchor} items={items} onClose={() => setAnchor(null)} label={`${card.title}, ${noun} actions`} />}
-      {panel === 'collection' && <AddToDialog kind="collection" items={[ref]} title={card.title} onClose={() => setPanel(null)} />}
-      {panel === 'playlist' && <AddToDialog kind="playlist" items={[ref]} title={card.title} onClose={() => setPanel(null)} />}
-      {loaded && panel === 'edit' && <EditDialog item={loaded.item} onClose={() => setPanel(null)} onSaved={afterSave} />}
-      {loaded && panel === 'match' && <MatchDialog item={loaded.item} onClose={() => setPanel(null)} onSaved={afterSave} />}
-      {loaded && panel === 'art' && <ArtworkDialog item={loaded.item} onClose={() => setPanel(null)} onSaved={afterSave} />}
+      {anchor && (
+        <Menu
+          anchor={anchor}
+          items={items}
+          onClose={() => setAnchor(null)}
+          label={`${card.title}, ${noun} actions`}
+        />
+      )}
+      {panel === 'collection' && (
+        <AddToDialog
+          kind="collection"
+          items={[ref]}
+          title={card.title}
+          onClose={() => setPanel(null)}
+        />
+      )}
+      {panel === 'playlist' && (
+        <AddToDialog
+          kind="playlist"
+          items={[ref]}
+          title={card.title}
+          onClose={() => setPanel(null)}
+        />
+      )}
+      {loaded && panel === 'edit' && (
+        <EditDialog item={loaded.item} onClose={() => setPanel(null)} onSaved={afterSave} />
+      )}
+      {loaded && panel === 'match' && (
+        <MatchDialog item={loaded.item} onClose={() => setPanel(null)} onSaved={afterSave} />
+      )}
+      {loaded && panel === 'art' && (
+        <ArtworkDialog item={loaded.item} onClose={() => setPanel(null)} onSaved={afterSave} />
+      )}
     </>
   );
 
@@ -302,7 +466,10 @@ export function usePersonMenu(libraryId: string) {
   const openPerson = (e: MouseEvent<HTMLElement>, p: { person_id: string; name: string }) => {
     if (e.shiftKey) return;
     e.preventDefault();
-    const anchor: MenuAnchor = e.clientX === 0 && e.clientY === 0 ? { element: e.currentTarget } : { x: e.clientX, y: e.clientY };
+    const anchor: MenuAnchor =
+      e.clientX === 0 && e.clientY === 0
+        ? { element: e.currentTarget }
+        : { x: e.clientX, y: e.clientY };
     setOpen({ anchor, id: p.person_id, name: p.name });
   };
   const element = open ? (
@@ -311,8 +478,18 @@ export function usePersonMenu(libraryId: string) {
       label={`${open.name} actions`}
       onClose={() => setOpen(null)}
       items={[
-        { id: 'open', label: `Everything with ${open.name}`, icon: 'person', onSelect: () => navigate(`/person/${libraryId}/${open.id}`) },
-        { id: 'search', label: `Search for ${open.name}`, icon: 'search', onSelect: () => navigate(`/search?q=${encodeURIComponent(open.name)}`) },
+        {
+          id: 'open',
+          label: `Everything with ${open.name}`,
+          icon: 'person',
+          onSelect: () => navigate(`/person/${libraryId}/${open.id}`),
+        },
+        {
+          id: 'search',
+          label: `Search for ${open.name}`,
+          icon: 'search',
+          onSelect: () => navigate(`/search?q=${encodeURIComponent(open.name)}`),
+        },
       ]}
     />
   ) : null;

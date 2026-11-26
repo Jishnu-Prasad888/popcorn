@@ -16,15 +16,27 @@ export default function MovieDetailPage() {
   const res = useResource(() => getMovie(lib, id), [lib, id]);
   const [fileId, setFileId] = useState('');
 
-  if (res.loading && !res.data) return <div className="page"><LoadingState /></div>;
-  if (res.error || !res.data) return <div className="page"><ErrorState message={res.error ?? 'Not found.'} onRetry={res.reload} /></div>;
+  if (res.loading && !res.data)
+    return (
+      <div className="page">
+        <LoadingState />
+      </div>
+    );
+  if (res.error || !res.data)
+    return (
+      <div className="page">
+        <ErrorState message={res.error ?? 'Not found.'} onRetry={res.reload} />
+      </div>
+    );
   const { movie, related, history, can_edit } = res.data;
   const progress = progressOf(movie);
   const present = movie.files.filter((f) => f.status === 'present');
   const chosen = fileId || present[0]?.id;
   const playTo = (restart: boolean) => {
     const base = playPath(movie, { restart });
-    return chosen && present.length > 1 ? `${base}${base.includes('?') ? '&' : '?'}file=${chosen}` : base;
+    return chosen && present.length > 1
+      ? `${base}${base.includes('?') ? '&' : '?'}file=${chosen}`
+      : base;
   };
   const credits = movie.credits ?? [];
 
@@ -36,11 +48,14 @@ export default function MovieDetailPage() {
         actions={
           <>
             {present.length === 0 ? (
-              <span className="tech-missing">Not available right now: the disk holding this movie may be disconnected.</span>
+              <span className="tech-missing">
+                Not available right now: the disk holding this movie may be disconnected.
+              </span>
             ) : progress > 0 ? (
               <>
                 <Link className="btn-play" to={playTo(false)}>
-                  <Play size={20} fill="currentColor" /> Resume {formatTimecode(movie.state?.position_secs ?? 0)}
+                  <Play size={20} fill="currentColor" /> Resume{' '}
+                  {formatTimecode(movie.state?.position_secs ?? 0)}
                 </Link>
                 <Link className="btn-ghost" to={playTo(true)}>
                   <RotateCcw size={17} /> From the start
@@ -138,13 +153,21 @@ export default function MovieDetailPage() {
                 <div>
                   <dt>Links</dt>
                   <dd>
-                    <a href={`https://www.imdb.com/title/${movie.imdb_id}/`} target="_blank" rel="noreferrer">
+                    <a
+                      href={`https://www.imdb.com/title/${movie.imdb_id}/`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       IMDb
                     </a>
                     {movie.tmdb_id ? (
                       <>
                         {', '}
-                        <a href={`https://www.themoviedb.org/movie/${movie.tmdb_id}`} target="_blank" rel="noreferrer">
+                        <a
+                          href={`https://www.themoviedb.org/movie/${movie.tmdb_id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
                           TMDB
                         </a>
                       </>

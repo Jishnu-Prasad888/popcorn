@@ -121,7 +121,9 @@ export default function LoginPage() {
               </Link>
             </div>
           ) : (
-            <p className="auth-switch-note">No account? Ask this server's administrator to add you.</p>
+            <p className="auth-switch-note">
+              No account? Ask this server's administrator to add you.
+            </p>
           )}
         </form>
       </section>

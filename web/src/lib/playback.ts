@@ -19,7 +19,8 @@ export function clientCaps(): ClientCaps {
   const v = document.createElement('video');
   const ok = (type: string) => {
     try {
-      const ms = (window as unknown as { MediaSource?: { isTypeSupported(t: string): boolean } }).MediaSource;
+      const ms = (window as unknown as { MediaSource?: { isTypeSupported(t: string): boolean } })
+        .MediaSource;
       return v.canPlayType(type) !== '' || Boolean(ms?.isTypeSupported(type));
     } catch {
       return false;
@@ -72,7 +73,12 @@ export interface Cue {
 function parseTime(s: string): number {
   const m = s.trim().match(/^(?:(\d+):)?(\d{1,2}):(\d{2})[.,](\d{1,3})$/);
   if (!m) return Number.NaN;
-  return Number(m[1] ?? 0) * 3600 + Number(m[2]) * 60 + Number(m[3]) + Number((m[4] ?? '0').padEnd(3, '0')) / 1000;
+  return (
+    Number(m[1] ?? 0) * 3600 +
+    Number(m[2]) * 60 +
+    Number(m[3]) +
+    Number((m[4] ?? '0').padEnd(3, '0')) / 1000
+  );
 }
 
 const ALLOWED = /^\/?(i|b|u)$/i;
@@ -101,7 +107,10 @@ export function parseVTT(src: string): Cue[] {
     const start = parseTime(a);
     const end = parseTime(b);
     if (!Number.isFinite(start) || !Number.isFinite(end)) continue;
-    const text = lines.slice(timing + 1).join('\n').trim();
+    const text = lines
+      .slice(timing + 1)
+      .join('\n')
+      .trim();
     if (!text) continue;
     const cue: Cue = { start, end, html: sanitize(text) };
     const line = settings.find((s) => s.startsWith('line:'));

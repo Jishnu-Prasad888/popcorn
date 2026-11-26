@@ -334,7 +334,7 @@ func (s *Store) History(ctx context.Context, userID string, limit, offset int) (
 	out := []HistoryEntry{}
 	for rows.Next() {
 		var h HistoryEntry
-		if err := rows.Scan(&h.EntryID, &h.LibraryID, &h.Type, &h.Ref.ID, &h.ShowID, &h.WatchedAt, &h.WatchedSecs); err != nil {
+		if err := rows.Scan(&h.EntryID, &h.LibraryID, &h.Type, &h.ID, &h.ShowID, &h.WatchedAt, &h.WatchedSecs); err != nil {
 			return nil, err
 		}
 		out = append(out, h)

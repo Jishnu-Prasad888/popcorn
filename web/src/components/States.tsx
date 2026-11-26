@@ -231,8 +231,8 @@ export function LibraryOfflineNotice({ library }: { library: Library }) {
       <div className="notice-text">
         <p className="notice-title">{library.name} is unavailable</p>
         <p>
-          The drive holding this library is disconnected. Your watch history, collections and edits are safe.
-          Reconnect it and Popcorn will pick up where it left off.
+          The drive holding this library is disconnected. Your watch history, collections and edits
+          are safe. Reconnect it and Popcorn will pick up where it left off.
         </p>
         {user?.role === 'admin' && (
           <p className="notice-detail">

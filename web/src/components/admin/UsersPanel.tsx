@@ -60,7 +60,12 @@ function AddUserDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () 
           <button type="button" className="button" onClick={onClose} disabled={busy}>
             Cancel
           </button>
-          <button type="button" className="primary-button" onClick={() => void submit()} disabled={busy || !username.trim() || !password}>
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => void submit()}
+            disabled={busy || !username.trim() || !password}
+          >
             {busy ? 'Adding…' : 'Add user'}
           </button>
         </>
@@ -69,25 +74,47 @@ function AddUserDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () 
       <form className="users-form" onSubmit={(e) => void submit(e)}>
         <label className="field">
           <span className="field-label">Username</span>
-          <input autoFocus autoComplete="off" value={username} onChange={(e) => setUsername(e.target.value)} />
+          <input
+            autoFocus
+            autoComplete="off"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
           <span className="field-hint">Letters, digits, dots, dashes and underscores.</span>
         </label>
         <label className="field">
           <span className="field-label">Password</span>
-          <input type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <span className="field-hint">At least {MIN_PASSWORD} characters. Share it with them privately.</span>
+          <input
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <span className="field-hint">
+            At least {MIN_PASSWORD} characters. Share it with them privately.
+          </span>
         </label>
         <fieldset className="users-role">
           <legend className="field-label">Role</legend>
           <label>
-            <input type="radio" name="role" checked={role === 'user'} onChange={() => setRole('user')} />
+            <input
+              type="radio"
+              name="role"
+              checked={role === 'user'}
+              onChange={() => setRole('user')}
+            />
             <span>
               <strong>Member</strong>
               <span className="field-hint">Watches the libraries you give them access to.</span>
             </span>
           </label>
           <label>
-            <input type="radio" name="role" checked={role === 'admin'} onChange={() => setRole('admin')} />
+            <input
+              type="radio"
+              name="role"
+              checked={role === 'admin'}
+              onChange={() => setRole('admin')}
+            />
             <span>
               <strong>Administrator</strong>
               <span className="field-hint">Manages libraries, users, metadata and backups.</span>
@@ -118,7 +145,10 @@ function PasswordDialog({ user, onClose }: { user: User; onClose: () => void }) 
     setBusy(true);
     try {
       await updateUser(user.id, { password });
-      toast({ message: `New password set for ${user.username}. They were signed out everywhere.`, tone: 'success' });
+      toast({
+        message: `New password set for ${user.username}. They were signed out everywhere.`,
+        tone: 'success',
+      });
       onClose();
     } catch (err) {
       setError(errorMessage(err));
@@ -136,7 +166,12 @@ function PasswordDialog({ user, onClose }: { user: User; onClose: () => void }) 
           <button type="button" className="button" onClick={onClose}>
             Cancel
           </button>
-          <button type="button" className="primary-button" onClick={() => void submit()} disabled={busy || !password}>
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => void submit()}
+            disabled={busy || !password}
+          >
             Set password
           </button>
         </>
@@ -145,8 +180,16 @@ function PasswordDialog({ user, onClose }: { user: User; onClose: () => void }) 
       <form className="users-form" onSubmit={(e) => void submit(e)}>
         <label className="field">
           <span className="field-label">New password</span>
-          <input type="password" autoFocus autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <span className="field-hint">They'll be signed out on every device and sign in with this.</span>
+          <input
+            type="password"
+            autoFocus
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <span className="field-hint">
+            They'll be signed out on every device and sign in with this.
+          </span>
         </label>
         {error && <p className="error-text">{error}</p>}
       </form>
@@ -174,7 +217,13 @@ export function UsersPanel() {
 
   const openMenu = (u: User, e: MouseEvent<HTMLElement>, fromButton = false) => {
     e.preventDefault();
-    setMenu({ user: u, anchor: fromButton || (e.clientX === 0 && e.clientY === 0) ? { element: e.currentTarget } : { x: e.clientX, y: e.clientY } });
+    setMenu({
+      user: u,
+      anchor:
+        fromButton || (e.clientX === 0 && e.clientY === 0)
+          ? { element: e.currentTarget }
+          : { x: e.clientX, y: e.clientY },
+    });
   };
 
   const itemsFor = (u: User) => {
@@ -186,11 +235,31 @@ export function UsersPanel() {
         ? []
         : [
             u.role === 'admin'
-              ? { id: 'role', label: 'Make a member', onSelect: () => void patch(u, { role: 'user' }, `${u.username} is now a member.`) }
-              : { id: 'role', label: 'Make an administrator', onSelect: () => void patch(u, { role: 'admin' }, `${u.username} is now an administrator.`) },
+              ? {
+                  id: 'role',
+                  label: 'Make a member',
+                  onSelect: () => void patch(u, { role: 'user' }, `${u.username} is now a member.`),
+                }
+              : {
+                  id: 'role',
+                  label: 'Make an administrator',
+                  onSelect: () =>
+                    void patch(u, { role: 'admin' }, `${u.username} is now an administrator.`),
+                },
             enabled
-              ? { id: 'disable', label: 'Disable account', danger: true, onSelect: () => void patch(u, { enabled: false }, `${u.username} can no longer sign in.`) }
-              : { id: 'enable', label: 'Enable account', onSelect: () => void patch(u, { enabled: true }, `${u.username} can sign in again.`) },
+              ? {
+                  id: 'disable',
+                  label: 'Disable account',
+                  danger: true,
+                  onSelect: () =>
+                    void patch(u, { enabled: false }, `${u.username} can no longer sign in.`),
+                }
+              : {
+                  id: 'enable',
+                  label: 'Enable account',
+                  onSelect: () =>
+                    void patch(u, { enabled: true }, `${u.username} can sign in again.`),
+                },
           ]),
     ];
   };
@@ -199,7 +268,10 @@ export function UsersPanel() {
     <section className="settings-section">
       <header>
         <h2>Users</h2>
-        <p>People can't sign up on their own. Add them here and give them access to libraries under Users & access.</p>
+        <p>
+          People can't sign up on their own. Add them here and give them access to libraries under
+          Users & access.
+        </p>
       </header>
       <div className="settings-rows">
         <div>
@@ -214,7 +286,12 @@ export function UsersPanel() {
             {users.data.users.map((u) => {
               const enabled = u.enabled !== false;
               return (
-                <li key={u.id} className="users-row" data-disabled={!enabled} onContextMenu={(e) => openMenu(u, e)}>
+                <li
+                  key={u.id}
+                  className="users-row"
+                  data-disabled={!enabled}
+                  onContextMenu={(e) => openMenu(u, e)}
+                >
                   <span className="users-avatar" aria-hidden="true">
                     {u.username.slice(0, 1).toUpperCase()}
                   </span>
@@ -222,12 +299,25 @@ export function UsersPanel() {
                     {u.username}
                     {u.id === me?.id && <span className="muted"> (you)</span>}
                   </span>
-                  <span className={`users-role-chip role-${u.role}`}>{u.role === 'admin' ? 'Administrator' : 'Member'}</span>
+                  <span className={`users-role-chip role-${u.role}`}>
+                    {u.role === 'admin' ? 'Administrator' : 'Member'}
+                  </span>
                   {!enabled && <span className="users-disabled">Disabled</span>}
-                  <button type="button" className="icon-button" onClick={() => setPasswordFor(u)} aria-label={`Set a new password for ${u.username}`} title="Set a new password">
+                  <button
+                    type="button"
+                    className="icon-button"
+                    onClick={() => setPasswordFor(u)}
+                    aria-label={`Set a new password for ${u.username}`}
+                    title="Set a new password"
+                  >
                     <KeyRound size={16} />
                   </button>
-                  <button type="button" className="button button-sm" onClick={(e) => openMenu(u, e, true)} aria-haspopup="menu">
+                  <button
+                    type="button"
+                    className="button button-sm"
+                    onClick={(e) => openMenu(u, e, true)}
+                    aria-haspopup="menu"
+                  >
                     Manage
                   </button>
                 </li>
@@ -236,7 +326,14 @@ export function UsersPanel() {
           </ul>
         )}
       </div>
-      {menu && <Menu anchor={menu.anchor} items={itemsFor(menu.user)} label={`Manage ${menu.user.username}`} onClose={() => setMenu(null)} />}
+      {menu && (
+        <Menu
+          anchor={menu.anchor}
+          items={itemsFor(menu.user)}
+          label={`Manage ${menu.user.username}`}
+          onClose={() => setMenu(null)}
+        />
+      )}
       {adding && <AddUserDialog onClose={() => setAdding(false)} onAdded={users.reload} />}
       {passwordFor && <PasswordDialog user={passwordFor} onClose={() => setPasswordFor(null)} />}
     </section>

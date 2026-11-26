@@ -105,7 +105,11 @@
   text-align: center;
   color: var(--color-text-muted);
   background:
-    linear-gradient(160deg, color-mix(in srgb, var(--dracula-purple) 16%, transparent), transparent 60%),
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--dracula-purple) 16%, transparent),
+      transparent 60%
+    ),
     var(--color-surface);
 }
 
@@ -445,9 +449,23 @@
   inset: 0;
   z-index: -1;
   background:
-    repeating-linear-gradient(0deg, transparent 0 2px, color-mix(in srgb, var(--dracula-bg-deeper) 22%, transparent) 2px 3px),
-    linear-gradient(0deg, var(--color-background) 0%, color-mix(in srgb, var(--color-background) 70%, transparent) 30%, transparent 65%),
-    linear-gradient(90deg, color-mix(in srgb, var(--color-background) 92%, transparent) 0%, color-mix(in srgb, var(--color-background) 40%, transparent) 45%, transparent 75%);
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 2px,
+      color-mix(in srgb, var(--dracula-bg-deeper) 22%, transparent) 2px 3px
+    ),
+    linear-gradient(
+      0deg,
+      var(--color-background) 0%,
+      color-mix(in srgb, var(--color-background) 70%, transparent) 30%,
+      transparent 65%
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-background) 92%, transparent) 0%,
+      color-mix(in srgb, var(--color-background) 40%, transparent) 45%,
+      transparent 75%
+    );
 }
 
 .hero-body {
@@ -690,7 +708,8 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b95c1' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 9px center no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b95c1' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+      right 9px center no-repeat,
     var(--color-shell);
   color: var(--color-text-primary);
   font: inherit;
@@ -881,7 +900,11 @@
   justify-content: center;
   padding: 0 12%;
   background:
-    radial-gradient(circle at 50% 120%, color-mix(in srgb, var(--dracula-purple) 35%, transparent), transparent 70%),
+    radial-gradient(
+      circle at 50% 120%,
+      color-mix(in srgb, var(--dracula-purple) 35%, transparent),
+      transparent 70%
+    ),
     var(--color-surface);
 }
 

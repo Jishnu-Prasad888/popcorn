@@ -73,9 +73,23 @@ function mockFetch(options: {
           skip_forward: 30,
           skip_backward: 10,
           passthrough: [],
-          subtitle_style: { size: 100, color: '#ffffff', background: 'shadow', opacity: 60, position: 8, font: 'sans' },
+          subtitle_style: {
+            size: 100,
+            color: '#ffffff',
+            background: 'shadow',
+            opacity: 60,
+            position: 8,
+            font: 'sans',
+          },
         },
-        interface: { density: 'comfortable', card_size: 'medium', view: 'grid', motion: 'full', accent: 'purple', home_rows: [] },
+        interface: {
+          density: 'comfortable',
+          card_size: 'medium',
+          view: 'grid',
+          motion: 'full',
+          accent: 'purple',
+          home_rows: [],
+        },
       });
     }
     if (url.endsWith('/api/v1/home')) {

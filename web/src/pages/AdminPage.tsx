@@ -77,13 +77,38 @@ function LibraryPanel({ id, name }: { id: string; name: string }) {
       <header className="admin-library-head">
         <h2>{name}</h2>
         <div className="admin-actions">
-          <button type="button" className="button button-sm" disabled={busy !== ''} onClick={() => void run('sync', () => syncCatalog(id), 'Rebuilding the catalog from the files.')}>
+          <button
+            type="button"
+            className="button button-sm"
+            disabled={busy !== ''}
+            onClick={() =>
+              void run('sync', () => syncCatalog(id), 'Rebuilding the catalog from the files.')
+            }
+          >
             <ScanLine size={15} /> Re-scan files
           </button>
-          <button type="button" className="button button-sm" disabled={busy !== ''} onClick={() => void run('meta', () => refreshMetadata(id), 'Fetching missing metadata.')}>
+          <button
+            type="button"
+            className="button button-sm"
+            disabled={busy !== ''}
+            onClick={() =>
+              void run('meta', () => refreshMetadata(id), 'Fetching missing metadata.')
+            }
+          >
             <Sparkles size={15} /> Fetch missing metadata
           </button>
-          <button type="button" className="button button-sm" disabled={busy !== ''} onClick={() => void run('force', () => refreshMetadata(id, [], true), 'Refreshing all metadata. Locked fields are kept.')}>
+          <button
+            type="button"
+            className="button button-sm"
+            disabled={busy !== ''}
+            onClick={() =>
+              void run(
+                'force',
+                () => refreshMetadata(id, [], true),
+                'Refreshing all metadata. Locked fields are kept.',
+              )
+            }
+          >
             <RefreshCw size={15} /> Refresh all
           </button>
         </div>
@@ -118,15 +143,34 @@ function LibraryPanel({ id, name }: { id: string; name: string }) {
               <dd>{s.subtitles}</dd>
             </div>
           </dl>
-          {(s.unmatched > 0 || s.unprobed > 0 || s.missing_files > 0 || pending > 0 || !stats.data?.ffprobe) && (
+          {(s.unmatched > 0 ||
+            s.unprobed > 0 ||
+            s.missing_files > 0 ||
+            pending > 0 ||
+            !stats.data?.ffprobe) && (
             <ul className="admin-notes">
-              {!stats.data?.ffprobe && <li className="is-warn">ffprobe isn't installed, so codecs, durations and tracks can't be read. Install ffmpeg on the server.</li>}
-              {s.unmatched > 0 && <li>{s.unmatched} titles have no metadata match. Open one and use Manage → Identify.</li>}
+              {!stats.data?.ffprobe && (
+                <li className="is-warn">
+                  ffprobe isn't installed, so codecs, durations and tracks can't be read. Install
+                  ffmpeg on the server.
+                </li>
+              )}
+              {s.unmatched > 0 && (
+                <li>
+                  {s.unmatched} titles have no metadata match. Open one and use Manage → Identify.
+                </li>
+              )}
               {s.unprobed > 0 && <li>{s.unprobed} files are waiting to be analysed.</li>}
-              {s.missing_files > 0 && <li className="is-warn">{s.missing_files} files are missing from disk.</li>}
+              {s.missing_files > 0 && (
+                <li className="is-warn">{s.missing_files} files are missing from disk.</li>
+              )}
               {pending > 0 && (
                 <li>
-                  {pending} background jobs queued: {Object.entries(jobs).map(([k, v]) => `${k} ${v}`).join(', ')}.
+                  {pending} background jobs queued:{' '}
+                  {Object.entries(jobs)
+                    .map(([k, v]) => `${k} ${v}`)
+                    .join(', ')}
+                  .
                 </li>
               )}
             </ul>
@@ -161,7 +205,10 @@ function LibraryPanel({ id, name }: { id: string; name: string }) {
       {unassigned.data && unassigned.data.files.length > 0 && (
         <div className="admin-sub">
           <h3>Files not in the catalog ({unassigned.data.files.length})</h3>
-          <p className="muted">These video files couldn't be placed as a movie or an episode. Rename them like “Title (Year).mkv” or “Show/Season 1/Show S01E01.mkv” and re-scan.</p>
+          <p className="muted">
+            These video files couldn't be placed as a movie or an episode. Rename them like “Title
+            (Year).mkv” or “Show/Season 1/Show S01E01.mkv” and re-scan.
+          </p>
           <ul className="plain-list mono-list">
             {unassigned.data.files.slice(0, 50).map((f) => (
               <li key={f.id}>{f.rel_path}</li>
@@ -184,19 +231,23 @@ export default function AdminPage() {
         <div>
           <h1 className="page-title">Server</h1>
           <p className="page-count">
-            {total} librar{total === 1 ? 'y' : 'ies'}. <Link to="/libraries">Manage libraries</Link> or set up <Link to="/admin/metadata">metadata providers</Link>.
+            {total} librar{total === 1 ? 'y' : 'ies'}. <Link to="/libraries">Manage libraries</Link>{' '}
+            or set up <Link to="/admin/metadata">metadata providers</Link>.
           </p>
         </div>
       </header>
 
       <section className="admin-streams">
         <h2 className="section-title">Playing now</h2>
-        {streams.data && streams.data.streams.length === 0 && <p className="muted">Nobody is watching anything right now.</p>}
+        {streams.data && streams.data.streams.length === 0 && (
+          <p className="muted">Nobody is watching anything right now.</p>
+        )}
         {streams.data && streams.data.streams.length > 0 && (
           <ul className="plain-list">
             {streams.data.streams.map((s) => (
               <li key={s.session}>
-                <strong>{s.username}</strong> is watching {s.title} <span className={`method-chip method-${s.method}`}>{s.method}</span>{' '}
+                <strong>{s.username}</strong> is watching {s.title}{' '}
+                <span className={`method-chip method-${s.method}`}>{s.method}</span>{' '}
                 <span className="muted">since {formatDateTime(s.started_at)}</span>
               </li>
             ))}

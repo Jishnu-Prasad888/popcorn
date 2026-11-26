@@ -233,7 +233,12 @@ function AddLibraryDialog({ onClose }: { onClose: () => void }) {
 
         <div className="library-field">
           <label htmlFor="library-kind">What's in it</label>
-          <select id="library-kind" className="library-input" value={kind} onChange={(e) => setKind(e.target.value as LibraryKind)}>
+          <select
+            id="library-kind"
+            className="library-input"
+            value={kind}
+            onChange={(e) => setKind(e.target.value as LibraryKind)}
+          >
             <option value="mixed">Movies and TV shows</option>
             <option value="movies">Movies</option>
             <option value="shows">TV shows</option>
