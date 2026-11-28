@@ -105,6 +105,9 @@ var (
 	// Season folder: "Season 01", "S01", "Series 2", "Staffel 3", "Saison 1"
 	reSeasonDir = regexp.MustCompile(`(?i)^(?:season|series|staffel|saison|temporada|s)[ ._-]*(\d{1,3})$`)
 	reSpecials  = regexp.MustCompile(`(?i)^(?:specials?|season[ ._-]*0+|extras? episodes)$`)
+	// A season marker inside a longer folder name, as release folders are
+	// named: "Show S01 {Hindi-English} 1080p", "Show Season 2 720p BluRay".
+	reSeasonIn = regexp.MustCompile(`(?i)(?:^|[ ._-])(?:season|series|staffel|saison|temporada|s)[ ._-]*(\d{1,3})(?:[ ._\-(\[{]|$)`)
 	// Anime absolute numbering: "Show - 012", "[Group] Show - 12 [1080p]"
 	reAbsolute = regexp.MustCompile(`(?:^|[ _.])-[ _.]?(\d{1,4})(?:v\d)?(?:[ _.\[(]|$)`)
 	reYear     = regexp.MustCompile(`(?:^|[^0-9])((?:19|20)\d{2})(?:[^0-9]|$)`)
@@ -187,6 +190,32 @@ func ParseMovie(rel string) ParsedMovie {
 	return pm
 }
 
+// seasonOfDir reads a season folder's number: 0 for specials, -1 when the
+// folder is not a season folder. Besides "Season 01", "S01" and "Specials" it
+// takes a release-style folder whose name is a show title, a season marker
+// and nothing but release noise after it ("Show S01 {Hindi} 1080p BluRay
+// [Group]"), since those are how downloaded seasons usually arrive.
+func seasonOfDir(seg string) int {
+	seg = strings.TrimSpace(seg)
+	if reSpecials.MatchString(seg) {
+		return 0
+	}
+	if m := reSeasonDir.FindStringSubmatch(seg); m != nil {
+		return atoi(m[1])
+	}
+	clean := strings.TrimSpace(reBrackets.ReplaceAllString(seg, " "))
+	m := reSeasonIn.FindStringSubmatchIndex(clean)
+	if m == nil || m[2] == 0 {
+		return -1
+	}
+	// What follows the marker must be release noise only, so "Series 7
+	// Wonders" stays a show title.
+	if rest, _ := cleanTitle(clean[m[3]:]); rest != "" {
+		return -1
+	}
+	return atoi(clean[m[2]:m[3]])
+}
+
 // LooksLikeEpisode reports whether a path reads as a TV episode: an SxxEyy or
 // NxNN marker, or a file inside a "Season N"/"Specials" folder.
 func LooksLikeEpisode(rel string) bool {
@@ -195,7 +224,7 @@ func LooksLikeEpisode(rel string) bool {
 		return true
 	}
 	for _, seg := range strings.Split(path.Dir(rel), "/") {
-		if reSeasonDir.MatchString(seg) || reSpecials.MatchString(seg) {
+		if seasonOfDir(seg) >= 0 {
 			return true
 		}
 	}
@@ -233,14 +262,10 @@ func ParseEpisode(rel string) (ParsedEpisode, bool) {
 	// Season from the folder the file is in.
 	seasonFromDir := -1
 	showSegs := segs
-	if n := len(segs); n > 0 {
-		last := segs[n-1]
-		if reSpecials.MatchString(last) {
-			seasonFromDir = 0
-			showSegs = segs[:n-1]
-		} else if m := reSeasonDir.FindStringSubmatch(last); m != nil {
-			seasonFromDir, _ = strconv.Atoi(m[1])
-			showSegs = segs[:n-1]
+	if len(segs) > 0 {
+		if n := seasonOfDir(segs[len(segs)-1]); n >= 0 {
+			seasonFromDir = n
+			showSegs = segs[:len(segs)-1]
 		}
 	}
 

@@ -45,6 +45,11 @@ func TestParseEpisode(t *testing.T) {
 		{"Anime/Frieren/[SubsPlease] Frieren - 12 (1080p) [ABCD].mkv", "Frieren", "Anime/Frieren", 1, 12, 0, ""},
 		{"Dark/Season 1/03 - Past and Present.mkv", "Dark", "Dark", 1, 3, 0, "Past and Present"},
 		{"Dark/Season 1/Episode 4.mkv", "Dark", "Dark", 1, 4, 0, ""},
+		// Release-style season folders keep the show's own folder.
+		{"Game of Thrones/Game Of Thrones S01 {Hindi-English} 1080p (10bit) Bluray ESub [BollyFlix]/Game Of Thrones S01E01 {Hindi-English} 1080p (10bit) Bluray ESub [BollyFlix].mkv", "Game of Thrones", "Game of Thrones", 1, 1, 0, ""},
+		{"Game of Thrones/Game Of Thrones Season 2 {Hindi-English} 1080p (10Bit) BluRay ESub [BollyFlix]/Game Of Thrones S02E03 {Hindi-English} 1080p (10Bit) BluRay ESub [BollyFlix].mkv", "Game of Thrones", "Game of Thrones", 2, 3, 0, ""},
+		// A stray trailing space on the season folder.
+		{"Slow Horses/Season 6 /Slow Horses S06E01.mkv", "Slow Horses", "Slow Horses", 6, 1, 0, ""},
 	}
 	for _, c := range cases {
 		got, ok := ParseEpisode(c.rel)
@@ -100,5 +105,24 @@ func TestParseSubtitleName(t *testing.T) {
 func TestSortTitle(t *testing.T) {
 	if SortTitle("The Matrix") != "matrix" || SortTitle("A") != "a" {
 		t.Error("sort title")
+	}
+}
+
+func TestSeasonOfDir(t *testing.T) {
+	cases := map[string]int{
+		"Season 1":  1,
+		"Season 6 ": 6,
+		"S03":       3,
+		"Specials":  0,
+		"Game Of Thrones S01 {Hindi-English} 1080p (10bit) Bluray ESub [BollyFlix]": 1,
+		"Game Of Thrones Season 4 {Hindi-English} 720p BluRay ESub [BollyFlix]":     4,
+		"Series 7 Wonders":    -1,
+		"Breaking Bad (2008)": -1,
+		"Slow Horses":         -1,
+	}
+	for in, want := range cases {
+		if got := seasonOfDir(in); got != want {
+			t.Errorf("seasonOfDir(%q) = %d; want %d", in, got, want)
+		}
 	}
 }

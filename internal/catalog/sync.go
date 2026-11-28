@@ -587,8 +587,8 @@ func (s *syncer) syncLocalArtwork(images []fileRow) error {
 			}
 			// poster.jpg inside a season folder.
 			if id, ok := showFolders[path.Dir(dir)]; ok && kind == "poster" {
-				if m := reSeasonDir.FindStringSubmatch(path.Base(dir)); m != nil {
-					if sid, ok := s.seasonByKey[id+"/"+strconv.Itoa(atoi(m[1]))]; ok {
+				if n := seasonOfDir(path.Base(dir)); n >= 0 {
+					if sid, ok := s.seasonByKey[id+"/"+strconv.Itoa(n)]; ok {
 						if err := set("season", sid, "poster", img.rel); err != nil {
 							return err
 						}
